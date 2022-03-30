@@ -1,8 +1,8 @@
 #---------Path Setting-------------------#
-CHECKPOINT=checkpoints/test
-DATA_BIN=data-bin/iwslt14.tokenized.de-en
-MAX_TOKENS=6000
-MAX_EPOCH=300
+CHECKPOINT=checkpoints/testQQ
+DATA_BIN=data-bin/iwslt14.tokenized.de-en.distilled.reorder
+MAX_TOKENS=2500
+MAX_EPOCH=150
 CUR_START_EPOCH=300
 CUDA_DEVICES=0,1
 #---------Battleship Setting-------------#
@@ -28,7 +28,7 @@ CUR_START_EPOCH=$CUR_START_EPOCH
 if [ $BATTLE == "True" ] ; then
     echo "hrun $GPU -N $NODE -c $CPU -t $TIME -m $MEM  python train.py \\" >> $CHECKPOINT/temp.sh
 else
-    echo "CUDA_VISIBLE_DEVICES=$CUDA_DEVICES python train.py \\" >> $CHECKPOINT/temp.sh
+    echo "CUDA_VISIBLE_DEVICES=$CUDA_DEVICES  python train.py \\" >> $CHECKPOINT/temp.sh
 fi
 
 cat > $CHECKPOINT/temp1.sh << 'endmsg'
@@ -50,9 +50,13 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --no-epoch-checkpoints \
     --max-tokens $MAX_TOKENS \
     --max-epoch $MAX_EPOCH \
+    --max-positions 1024\
+    --max-source-positions 1024 \
+    --max-target-positions 1024 \
     --update-freq 4 \
     --noise random_mask \
     --encoder-causal-attn \
+    --num-upsampling-rate 3 \
     --save-interval 1
 #--curricular-learning \
 #--curricular-learning-start-epoch $CUR_START_EPOCH \
@@ -76,6 +80,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
 #--encoder-learned-pos \
 #--random-mask-rate 0 \
 #--num-upsampling-rate 3 \
+#--encoder-causal-attn \
 endmsg
 
 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip.sh

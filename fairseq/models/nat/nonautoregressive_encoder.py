@@ -1,4 +1,5 @@
 
+from email.policy import default
 import logging
 from typing import Dict, List, Optional
 import torch
@@ -15,7 +16,7 @@ from fairseq.modules import LayerNorm
 from fairseq.modules.quant_noise import quant_noise as apply_quant_noise_
 from fairseq.modules.transformer_sentence_encoder import init_bert_params
 from fairseq.utils import safe_getattr, safe_hasattr
-
+from fairseq.nat_encoder_generator import DataOut
 from fairseq.models.roberta import (
     RobertaModel,
     RobertaEncoder,
@@ -35,7 +36,7 @@ class NATRobertaModel(RobertaModel):
         self.eos = tgt_dict.eos()
         self.pad = tgt_dict.pad()
         self.unk = tgt_dict.unk()        
-        
+    
          
     @staticmethod
     def add_args(parser):
@@ -47,6 +48,7 @@ class NATRobertaModel(RobertaModel):
             action="store_true",
             help="encoder layer use the self causal attention",
         )    
+        
         
                
     @classmethod
@@ -64,7 +66,6 @@ class NATRobertaModel(RobertaModel):
             if not safe_hasattr(args, "tokens_per_sample"):
                 args.tokens_per_sample = task.max_positions()
             args.max_positions = args.tokens_per_sample
-        
         encoder = NATRobertaEcoder(args, task.source_dictionary, task.target_dictionary)
 
         if OmegaConf.is_config(args):
@@ -76,7 +77,7 @@ class NATRobertaModel(RobertaModel):
         self, src_tokens, src_lengths, prev_output_tokens, tgt_tokens, **kwargs
     ):
         source_noise_tokens = prev_output_tokens
-        logit, inner_state = self.encoder(src_tokens = src_tokens, features_only=False, 
+        logit, inner_state = self.encoder(src_tokens = source_noise_tokens, features_only=False, 
                                           return_all_hiddens=False, classification_head_name=None, 
                                           causal_attn=self.causal_attn,  **kwargs)
 
@@ -90,6 +91,50 @@ class NATRobertaModel(RobertaModel):
                 "nll_loss": True,
             },
         }
+        
+    def initialize_output_tokens(self, src_tokens, num_upsampling_rate=3):
+
+
+        initial_output_tokens = torch.repeat_interleave(src_tokens, num_upsampling_rate, dim=1)
+        initial_output_scores = initial_output_tokens.new_zeros(
+            *initial_output_tokens.size()
+        )
+        
+        return DataOut(
+            output_tokens=initial_output_tokens,
+            output_scores=initial_output_scores,
+            attn=None,
+            step=0,
+            max_step=0,
+            history=None,
+        )        
+    def forward_inference(self, data_out, **kwargs):
+        step = data_out.step
+        output_tokens = data_out.output_tokens
+        output_scores = data_out.output_scores
+        history = data_out.history        
+        
+        output_masks  = output_tokens.ne(self.pad)
+        logit, inner_state = self.encoder(src_tokens = output_tokens, features_only=False, 
+                                          return_all_hiddens=False, classification_head_name=None, 
+                                          causal_attn=self.causal_attn,  **kwargs)   
+        _scores, _tokens = F.log_softmax(logit,-1).max(-1)   
+        output_scores=output_scores.type_as(_scores)
+
+        output_tokens.masked_scatter_(output_masks, _tokens[output_masks])
+        output_scores.masked_scatter_(output_masks, _scores[output_masks]) 
+        if history is not None:
+            history.append(output_tokens.clone())                
+        return data_out._replace(
+            output_tokens=output_tokens,
+            output_scores=output_scores,
+            attn=None,
+            history=history,
+        )
+        
+        
+    
+
  
 class NATRobertaEcoder(RobertaEncoder):
     """NAT encoder."""
@@ -244,15 +289,16 @@ class TransformerCausalEncoder(TransformerEncoder):
                   hidden states of shape `(src_len, batch, embed_dim)`.
                   Only populated if *return_all_hiddens* is True.
         """
+        
         # compute padding mask
         encoder_padding_mask = src_tokens.eq(self.padding_idx)
         has_pads = src_tokens.device.type == "xla" or encoder_padding_mask.any()
-
         x, encoder_embedding = self.forward_embedding(src_tokens, token_embeddings)
 
         # account for padding while computing the representation
         if has_pads:
             x = x * (1 - encoder_padding_mask.unsqueeze(-1).type_as(x))
+ 
 
         # B x T x C -> T x B x C
         x = x.transpose(0, 1)
@@ -325,7 +371,8 @@ def base_architecture(args):
     args.activation_dropout = safe_getattr(args, "activation_dropout", 0.0)
     args.pooler_dropout = safe_getattr(args, "pooler_dropout", 0.0)
 
-    args.max_positions = safe_getattr(args, "max_positions", 512)
+    args.max_positions = safe_getattr(args, "max_positions", 1024)
+    args.max_source_positions = safe_getattr(args, "max_source_positions", 1024)
     args.no_token_positional_embeddings = safe_getattr(
         args, "no_token_positional_embeddings", False
     )

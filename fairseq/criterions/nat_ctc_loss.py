@@ -35,6 +35,19 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
         )
         self.pad_idx = task.target_dictionary.pad()
         self.eos_idx = task.target_dictionary.eos()    
+        self.num_umsamling_rate = task.cfg.num_upsampling_rate
+
+    @classmethod
+    def add_args(cls, parser):
+        LabelSmoothedDualImitationCriterion.add_args(parser)
+        """
+        parser.add_argument(
+            "--num-upsampling-rate",
+            type=int,
+            default=3,
+            help="number of upsampling in embedding of encoder input",
+        )
+        """            
     
     def _compute_ctc_loss(  #valex
         self, outputs, targets, masks=None, name="loss", factor=1.0, model=None, sample=None
@@ -57,9 +70,10 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
         lprobs = model.get_normalized_probs(
             [outputs], log_probs=True
         ).contiguous()  # (T, B, C) from the encoder 
-
+        
         if "src_lengths" in sample["net_input"]:
             input_lengths = sample["net_input"]["src_lengths"]
+            input_lengths = self.num_umsamling_rate*input_lengths              
         else:
             if outputs["padding_mask"] is not None:
                 non_padding_mask = ~outputs["padding_mask"]
@@ -77,7 +91,6 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
         else:
             target_lengths = pad_mask.sum(-1)
 
-        input_lengths = 1*input_lengths  
         lprobs = lprobs.transpose(0,1)    
         
         with torch.backends.cudnn.flags(enabled=False):

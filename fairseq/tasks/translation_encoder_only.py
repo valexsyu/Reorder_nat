@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from dataclasses import dataclass, field
+import imp
 import torch
 from fairseq import utils
 from fairseq.data import LanguagePairDataset
@@ -44,7 +45,6 @@ class TranslationEnocderOnly(TranslationTask):
     Translation (Sequence Generation) task for Levenshtein Transformer
     See `"Levenshtein Transformer" <https://arxiv.org/abs/1905.11006>`_.
     """
-
     cfg: TranslationLevenshteinConfig
 
     def load_dataset(self, split, epoch=1, combine=False, **kwargs):
@@ -160,6 +160,23 @@ class TranslationEnocderOnly(TranslationTask):
         else:
             raise NotImplementedError
 
+    def build_generator(self, models, args, **unused):
+        # add models input to match the API for SequenceGenerator
+        from fairseq.nat_encoder_generator import NATEncoderGenerator
+        return NATEncoderGenerator(
+            self.target_dictionary,
+            eos_penalty=getattr(args, "iter_decode_eos_penalty", 0.0),
+            max_iter=getattr(args, "iter_decode_max_iter", 1),
+            beam_size=getattr(args, "iter_decode_with_beam", 1),
+            reranking=getattr(args, "iter_decode_with_external_reranker", False),
+            decoding_format=getattr(args, "decoding_format", None),
+            adaptive=not getattr(args, "iter_decode_force_max_iter", False),
+            retain_history=getattr(args, "retain_iter_history", False),
+            num_upsampling_rate=self.cfg.num_upsampling_rate,
+        )
+
+
+
 
     def build_dataset_for_inference(self, src_tokens, src_lengths, constraints=None):
         if constraints is not None:
@@ -196,3 +213,4 @@ class TranslationEnocderOnly(TranslationTask):
         #source_toks =  torch.repeat_interleave(source_toks, self.src_upsample_rate, dim=1)
         source_toks =  torch.repeat_interleave(source_toks, self.cfg.num_upsampling_rate, dim=1)
         return source_toks      
+    
