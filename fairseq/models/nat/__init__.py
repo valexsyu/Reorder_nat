@@ -7,6 +7,7 @@
 from .fairseq_nat_model import *
 from .nonautoregressive_transformer import *
 from .nonautoregressive_encoder import *
+from .nonautoregressive_reorder_translation import *
 from .nat_crf_transformer import *
 from .iterative_nonautoregressive_transformer import *
 from .cmlm_transformer import *
