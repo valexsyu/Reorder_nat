@@ -76,12 +76,10 @@ class NATRobertaModel(RobertaModel):
     def forward(
         self, src_tokens, src_lengths, prev_output_tokens, tgt_tokens, **kwargs
     ):
-        source_noise_tokens = prev_output_tokens
-        logit, inner_state = self.encoder(src_tokens = source_noise_tokens, features_only=False, 
+        logit, inner_state = self.encoder(src_tokens = prev_output_tokens, features_only=False, 
                                           return_all_hiddens=False, classification_head_name=None, 
                                           causal_attn=self.causal_attn,  **kwargs)
 
-    
         return {
             "word_ins": {
                 "out": logit,
