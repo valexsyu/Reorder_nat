@@ -66,7 +66,7 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                 if dim is None
                 else x.float().mean(dim).type_as(x)
             )
-        
+            
         lprobs = model.get_normalized_probs(
             [outputs], log_probs=True
         ).contiguous()  # (T, B, C) from the encoder 

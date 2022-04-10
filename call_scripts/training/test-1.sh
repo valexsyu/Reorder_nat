@@ -1,5 +1,5 @@
 #---------Path Setting-------------------#
-CHECKPOINT=checkpoints/test_reorder_translation
+CHECKPOINT=checkpoints/test_gg
 DATA_BIN=data-bin/iwslt14.tokenized.de-en.distilled
 MAX_TOKENS=2500
 MAX_EPOCH=150
@@ -45,19 +45,16 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --fixed-validation-seed 7 \
     --save-interval-updates 10000 \
 	--criterion nat_ctc_loss \
-	--arch nonautoregressive_reorder_translation \
+	--arch nonautoregressive_roberta \
     --tensorboard-logdir $CHECKPOINT/tensorboard \
     --no-epoch-checkpoints \
     --max-tokens $MAX_TOKENS \
     --max-epoch $MAX_EPOCH \
-    --max-positions 1024\
     --max-source-positions 1024 \
     --max-target-positions 1024 \
     --update-freq 4 \
     --noise random_mask \
-    --encoder-causal-attn \
     --num-upsampling-rate 3 \
-    --reorder-translation reorder_translation \
     --save-interval 1
 #--curricular-learning \
 #--curricular-learning-start-epoch $CUR_START_EPOCH \
@@ -82,6 +79,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
 #--random-mask-rate 0 \
 #--num-upsampling-rate 3 \
 #--encoder-causal-attn \
+#--reorder-translation reorder \
 endmsg
 
 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip.sh
