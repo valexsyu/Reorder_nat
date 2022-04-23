@@ -74,9 +74,9 @@ class NATRobertaModel(RobertaModel):
         return cls(args, encoder, task.source_dictionary, task.target_dictionary)
                 
     def forward(
-        self, src_tokens, src_lengths, prev_output_tokens, tgt_tokens, **kwargs
+        self, src_tokens, src_lengths, tgt_tokens, **kwargs
     ):
-        logit, inner_state = self.encoder(src_tokens = prev_output_tokens, features_only=False, 
+        logit, inner_state = self.encoder(src_tokens = src_tokens, features_only=False, 
                                           return_all_hiddens=False, classification_head_name=None, 
                                           causal_attn=self.causal_attn,  **kwargs)
 
@@ -84,9 +84,10 @@ class NATRobertaModel(RobertaModel):
             "word_ins": {
                 "out": logit,
                 "tgt": tgt_tokens,
-                "mask": tgt_tokens.ne(self.pad),
+                "mask": None if tgt_tokens is None else tgt_tokens.ne(self.pad),
                 "ls": self.args.label_smoothing,
                 "nll_loss": True,
+                "loss_type": "CTC",
             },
         }
         
@@ -138,7 +139,6 @@ class NATRobertaEcoder(RobertaEncoder):
     """NAT encoder."""
     def __init__(self, args, src_dictionary, tgt_dictionary):
         super().__init__(args, src_dictionary)
-        
         self.lm_head = self.build_lm_head(
             embed_dim=args.encoder_embed_dim,
             output_dim=len(tgt_dictionary),
@@ -149,6 +149,7 @@ class NATRobertaEcoder(RobertaEncoder):
                 else None
             ),
         )         
+        self.global_token = args.global_token
         
     def build_encoder(self, args, dictionary, embed_tokens):
         encoder = TransformerCausalEncoder(args, dictionary, embed_tokens)
@@ -205,7 +206,9 @@ class TransformerCausalEncoder(TransformerEncoder):
     def __init__(self, args, dictionary, embed_tokens, return_fc=False):
         super().__init__(args, dictionary, embed_tokens, return_fc=False)    
         self._future_mask = torch.empty(0)
-    def buffered_future_mask(self, tensor):
+        self.global_token = args.global_token
+    def buffered_future_mask(self, tensor):                          ###########add globa token all atten and shift atten
+        
         dim = tensor.size(0)
         # self._future_mask.device != tensor.device is not working in TorchScript. This is a workaround.
         if (
@@ -216,6 +219,8 @@ class TransformerCausalEncoder(TransformerEncoder):
             self._future_mask = torch.triu(
                 utils.fill_with_neg_inf(torch.zeros([dim, dim])), 1
             )
+        if self.global_token :
+            self._future_mask[0].fill_(0)       # globa_token is all atten
         self._future_mask = self._future_mask.to(tensor)
         return self._future_mask[:dim, :dim]
         

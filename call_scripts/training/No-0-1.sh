@@ -1,17 +1,17 @@
 #---------Path Setting-------------------#
-CHECKPOINT=checkpoints/test_gg
-DATA_BIN=data-bin/iwslt14.tokenized.de-en.distilled
-MAX_TOKENS=2500
-MAX_EPOCH=150
+CHECKPOINT=checkpoints/No-0-1-reorder
+DATA_BIN=data-bin/iwslt14.tokenized.de-deen.distilled
+MAX_TOKENS=35000
+MAX_EPOCH=400
 CUR_START_EPOCH=300
 CUDA_DEVICES=0
 #---------Battleship Setting-------------#
-BATTLE="False"
-GPU="-GGG"
+BATTLE="True"
+GPU="-GGGG"
 NODE="s04"
-CPU="4"
+CPU="8"
 TIME="2-0"
-MEM="30"
+MEM="40"
 
 
 #----------RUN  Bash-----------------------------
@@ -26,7 +26,7 @@ CUR_START_EPOCH=$CUR_START_EPOCH
 "  > $CHECKPOINT/temp.sh
 
 if [ $BATTLE == "True" ] ; then
-    echo "hrun $GPU -N $NODE -c $CPU -t $TIME -m $MEM  python train.py \\" >> $CHECKPOINT/temp.sh
+    echo "hrun -x $GPU -N $NODE -c $CPU -t $TIME -m $MEM  python train.py \\" >> $CHECKPOINT/temp.sh
 else
     echo "CUDA_VISIBLE_DEVICES=$CUDA_DEVICES  python train.py \\" >> $CHECKPOINT/temp.sh
 fi
@@ -45,16 +45,21 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --fixed-validation-seed 7 \
     --save-interval-updates 10000 \
 	--criterion nat_ctc_loss \
-	--arch nonautoregressive_roberta \
+	--arch nonautoregressive_reorder_translation \
     --tensorboard-logdir $CHECKPOINT/tensorboard \
     --no-epoch-checkpoints \
     --max-tokens $MAX_TOKENS \
     --max-epoch $MAX_EPOCH \
-    --max-source-positions 1024 \
-    --max-target-positions 1024 \
-    --update-freq 4 \
-    --noise random_mask \
-    --num-upsampling-rate 3 \
+    --max-positions 512\
+    --max-source-positions 512 \
+    --max-target-positions 512 \
+    --noise no_noise \
+    --num-upsampling-rate 1 \
+    --reorder-translation reorder \
+    --left-pad-source \
+    --prepend-bos \
+    --add-blank-symbol \
+    --wandb-project ReorderNAT2-No-0-1 \
     --save-interval 1
 #--curricular-learning \
 #--curricular-learning-start-epoch $CUR_START_EPOCH \
@@ -79,7 +84,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
 #--random-mask-rate 0 \
 #--num-upsampling-rate 3 \
 #--encoder-causal-attn \
-#--reorder-translation reorder \
+#--update-freq 4 \
 endmsg
 
 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip.sh

@@ -1,17 +1,17 @@
 #---------Path Setting-------------------#
-CHECKPOINT=checkpoints/test_reorder_translation
-DATA_BIN=data-bin/iwslt14.tokenized.de-en.distilled
-MAX_TOKENS=2500
-MAX_EPOCH=150
+CHECKPOINT=checkpoints/No-0-3-translation
+DATA_BIN=data-bin/iwslt14.tokenized.de-en.distilled.reorder
+MAX_TOKENS=4000
+MAX_EPOCH=200
 CUR_START_EPOCH=300
 CUDA_DEVICES=0
 #---------Battleship Setting-------------#
-BATTLE="False"
-GPU="-GGG"
+BATTLE="True"
+GPU="-GGGGG"
 NODE="s04"
-CPU="4"
+CPU="5"
 TIME="2-0"
-MEM="30"
+MEM="40"
 
 
 #----------RUN  Bash-----------------------------
@@ -26,7 +26,7 @@ CUR_START_EPOCH=$CUR_START_EPOCH
 "  > $CHECKPOINT/temp.sh
 
 if [ $BATTLE == "True" ] ; then
-    echo "hrun $GPU -N $NODE -c $CPU -t $TIME -m $MEM  python train.py \\" >> $CHECKPOINT/temp.sh
+    echo "hrun -x $GPU -N $NODE -c $CPU -t $TIME -m $MEM  python train.py \\" >> $CHECKPOINT/temp.sh
 else
     echo "CUDA_VISIBLE_DEVICES=$CUDA_DEVICES  python train.py \\" >> $CHECKPOINT/temp.sh
 fi
@@ -53,11 +53,9 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --max-positions 1024\
     --max-source-positions 1024 \
     --max-target-positions 1024 \
-    --update-freq 4 \
-    --noise random_mask \
-    --encoder-causal-attn \
+    --noise no_noise \
     --num-upsampling-rate 3 \
-    --reorder-translation reorder_translation \
+    --reorder-translation translation \
     --save-interval 1
 #--curricular-learning \
 #--curricular-learning-start-epoch $CUR_START_EPOCH \
@@ -82,6 +80,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
 #--random-mask-rate 0 \
 #--num-upsampling-rate 3 \
 #--encoder-causal-attn \
+#--update-freq 4 \
 endmsg
 
 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip.sh

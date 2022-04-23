@@ -27,7 +27,6 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
 
     def __init__(self, task, label_smoothing):
         super().__init__(task, label_smoothing)
-
         self.blank_idx = (
             task.target_dictionary.index(task.blank_symbol)
             if hasattr(task, "blank_symbol")
@@ -36,6 +35,7 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
         self.pad_idx = task.target_dictionary.pad()
         self.eos_idx = task.target_dictionary.eos()    
         self.num_umsamling_rate = task.cfg.num_upsampling_rate
+        self.global_token = task.cfg.global_token
 
     @classmethod
     def add_args(cls, parser):
@@ -66,7 +66,8 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                 if dim is None
                 else x.float().mean(dim).type_as(x)
             )
-            
+        if self.global_token :
+            outputs = outputs[:,1:,:]   # remove the bos token
         lprobs = model.get_normalized_probs(
             [outputs], log_probs=True
         ).contiguous()  # (T, B, C) from the encoder 
@@ -82,9 +83,10 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                 input_lengths = lprobs.new_full(
                     (lprobs.size(1),), lprobs.size(0), dtype=torch.long
                 )
+        
         pad_mask = (targets != self.pad_idx) & (
-            targets != self.eos_idx ) & (targets != self.blank_idx  # valex
-        )        
+                    targets != self.eos_idx 
+        )         
         targets_flat = targets.masked_select(pad_mask)
         if "target_lengths" in sample:
             target_lengths = sample["target_lengths"]
@@ -101,7 +103,7 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                 target_lengths,
                 blank=self.blank_idx, 
                 reduction="mean",
-                zero_infinity=True,
+                zero_infinity=False,
             )  
 
         loss = loss * factor
@@ -171,13 +173,14 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
             sample["net_input"]["src_tokens"],
             sample["net_input"]["src_lengths"],
         )
-        tgt_tokens, prev_output_tokens = sample["target"], sample["prev_target"]
+        #tgt_tokens, prev_output_tokens = sample["target"], sample["prev_target"]
+        tgt_tokens, src_noise_tokens = sample["target"], sample["src_noise_tokens"]
 
-        outputs = model(src_tokens, src_lengths, prev_output_tokens, tgt_tokens)
+        outputs = model(src_tokens, src_lengths, src_noise_tokens, tgt_tokens)
         losses, nll_loss = [], []
 
         for obj in outputs:
-            if outputs[obj].get("loss", None) is None:
+            if outputs[obj].get("loss_type", "CTC") == "CTC":
                 _losses = self._compute_ctc_loss(
                     outputs[obj].get("out"),
                     outputs[obj].get("tgt"),
@@ -187,6 +190,15 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                     model=model,
                     sample=sample,
                 )
+            elif outputs[obj].get("loss_type", "CTC") == "NLL":
+                _losses = self._compute_loss(
+                    outputs[obj].get("out"),
+                    outputs[obj].get("tgt"),
+                    outputs[obj].get("mask", None),
+                    outputs[obj].get("ls", 0.0),
+                    name=obj + "-loss",
+                    factor=outputs[obj].get("factor", 1.0),
+                )                
             else:
                 _losses = self._custom_loss(
                     outputs[obj].get("loss"),

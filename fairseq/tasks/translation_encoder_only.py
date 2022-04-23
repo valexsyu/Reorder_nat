@@ -19,10 +19,11 @@ from fairseq.utils import new_arange
 
 
 NOISE_CHOICES = ChoiceEnum(["random_delete", "random_mask", "no_noise", "full_mask"])
+FREEZE_MODULE = ChoiceEnum(["reorder", "translator","None"])
 
 
 @dataclass
-class TranslationLevenshteinConfig(TranslationConfig):
+class TranslationEncoderOnlyConfig(TranslationConfig):
     noise: NOISE_CHOICES = field(
         default="random_delete",
         metadata={"help": "type of noise"},
@@ -34,18 +35,46 @@ class TranslationLevenshteinConfig(TranslationConfig):
 
     random_mask_rate: float = field(
         default=0.2, metadata={"help": "The multiplier value of the source upsampling "},
+    )   
+    freeze_module: FREEZE_MODULE = field(
+        default="None",
+        metadata={"help": "choose a module to freeze"},
+    )
+    add_blank_symbol: bool = field(
+        default=False, metadata={"help": "add the blank symbol in the target dictionary"},
+    )     
+    prepend_bos: bool = field(
+        default=True, metadata={"help": "if set, without bos token"},
     )      
+       
+    global_token: bool = field(
+        default=False, metadata={"help": "if set, use global_token but not calculate loss in nat_ctc_loss"},
+    )     
+    
+
     
     
 
 
-@register_task("translation_encoder_only", dataclass=TranslationLevenshteinConfig)
+@register_task("translation_encoder_only", dataclass=TranslationEncoderOnlyConfig)
 class TranslationEnocderOnly(TranslationTask):
     """
     Translation (Sequence Generation) task for Levenshtein Transformer
     See `"Levenshtein Transformer" <https://arxiv.org/abs/1905.11006>`_.
     """
-    cfg: TranslationLevenshteinConfig
+    cfg: TranslationEncoderOnlyConfig
+
+    def __init__(self, cfg: TranslationEncoderOnlyConfig, src_dict, tgt_dict):
+        super().__init__(cfg, src_dict, tgt_dict)
+        if cfg.add_blank_symbol :
+            self.blank_symbol = '<blank>'
+            self.tgt_dict.add_symbol(self.blank_symbol)
+            self.src_dict.add_symbol(self.blank_symbol)
+            def blank_symbol(self):
+                return self.blank_symbol 
+        self.prepend_bos = cfg.prepend_bos
+
+  
 
     def load_dataset(self, split, epoch=1, combine=False, **kwargs):
         """Load a given dataset split.
@@ -56,10 +85,8 @@ class TranslationEnocderOnly(TranslationTask):
         paths = utils.split_paths(self.cfg.data)
         assert len(paths) > 0
         data_path = paths[(epoch - 1) % len(paths)]
-
         # infer langcode
         src, tgt = self.cfg.source_lang, self.cfg.target_lang
-
         self.datasets[split] = load_langpair_dataset(
             data_path,
             split,
@@ -74,7 +101,7 @@ class TranslationEnocderOnly(TranslationTask):
             left_pad_target=self.cfg.left_pad_target,
             max_source_positions=self.cfg.max_source_positions,
             max_target_positions=self.cfg.max_target_positions,
-            prepend_bos=True,
+            prepend_bos=self.prepend_bos,
         )
 
     def inject_noise(self, target_tokens):
@@ -192,9 +219,20 @@ class TranslationEnocderOnly(TranslationTask):
     def train_step(
         self, sample, model, criterion, optimizer, update_num, ignore_grad=False
     ):
-        model.train()
-        sample["prev_target"] = self.inject_noise(sample["net_input"]["src_tokens"])
-        sample["prev_target"] = self.upsampling(sample["prev_target"])
+        if update_num == 0 :
+            model.load_pretrained_model()
+
+        if self.cfg.freeze_module == "None" :
+            model.train()
+        elif self.cfg.freeze_module == "reorder" :
+            model.train()
+            model.reorder.eval()
+        elif self.cfg.freeze_module == "translator" :
+            model.train()
+            model.translator.eval()    
+        #sample["prev_target"] = self.inject_noise(sample["net_input"]["src_tokens"])
+        #sample["prev_target"] = self.upsampling(sample["prev_target"])
+        sample["src_noise_tokens"] = self.inject_noise(sample["net_input"]["src_tokens"])
         loss, sample_size, logging_output = criterion(model, sample)
         if ignore_grad:
             loss *= 0
@@ -204,13 +242,13 @@ class TranslationEnocderOnly(TranslationTask):
     def valid_step(self, sample, model, criterion):
         model.eval()
         with torch.no_grad():
-            sample["prev_target"] = self.inject_noise(sample["net_input"]["src_tokens"])         
-            sample["prev_target"] = self.upsampling(sample["prev_target"])
+            #sample["prev_target"] = self.inject_noise(sample["net_input"]["src_tokens"])         
+            #sample["prev_target"] = self.upsampling(sample["prev_target"])
+            sample["src_noise_tokens"] = self.inject_noise(sample["net_input"]["src_tokens"])
             loss, sample_size, logging_output = criterion(model, sample)
         return loss, sample_size, logging_output
 
     def upsampling(self, source_toks): #valex
-        #source_toks =  torch.repeat_interleave(source_toks, self.src_upsample_rate, dim=1)
         source_toks =  torch.repeat_interleave(source_toks, self.cfg.num_upsampling_rate, dim=1)
         return source_toks      
     

@@ -56,7 +56,35 @@ def get_symbols_to_strip_from_output(generator):
     else:
         return {generator.eos}
 
-
+def removeDuplicates(S):  #valex
+         
+    n = len(S)
+     
+    # We don't need to do anything for
+    # empty or single character string.
+    if (n < 2) :
+        return
+         
+    # j is used to store index is result
+    # string (or index of current distinct
+    # character)
+    j = 0
+     
+    # Traversing string
+    for i in range(n):
+         
+        # If current character S[i]
+        # is different from S[j]
+        if (S[j] != S[i]):
+            j += 1
+            S[j] = S[i]
+     
+    # Putting string termination
+    # character.
+    j += 1
+    S = S[:j]
+    return S       
+    
 def _main(cfg: DictConfig, output_file):
     logging.basicConfig(
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
@@ -269,6 +297,14 @@ def _main(cfg: DictConfig, output_file):
                     remove_bpe=cfg.common_eval.post_process,
                     extra_symbols_to_ignore=get_symbols_to_strip_from_output(generator),
                 )
+                #valex
+                _tokens = list(hypo_str.split())
+                if len(_tokens) > 1 :
+                    result = removeDuplicates(_tokens) 
+                else:
+                    result = _tokens                    
+                hypo_str = ' '.join(result)
+                #valex                
                 detok_hypo_str = decode_fn(hypo_str)
                 if not cfg.common_eval.quiet:
                     score = hypo["score"] / math.log(2)  # convert to base 2
@@ -410,7 +446,7 @@ def cli_main():
         "model args (e.g. `AudioPretraining`)",
     )
     args = options.parse_args_and_arch(parser)
-    import pdb;pdb.set_trace()
+    
     main(args)
 
 
