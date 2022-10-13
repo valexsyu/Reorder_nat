@@ -73,20 +73,26 @@ def average_checkpoints(inputs):
     return new_state
 
 
-def last_n_checkpoints(paths, n, update_based, upper_bound=None):
+def last_n_checkpoints(paths, n, update_based, upper_bound=None, ckpref=None):
     assert len(paths) == 1
     path = paths[0]
-    if update_based:
-        pt_regexp = re.compile(r"checkpoint_\d+_(\d+)\.pt")
-    else:
-        pt_regexp = re.compile(r"checkpoint(\d+)\.pt")
+    if ckpref is not None:
+        if update_based:
+            pt_regexp = re.compile(r"checkpoint.best_bleu_\d+_(\d+)\.pt")
+        else:
+            pt_regexp = re.compile(r"checkpoint.best_bleu_(\d+.*)\.pt")       
+    else: 
+        if update_based:
+            pt_regexp = re.compile(r"checkpoint_\d+_(\d+)\.pt")
+        else:
+            pt_regexp = re.compile(r"checkpoint(\d+)\.pt")
     files = PathManager.ls(path)
-
+    
     entries = []
     for f in files:
         m = pt_regexp.fullmatch(f)
         if m is not None:
-            sort_key = int(m.group(1))
+            sort_key = float(m.group(1))
             if upper_bound is None or sort_key <= upper_bound:
                 entries.append((sort_key, m.group(0)))
     if len(entries) < n:
@@ -121,6 +127,8 @@ def main():
                         'e.g., with --num-update-checkpoints=10 --checkpoint-upper-bound=50000, checkpoints 40500-50000 would'
                         ' be averaged assuming --save-interval-updates 500'
                         )
+    parser.add_argument("--ckpref", type=str, default=None,
+                       help="train file prefix (also used to build dictionaries)")                        
     # fmt: on
     args = parser.parse_args()
     print(args)
@@ -147,6 +155,7 @@ def main():
             num,
             is_update_based,
             upper_bound=args.checkpoint_upper_bound,
+            ckpref=args.ckpref,
         )
         print("averaging checkpoints: ", args.inputs)
 

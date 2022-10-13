@@ -29,6 +29,9 @@ from fairseq.utils import safe_getattr, safe_hasattr
 logger = logging.getLogger(__name__)
 
 
+
+
+
 @register_model("nonautoregressive_reorder_translation") 
 class NATReorderTranslation(BaseFairseqModel):
     def __init__(self, args, reorder, translator, src_dict, tgt_dict):
@@ -43,10 +46,17 @@ class NATReorderTranslation(BaseFairseqModel):
         self.eos = tgt_dict.eos()
         self.pad = tgt_dict.pad()
         self.unk = tgt_dict.unk()              
-        self.freeze_module = args.freeze_module
+        #self.freeze_module = args.freeze_module
         self.pretrained_reorder = args.pretrained_reorder
         self.pretrained_translation = args.pretrained_translation
-        self.global_token = args.global_token
+        self.voc_token = torch.range(0, src_dict.__len__()-1,dtype=float,requires_grad=True)
+        self.voc_size = src_dict.__len__()
+        self.kl_div = nn.KLDivLoss(reduction="batchmean",log_target=True)
+        self.mse = nn.MSELoss(reduce=False)
+        self.reorder_factor = 2
+        self.TEST_STEP=0 
+        self.TEST_NUM=1000   
+
     @staticmethod
     def add_args(parser):
         """Add model-specific arguments to the parser."""
@@ -106,26 +116,16 @@ class NATReorderTranslation(BaseFairseqModel):
             model.load_state_dict(new_state_dict) 
         if self.pretrained_reorder is not None:
             load_checkpoint(self.reorder, self.pretrained_reorder, 8)
+            print("Load pretrained reorder , path:{}".format(self.pretrained_reorder))
         if self.pretrained_translation is not None:
             load_checkpoint(self.translator, self.pretrained_translation, 11) 
+            print("Load pretrained translator , path:{}".format(self.pretrained_translation))
 
                
     @classmethod
     def build_model(cls, args, task):
         """Build a new model instance."""
-        def load_pretrained_model(model, path, num_rm_keystr=0):
-                checkpoint = torch.load(path)
-                from collections import OrderedDict
-                new_state_dict = OrderedDict()
-                for k, v in checkpoint['model'].items():
-                    if k[num_rm_keystr:] == 'translat':
-                        pass
-                    else:
-                        name = k[num_rm_keystr:] # remove `translator.`
-                        new_state_dict[name] = v  
-                # load params
-                model.load_state_dict(new_state_dict) 
-        
+       
         from omegaconf import OmegaConf
 
         if OmegaConf.is_config(args):
@@ -139,47 +139,38 @@ class NATReorderTranslation(BaseFairseqModel):
             args.max_positions = args.tokens_per_sample
             
         if args.reorder_translation == "reorder_translation" :
+            #-----Force setting the reorder -----#
+            # global_token = False
+            # encoder_causal_atten = False
+            # max_positions = 512
+            # max_source_positions = 512
+            temp_encoder_causal_attn = args.encoder_causal_attn             
+            temp_global_token = args.global_token            
             args.max_positions = 512     
             args.max_source_positions = 512             
-              
-            if args.encoder_causal_attn :
-                args.encoder_causal_attn = False
-                reorder_encoder = NATRobertaEcoder(args, task.source_dictionary, task.source_dictionary)
-                args.encoder_causal_attn = True  
-                reorder = NATRobertaModel(args, reorder_encoder, task.source_dictionary ,  task.source_dictionary)
-            else:
-                reorder_encoder = NATRobertaEcoder(args, task.source_dictionary, task.source_dictionary) 
-                reorder = NATRobertaModel(args, reorder_encoder, task.source_dictionary ,  task.source_dictionary)
+            args.encoder_causal_attn = False
+            args.global_token = False
+
+            reorder_encoder = NATRobertaEcoder(args, task.source_dictionary, task.source_dictionary)
+            args.global_token = temp_global_token
+            args.encoder_causal_attn = temp_encoder_causal_attn
+            reorder = NATRobertaModel(args, reorder_encoder, task.source_dictionary ,  task.source_dictionary)
             
             args.max_positions = 1024                                       
             args.max_source_positions = 1024    
             translator_encoder = NATRobertaEcoder(args, task.source_dictionary, task.target_dictionary)      
             translator = NATRobertaModel(args,  translator_encoder, task.source_dictionary, task.target_dictionary)  
-            """
-            if args.pretrained_reorder is not None:
-                load_pretrained_model(reorder, args.pretrained_reorder, 8)
-            if args.pretrained_translation is not None:
-                load_pretrained_model(translator, args.pretrained_translation, 11)   
-            """
                         
         elif args.reorder_translation == "reorder" : 
             reorder_encoder = NATRobertaEcoder(args, task.source_dictionary, task.source_dictionary)
             reorder = NATRobertaModel(args, reorder_encoder, task.source_dictionary ,  task.source_dictionary)
             translator = None
-            """
-            if args.pretrained_reorder is not None:
-                load_pretrained_model(reorder, args.pretrained_reorder, 8)
-            """
             
         elif args.reorder_translation == "translation" :
             translator_encoder = NATRobertaEcoder(args, task.source_dictionary, task.target_dictionary)   
             reorder = None    
             translator = NATRobertaModel(args, translator_encoder, task.source_dictionary, task.target_dictionary)  
-            """
-            if args.pretrained_translation is not None:
-                load_pretrained_model(translator, args.pretrained_translation, 11)     
-            """
-            
+           
         else:
             import pdb;pdb.set_trace()
             print("Error: wrong input in args.reorder_translation")       
@@ -194,10 +185,9 @@ class NATReorderTranslation(BaseFairseqModel):
     
     def forward(
         self, src_tokens, src_lengths, src_noise_tokens, 
-        tgt_tokens, **kwargs):
+        tgt_tokens, freeze_module,  **kwargs):
         if self.reorder_translation == "reorder_translation" :
-            
-            output = self.reorder_translation_forward(src_tokens, src_lengths, tgt_tokens, **kwargs )
+            output = self.reorder_translation_forward(src_tokens, src_lengths, tgt_tokens, freeze_module, **kwargs )
         elif self.reorder_translation == "reorder" : 
             output = self.reorder_forward(src_tokens, src_lengths, tgt_tokens, **kwargs)
         elif self.reorder_translation == "translation" : 
@@ -224,48 +214,111 @@ class NATReorderTranslation(BaseFairseqModel):
         
         
     def translator_forward(
-        self, src_tokens, src_lengths, tgt_tokens, **kwargs
-    ):
-        upsampled_toks = self.upsampling(src_tokens)
-        if self.global_token :           ############global token and prebos 
-            upsampled_toks = self.add_bos_token(upsampled_toks)
-
+        self, src_tokens, src_lengths, tgt_tokens, token_embeddings=None, **kwargs
+    ): 
+        
+        upsampled_toks = self.upsampling(src_tokens, self.num_upsampling_rate)
+        if token_embeddings is not None:
+            upsampled_token_embedding = self.upsampling(token_embeddings, self.num_upsampling_rate)
+        else:
+            upsampled_token_embedding = None
         outputs = self.translator(src_tokens=upsampled_toks, src_lengths=None, 
-                                  tgt_tokens=tgt_tokens, **kwargs)
-
+                                  tgt_tokens=tgt_tokens, token_embeddings=upsampled_token_embedding, **kwargs)       
         return outputs
     
     def reorder_translation_forward(
-        self, src_tokens, src_lengths,tgt_tokens, **kwargs
+        self, src_tokens, src_lengths,tgt_tokens, freeze_module=None, **kwargs
     ):
-        no_grad_condition = True if self.freeze_module=="reorder" and self.training else False
-        with torch.set_grad_enabled(not no_grad_condition):
-            reorder_outputs = self.reorder(src_tokens=src_tokens, src_lengths=None, 
-                                           tgt_tokens=tgt_tokens, **kwargs)
-            
-            vocabulary_mask = torch.ones((reorder_outputs['word_ins']['out'].size(0),
-                                        reorder_outputs['word_ins']['out'].size(2)),
-                                        dtype=bool,
-                                        device=src_tokens.device).scatter_(1,src_tokens,0).unsqueeze(1)
-            
-            reorder_outputs['word_ins']['out'] = reorder_outputs['word_ins']['out'].masked_fill(vocabulary_mask, float("-inf"))
-            
-            reorder_onehot = F.gumbel_softmax(reorder_outputs['word_ins']['out'], hard=True).type_as(src_tokens)
-            reorder_voc = torch.argmax(reorder_onehot, dim=-1)
-           
-            upsampled_toks = self.upsampling(reorder_voc)
-            if self.global_token :
-                upsampled_toks = self.add_bos_token(upsampled_toks)
+        def kl_div(reorder_onehot , src_tokens):
+            q = F.log_softmax(torch.sum(reorder_onehot, dim=1))
+            src_onehot = F.one_hot(src_tokens, num_classes=self.voc_size).type_as(reorder_onehot)
+            p = F.log_softmax(torch.sum(src_onehot, dim=1))
+            kl_loss = self.kl_div(q , p)
+            return kl_loss            
+        
+        def mse_weight(reorder_onehot , src_tokens, src_len, miss_len, factor=1):
+            q = torch.sum(reorder_onehot, dim=1)
+            src_onehot = F.one_hot(src_tokens, num_classes=self.voc_size).type_as(reorder_onehot)
+            p = torch.sum(src_onehot, dim=1)
+            weight = torch.div(torch.FloatTensor(miss_len).to(src_len.device), src_len)
+            mse_loss = torch.mul(self.mse(q, p).sum(-1), weight).mean()
+            #mse_loss = self.mse(q, p, reduction='none')
+            return mse_loss
+        def miss_token_sentance(prediction, target) :
+            miss_len=[]
+            miss_tokens=[]
+            for index, (pred, tgt) in enumerate(zip(prediction, target)):
+                miss_tok = ([x for x in tgt.tolist() if x not in pred.tolist()])
+                miss_len.append(len(miss_tok))
+                miss_tokens.append(miss_tok)
+            return miss_len, miss_tokens
 
-        no_grad_condition = True if self.freeze_module=="translator" and self.training else False   
-        with torch.set_grad_enabled(not no_grad_condition):        
-            outputs = self.translator(src_tokens=upsampled_toks, src_lengths=None, 
-                                      tgt_tokens=tgt_tokens, **kwargs)   
+
+
+        no_grad_condition = True if freeze_module=="reorder" and self.training else False
+        with torch.set_grad_enabled(not no_grad_condition):            
+            reorder_logit = self.reorder_forward(src_tokens, src_lengths, None, **kwargs)['word_ins']['out']
+            
+            reorder_onehot = F.gumbel_softmax(reorder_logit,tau=1, hard=True)   
+            embed_weight = self.translator.encoder.sentence_encoder.embed_tokens._parameters['weight']
+            token_embeddings = torch.matmul(reorder_onehot,embed_weight)
+
+            b,l = src_tokens.size()
+            mask_pad = src_tokens.eq(self.pad).unsqueeze(-1)
+            token_embeddings = token_embeddings.masked_scatter(mask_pad, embed_weight[self.pad].expand(b,l,-1))
+            """
+            for i in range(src_tokens.size(0)) :
+                for j in range(src_tokens.size(1)):
+                    if src_tokens[i][j] == self.pad :
+                        token_embeddings[i][j] = embed_weight[self.pad]
+            """
+            
+
+            self.voc_token = self.voc_token.type_as(reorder_logit)  
+            reorder_voc = torch.matmul(reorder_onehot, self.voc_token.unsqueeze(-1)).type_as(src_tokens).squeeze(-1)
+            reorder_voc = self.padding_from_source(reorder_voc, self.pad, src_tokens)
+            if not freeze_module=="reorder" :
+                #kl_loss = kl_div(reorder_onehot , src_tokens)*self.reorder_factor
+                miss_len, miss_tok = miss_token_sentance(reorder_voc, src_tokens)
+                mse_loss = mse_weight(reorder_onehot , src_tokens, src_lengths, miss_len, self.reorder_factor)
+        no_grad_condition = True if freeze_module=="translator" and self.training else False
+        with torch.set_grad_enabled(not no_grad_condition): 
+            outputs = self.translator_forward(src_tokens=reorder_voc, src_lengths=None, 
+                                      tgt_tokens=tgt_tokens,token_embeddings=token_embeddings, **kwargs)        
+
         if no_grad_condition :
             outputs['word_ins']['out'].requires_grad_(True)  
-                             
-                                  
         
+        if not freeze_module=="reorder" :
+            outputs["reorder"] = {
+                "loss": mse_loss,
+                "factor" : self.reorder_factor,
+                "loss_type": "loss",
+            }
+
+
+        #test======================================
+        if self.TEST_STEP % self.TEST_NUM == 0 :
+            print("Step:{}".format(self.TEST_STEP))
+            print("Sourcee:{}".format(src_tokens[0]))
+            print("Reorder:{}".format(reorder_voc[0]))
+
+            test_miss_len, test_miss_token = miss_token_sentance([reorder_voc[0]], [src_tokens[0]])
+            #test_miss_token = ([x for x in src_tokens[0].tolist() if x not in reorder_voc[0].tolist()])
+            test_kl_loss = kl_div(torch.unsqueeze(reorder_onehot[0],dim=0) , 
+                                     torch.unsqueeze(src_tokens[0],dim=0))
+
+            test_mse_loss = mse_weight(torch.unsqueeze(reorder_onehot[0],dim=0) , 
+                                     torch.unsqueeze(src_tokens[0],dim=0),
+                                     src_lengths[0], test_miss_len, self.reorder_factor )
+            print("Reorder_Miss_token:{}    len:{}     KL_DISS:{:2.5f}   MSE:{:2.5f}".format(
+                                     test_miss_token,test_miss_len,test_kl_loss,test_mse_loss))
+            test_output = torch.argmax(outputs['word_ins']['out'][0], dim=-1)
+            print("Pred:{}".format(torch.unique_consecutive(test_output[test_output!= 10160])))     
+            print("tgtt:{}".format(tgt_tokens[0]))        
+            
+        self.TEST_STEP += 1
+        #=========================================test
 
         return outputs    
         
@@ -278,14 +331,8 @@ class NATReorderTranslation(BaseFairseqModel):
             return F.softmax(logits, dim=-1)
       
         
-    def initialize_output_tokens(self, src_tokens, num_upsampling_rate=3):
-        if self.reorder_translation == "reorder_translation" :
-            initial_output_tokens = src_tokens
-        elif self.reorder_translation == "reorder" : 
-            initial_output_tokens = src_tokens
-        elif self.reorder_translation == "translation" : 
-            initial_output_tokens = src_tokens
-
+    def initialize_output_tokens(self, src_tokens):
+        initial_output_tokens = src_tokens
         initial_output_scores = initial_output_tokens.new_zeros(
             *initial_output_tokens.size()
         )
@@ -305,17 +352,29 @@ class NATReorderTranslation(BaseFairseqModel):
         history = data_out.history        
         
         if self.reorder_translation == "reorder_translation" :
-            logit = self.reorder_forward(src_tokens=output_tokens, src_lengths=None, 
+            reorder_logit = self.reorder_forward(src_tokens=output_tokens, src_lengths=None, 
                                          tgt_tokens=None, **kwargs)['word_ins']['out']    
                                  
-            reorder_voc = torch.argmax(logit, dim=-1) 
-            #output_masks  = upsampled_toks.ne(self.pad)   ############## remove pad
-            #output_scores = self.upsampling(output_scores)   
-            logit = self.translator(src_tokens=reorder_voc, src_lengths=None,
-                                    tgt_tokens=None, **kwargs)['word_ins']['out']
-                                      
+            reorder_voc = torch.argmax(reorder_logit, dim=-1) 
+            
+            reorder_pad = self.padding_from_source(reorder_voc, self.pad, output_tokens)
+            for index,(source, reorder) in enumerate(zip(output_tokens, reorder_pad)):
+                miss_token = ([x for x in source if x not in reorder])
+                if len(miss_token) >3 :
+                    print("sourcee:{}".format(source))                 
+                    print("reorder:{}".format(reorder))  
+                    print("paddddd:{}".format(reorder_pad[index]))
+                    print("MISS TOKEN:{}".format(miss_token))
+                    print("=======================================================================")   
+                                   
+                    
+                
+            
+            reorder_voc = self.padding_from_source(reorder_voc, self.pad, output_tokens)
+            logit = self.translator_forward(src_tokens=reorder_voc, src_lengths=None, 
+                                      tgt_tokens=None, **kwargs)['word_ins']['out']               
+                           
         elif self.reorder_translation == "reorder" : 
-            output_masks  = output_tokens.ne(self.pad)
             logit = self.reorder_forward(src_tokens=output_tokens, src_lengths=None, 
                                          tgt_tokens=None, **kwargs)['word_ins']['out']
 
@@ -338,14 +397,16 @@ class NATReorderTranslation(BaseFairseqModel):
             history=history,
         )
         
-    def upsampling(self, source_toks): 
-        upsampled_toks =  torch.repeat_interleave(source_toks, self.num_upsampling_rate, dim=1)
+    def upsampling(self, source_toks, num_upsampling_rate): 
+        upsampled_toks =  torch.repeat_interleave(source_toks, num_upsampling_rate, dim=1)
         return upsampled_toks
 
-    def add_bos_token(self, source_toks):
-        bos = torch.Tensor([self.bos]).type_as(source_toks).expand(source_toks.size(0))
-        source_toks = torch.cat((bos.unsqueeze(1),source_toks),1)    
-        return source_toks    
+    def padding_from_source(self, tgt, pad_id, src):
+        src_masks  = src.eq(pad_id)             
+        tgt = tgt.masked_fill(src_masks,value=pad_id)
+        return tgt        
+       
+
 
         
         
@@ -405,7 +466,7 @@ def base_architecture(args):
     args.freeze_module = safe_getattr(args, "freeze_module", "None")
     args.pretrained_reorder = safe_getattr(args, "pretrained_reorder", None )
     args.pretrained_translation = safe_getattr(args, "pretrained_translation", None )
-    args.num_upsampling_rate = safe_getattr(args, "num_upsampling_rate", 3 )
+    args.num_upsampling_rate = safe_getattr(args, "num_upsampling_rate", 1 )
     #args.num_upsampling_rate = safe_getattr(args, "global_token", False )
 
 

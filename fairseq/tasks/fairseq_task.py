@@ -84,14 +84,22 @@ class FairseqTask(object):
         self.dataset_to_epoch_iter = dict()
         self.state = StatefulContainer()
 
-    @classmethod
-    def load_dictionary(cls, filename):
-        """Load the dictionary from the filename
+    # @classmethod  # valex
+    # def load_dictionary(cls, filename):
+    #     """Load the dictionary from the filename
 
+    #     Args:
+    #         filename (str): the filename
+    #     """
+    #     return Dictionary.load(filename)
+
+    @classmethod # valex
+    def load_dictionary(cls, filename, vocab_file):
+        """Load the dictionary from the filename
         Args:
             filename (str): the filename
         """
-        return Dictionary.load(filename)
+        return Dictionary.load(filename, vocab_file)    
 
     @classmethod
     def build_dictionary(

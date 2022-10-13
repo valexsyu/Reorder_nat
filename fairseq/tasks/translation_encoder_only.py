@@ -30,7 +30,7 @@ class TranslationEncoderOnlyConfig(TranslationConfig):
     )
 
     num_upsampling_rate: int = field(
-        default=3, metadata={"help": "The multiplier value of the source upsampling "},
+        default=1, metadata={"help": "The multiplier value of the source upsampling "},
     )  
 
     random_mask_rate: float = field(
@@ -50,8 +50,14 @@ class TranslationEncoderOnlyConfig(TranslationConfig):
     global_token: bool = field(
         default=False, metadata={"help": "if set, use global_token but not calculate loss in nat_ctc_loss"},
     )     
-    
 
+    iterative_reorder_translator: bool = field(
+        default=False, metadata={"help": "if set, iterative training reorder and translator"},
+    )     
+    
+    iter_num_reorder: int = field(
+        default=2, metadata={"help": "reorder traning after the numbers of translator  "},
+    )  
     
     
 
@@ -73,6 +79,10 @@ class TranslationEnocderOnly(TranslationTask):
             def blank_symbol(self):
                 return self.blank_symbol 
         self.prepend_bos = cfg.prepend_bos
+        self.freeze_module = self.cfg.freeze_module
+        self.iter_num_reorder = cfg.iter_num_reorder 
+        self.iterative_reorder_translator = cfg.iterative_reorder_translator
+        self.switch = True
 
   
 
@@ -192,6 +202,7 @@ class TranslationEnocderOnly(TranslationTask):
         from fairseq.nat_encoder_generator import NATEncoderGenerator
         return NATEncoderGenerator(
             self.target_dictionary,
+            self.source_dictionary,
             eos_penalty=getattr(args, "iter_decode_eos_penalty", 0.0),
             max_iter=getattr(args, "iter_decode_max_iter", 1),
             beam_size=getattr(args, "iter_decode_with_beam", 1),
@@ -199,7 +210,7 @@ class TranslationEnocderOnly(TranslationTask):
             decoding_format=getattr(args, "decoding_format", None),
             adaptive=not getattr(args, "iter_decode_force_max_iter", False),
             retain_history=getattr(args, "retain_iter_history", False),
-            num_upsampling_rate=self.cfg.num_upsampling_rate,
+            add_blank_symbol=self.cfg.add_blank_symbol,
         )
 
 
@@ -218,22 +229,38 @@ class TranslationEnocderOnly(TranslationTask):
 
     def train_step(
         self, sample, model, criterion, optimizer, update_num, ignore_grad=False
-    ):
+    ):  
+        model.train()
+        sample["src_noise_tokens"] = self.inject_noise(sample["net_input"]["src_tokens"])
+
         if update_num == 0 :
             model.load_pretrained_model()
+            print("load_pretrained_model")
+            #import wandb
+            #wandb.watch(model, criterion=criterion, log='all',log_freq=3000, log_graph=(False))    
 
-        if self.cfg.freeze_module == "None" :
-            model.train()
-        elif self.cfg.freeze_module == "reorder" :
-            model.train()
-            model.reorder.eval()
-        elif self.cfg.freeze_module == "translator" :
-            model.train()
-            model.translator.eval()    
-        #sample["prev_target"] = self.inject_noise(sample["net_input"]["src_tokens"])
-        #sample["prev_target"] = self.upsampling(sample["prev_target"])
-        sample["src_noise_tokens"] = self.inject_noise(sample["net_input"]["src_tokens"])
-        loss, sample_size, logging_output = criterion(model, sample)
+        if self.iterative_reorder_translator :             
+            if update_num % self.iter_num_reorder == 0 :                 
+                self.switch = not self.switch    
+                if self.switch :
+                    print("Freeze module : reorder")
+                else:
+                    print("Freeze module : translator")
+                              
+            if self.switch :                 
+                self.freeze_module =  'reorder'             
+            else :                 
+                self.freeze_module = 'translator'        
+            
+        """ for merge only use
+        cuda0 = torch.device('cuda:0')
+        loss=torch.Tensor(0)
+        sample_size=1
+        logging_output={'loss': 0, 'sample_size' : 1}#, 'nll_loss': torch.Tensor(0.187), 'ntokens': 960, 'nsentences': 40, 'sample_size': 1, 'word_ins-loss': 0.18786469101905823}
+        return loss, sample_size, logging_output
+        """
+        loss, sample_size, logging_output = criterion(model, sample, self.freeze_module)
+        
         if ignore_grad:
             loss *= 0
         optimizer.backward(loss)
@@ -242,13 +269,9 @@ class TranslationEnocderOnly(TranslationTask):
     def valid_step(self, sample, model, criterion):
         model.eval()
         with torch.no_grad():
-            #sample["prev_target"] = self.inject_noise(sample["net_input"]["src_tokens"])         
-            #sample["prev_target"] = self.upsampling(sample["prev_target"])
             sample["src_noise_tokens"] = self.inject_noise(sample["net_input"]["src_tokens"])
             loss, sample_size, logging_output = criterion(model, sample)
         return loss, sample_size, logging_output
 
-    def upsampling(self, source_toks): #valex
-        source_toks =  torch.repeat_interleave(source_toks, self.cfg.num_upsampling_rate, dim=1)
-        return source_toks      
+     
     

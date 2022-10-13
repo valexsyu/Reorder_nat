@@ -17,44 +17,114 @@ from fairseq.modules.quant_noise import quant_noise as apply_quant_noise_
 from fairseq.modules.transformer_sentence_encoder import init_bert_params
 from fairseq.utils import safe_getattr, safe_hasattr
 from fairseq.nat_encoder_generator import DataOut
-from fairseq.models.roberta import (
-    RobertaModel,
-    RobertaEncoder,
+from fairseq.models import (
+    BaseFairseqModel
 )
+from fairseq.models.nat.nonautoregressive_encoder import (
+    NATRobertaModel,
+    NATRobertaEcoder
+)
+
 from fairseq.utils import safe_getattr, safe_hasattr
 logger = logging.getLogger(__name__)
 
 
 
-@register_model("nonautoregressive_roberta") 
-class NATRobertaModel(RobertaModel):
-    def __init__(self, args, encoder, src_dict, tgt_dict):
-        super().__init__(args, encoder) 
-        self.causal_attn = args.encoder_causal_attn      
+
+
+@register_model("nonautoregressive_positional_reorder_translation") 
+class NATReorderTranslation(BaseFairseqModel):
+    def __init__(self, args, reorder, translator, src_dict, tgt_dict):
+        super().__init__() 
+        self.reorder_translation = args.reorder_translation
+        self.reorder = reorder
+        self.translator = translator
+        self.num_upsampling_rate = args.num_upsampling_rate
+        self.src_dict = src_dict
         self.tgt_dict = tgt_dict
         self.bos = tgt_dict.bos()
         self.eos = tgt_dict.eos()
         self.pad = tgt_dict.pad()
-        self.unk = tgt_dict.unk()        
-    
-         
+        self.unk = tgt_dict.unk()              
+        self.pretrained_reorder = args.pretrained_reorder
+        self.pretrained_translation = args.pretrained_translation
+        self.voc_token = torch.range(0, src_dict.__len__()-1,dtype=float,requires_grad=True)
+        self.voc_size = src_dict.__len__()
+        self.kl_div = nn.KLDivLoss(reduction="batchmean",log_target=True)
+        self.mse = nn.MSELoss(reduce=False)
+        self.reorder_factor = 2
+        self.TEST_STEP=0 
+        self.TEST_NUM=1000   
+
     @staticmethod
     def add_args(parser):
         """Add model-specific arguments to the parser."""
-        RobertaModel.add_args(parser)
+        NATRobertaModel.add_args(parser)
               
         parser.add_argument(
-            "--encoder-causal-attn",
-            action="store_true",
-            help="encoder layer use the self causal attention",
+            "--reorder-translation",
+            choices=['reorder_translation', 'reorder', 'translation'],
+            default="reorder-translation",
+            help="choise the model type, reorder-translation/reorder/translation",
         )    
-        
-        
+
+        parser.add_argument(
+            "--num-upsampling-rate",
+            type=int,
+            default=1,
+            help="The multiplier value of the source upsampling",
+        )        
+ 
+        parser.add_argument(
+            "--pretrained-reorder",
+            type=str,
+            default=None,
+            help="path of pretrained reorder path",
+        )         
+        parser.add_argument(
+            "--pretrained-translation",
+            type=str,
+            default=None,
+            help="path of pretrained translation path",
+        )           
+        parser.add_argument(
+            "--freeze-module",
+            choices=["reorder", "translator","None"],
+            default="None",
+            help="choose a module to freeze",
+        )  
+        """
+        parser.add_argument(
+            "--global-token",
+            action="store_true",
+            help="if set, use global_token but not calculate loss in nat_ctc_loss",
+        )        
+        """ 
+    def load_pretrained_model(self,):
+        def load_checkpoint(model, path, num_rm_keystr=0):
+            checkpoint = torch.load(path)
+            from collections import OrderedDict
+            new_state_dict = OrderedDict()
+            for k, v in checkpoint['model'].items():
+                if k[:num_rm_keystr] == 'translat':
+                    pass
+                else:
+                    name = k[num_rm_keystr:] # remove `translator.`
+                    new_state_dict[name] = v  
+            # load params
+            model.load_state_dict(new_state_dict) 
+        if self.pretrained_reorder is not None:
+            load_checkpoint(self.reorder, self.pretrained_reorder, 8)
+            print("Load pretrained reorder , path:{}".format(self.pretrained_reorder))
+        if self.pretrained_translation is not None:
+            load_checkpoint(self.translator, self.pretrained_translation, 11) 
+            print("Load pretrained translator , path:{}".format(self.pretrained_translation))
+
                
     @classmethod
     def build_model(cls, args, task):
         """Build a new model instance."""
-
+       
         from omegaconf import OmegaConf
 
         if OmegaConf.is_config(args):
@@ -66,35 +136,202 @@ class NATRobertaModel(RobertaModel):
             if not safe_hasattr(args, "tokens_per_sample"):
                 args.tokens_per_sample = task.max_positions()
             args.max_positions = args.tokens_per_sample
-        encoder = NATRobertaEcoder(args, task.source_dictionary, task.target_dictionary)
+            
+        if args.reorder_translation == "reorder_translation" :
+            #-----Force setting the reorder -----#
+            # global_token = False
+            # encoder_causal_atten = False
+            # max_positions = 512
+            # max_source_positions = 512
+            temp_encoder_causal_attn = args.encoder_causal_attn             
+            temp_global_token = args.global_token            
+            args.max_positions = 512     
+            args.max_source_positions = 512             
+            args.encoder_causal_attn = False
+            args.global_token = False
 
+            reorder_encoder = NATRobertaEcoder(args, task.source_dictionary, task.source_dictionary)
+            args.global_token = temp_global_token
+            args.encoder_causal_attn = temp_encoder_causal_attn
+            reorder = NATRobertaModel(args, reorder_encoder, task.source_dictionary ,  task.source_dictionary)
+            
+            args.max_positions = 1024                                       
+            args.max_source_positions = 1024    
+            translator_encoder = NATRobertaEcoder(args, task.source_dictionary, task.target_dictionary)      
+            translator = NATRobertaModel(args,  translator_encoder, task.source_dictionary, task.target_dictionary)  
+                        
+        elif args.reorder_translation == "reorder" : 
+            reorder_encoder = NATRobertaEcoder(args, task.source_dictionary, task.source_dictionary)
+            reorder = NATRobertaModel(args, reorder_encoder, task.source_dictionary ,  task.source_dictionary)
+            translator = None
+            
+        elif args.reorder_translation == "translation" :
+            translator_encoder = NATRobertaEcoder(args, task.source_dictionary, task.target_dictionary)   
+            reorder = None    
+            translator = NATRobertaModel(args, translator_encoder, task.source_dictionary, task.target_dictionary)  
+           
+        else:
+            import pdb;pdb.set_trace()
+            print("Error: wrong input in args.reorder_translation")       
+        
         if OmegaConf.is_config(args):
             OmegaConf.set_struct(args, True)
 
-        return cls(args, encoder, task.source_dictionary, task.target_dictionary)
-                
+        
+        return cls(args, reorder, translator, task.source_dictionary, task.target_dictionary)
+
+   
+    
     def forward(
+        self, src_tokens, src_lengths, src_noise_tokens, 
+        tgt_tokens, freeze_module,  **kwargs):
+        if self.reorder_translation == "reorder_translation" :
+            output = self.reorder_translation_forward(src_tokens, src_lengths, tgt_tokens, freeze_module, **kwargs )
+        elif self.reorder_translation == "reorder" : 
+            output = self.reorder_forward(src_tokens, src_lengths, tgt_tokens, **kwargs)
+        elif self.reorder_translation == "translation" : 
+            output = self.translator_forward(src_noise_tokens, src_lengths, tgt_tokens, **kwargs)
+        
+        return output
+            
+                
+    def reorder_forward(
         self, src_tokens, src_lengths, tgt_tokens, **kwargs
     ):
-        logit, inner_state = self.encoder(src_tokens = src_tokens, features_only=False, 
-                                          return_all_hiddens=False, classification_head_name=None, 
-                                          causal_attn=self.causal_attn,  **kwargs)
-
-        return {
-            "word_ins": {
-                "out": logit,
-                "tgt": tgt_tokens,
-                "mask": None if tgt_tokens is None else tgt_tokens.ne(self.pad),
-                "ls": self.args.label_smoothing,
-                "nll_loss": True,
-                "loss_type": "CTC",
-            },
-        }
+        outputs = self.reorder(src_tokens=src_tokens, src_lengths=None, 
+                               tgt_tokens=tgt_tokens, 
+                               **kwargs)
         
-    def initialize_output_tokens(self, src_tokens, num_upsampling_rate=3):
+        vocabulary_mask = torch.ones((outputs['word_ins']['out'].size(0),
+                                      outputs['word_ins']['out'].size(2)),
+                                      dtype=bool,
+                                      device=src_tokens.device).scatter_(1,src_tokens,0).unsqueeze(1)
+        
+        outputs['word_ins']['out'] = outputs['word_ins']['out'].masked_fill(vocabulary_mask, float("-inf"))        
+        outputs['word_ins']['loss_type'] = "NLL"
+        return outputs
+        
+        
+    def translator_forward(
+        self, src_tokens, src_lengths, tgt_tokens, token_embeddings=None, **kwargs
+    ): 
+        
+        upsampled_toks = self.upsampling(src_tokens, self.num_upsampling_rate)
+        if token_embeddings is not None:
+            upsampled_token_embedding = self.upsampling(token_embeddings, self.num_upsampling_rate)
+        else:
+            upsampled_token_embedding = None
+        outputs = self.translator(src_tokens=upsampled_toks, src_lengths=None, 
+                                  tgt_tokens=tgt_tokens, token_embeddings=upsampled_token_embedding, **kwargs)       
+        return outputs
+    
+    def reorder_translation_forward(
+        self, src_tokens, src_lengths,tgt_tokens, freeze_module=None, **kwargs
+    ):
+        def kl_div(reorder_onehot , src_tokens):
+            q = F.log_softmax(torch.sum(reorder_onehot, dim=1))
+            src_onehot = F.one_hot(src_tokens, num_classes=self.voc_size).type_as(reorder_onehot)
+            p = F.log_softmax(torch.sum(src_onehot, dim=1))
+            kl_loss = self.kl_div(q , p)
+            return kl_loss            
+        
+        def mse_weight(reorder_onehot , src_tokens, src_len, miss_len, factor=1):
+            q = torch.sum(reorder_onehot, dim=1)
+            src_onehot = F.one_hot(src_tokens, num_classes=self.voc_size).type_as(reorder_onehot)
+            p = torch.sum(src_onehot, dim=1)
+            weight = torch.div(torch.FloatTensor(miss_len).to(src_len.device), src_len)
+            mse_loss = torch.mul(self.mse(q, p).sum(-1), weight).mean()
+            #mse_loss = self.mse(q, p, reduction='none')
+            return mse_loss
+        def miss_token_sentance(prediction, target) :
+            miss_len=[]
+            miss_tokens=[]
+            for index, (pred, tgt) in enumerate(zip(prediction, target)):
+                miss_tok = ([x for x in tgt.tolist() if x not in pred.tolist()])
+                miss_len.append(len(miss_tok))
+                miss_tokens.append(miss_tok)
+            return miss_len, miss_tokens
 
 
-        initial_output_tokens = torch.repeat_interleave(src_tokens, num_upsampling_rate, dim=1)
+
+        no_grad_condition = True if freeze_module=="reorder" and self.training else False
+        with torch.set_grad_enabled(not no_grad_condition):            
+            reorder_logit = self.reorder_forward(src_tokens, src_lengths, None, **kwargs)['word_ins']['out']
+            
+            reorder_onehot = F.gumbel_softmax(reorder_logit,tau=1, hard=True)   
+            embed_weight = self.translator.encoder.sentence_encoder.embed_tokens._parameters['weight']
+            token_embeddings = torch.matmul(reorder_onehot,embed_weight)
+
+            b,l = src_tokens.size()
+            mask_pad = src_tokens.eq(self.pad).unsqueeze(-1)
+            token_embeddings = token_embeddings.masked_scatter(mask_pad, embed_weight[self.pad].expand(b,l,-1))
+            """
+            for i in range(src_tokens.size(0)) :
+                for j in range(src_tokens.size(1)):
+                    if src_tokens[i][j] == self.pad :
+                        token_embeddings[i][j] = embed_weight[self.pad]
+            """
+            
+
+            self.voc_token = self.voc_token.type_as(reorder_logit)  
+            reorder_voc = torch.matmul(reorder_onehot, self.voc_token.unsqueeze(-1)).type_as(src_tokens).squeeze(-1)
+            reorder_voc = self.padding_from_source(reorder_voc, self.pad, src_tokens)
+            if not freeze_module=="reorder" :
+                #kl_loss = kl_div(reorder_onehot , src_tokens)*self.reorder_factor
+                miss_len, miss_tok = miss_token_sentance(reorder_voc, src_tokens)
+                mse_loss = mse_weight(reorder_onehot , src_tokens, src_lengths, miss_len, self.reorder_factor)
+        no_grad_condition = True if freeze_module=="translator" and self.training else False
+        with torch.set_grad_enabled(not no_grad_condition): 
+            outputs = self.translator_forward(src_tokens=reorder_voc, src_lengths=None, 
+                                      tgt_tokens=tgt_tokens,token_embeddings=token_embeddings, **kwargs)        
+
+        if no_grad_condition :
+            outputs['word_ins']['out'].requires_grad_(True)  
+        
+        if not freeze_module=="reorder" :
+            outputs["reorder"] = {
+                "loss": mse_loss,
+                "factor" : self.reorder_factor,
+                "loss_type": "loss",
+            }
+
+
+        #test======================================
+        if self.TEST_STEP % self.TEST_NUM == 0 :
+            print("Step:{}".format(self.TEST_STEP))
+            print("Sourcee:{}".format(src_tokens[0]))
+            print("Reorder:{}".format(reorder_voc[0]))
+
+            test_miss_len, test_miss_token = miss_token_sentance([reorder_voc[0]], [src_tokens[0]])
+            #test_miss_token = ([x for x in src_tokens[0].tolist() if x not in reorder_voc[0].tolist()])
+            test_kl_loss = kl_div(torch.unsqueeze(reorder_onehot[0],dim=0) , 
+                                     torch.unsqueeze(src_tokens[0],dim=0))
+
+            test_mse_loss = mse_weight(torch.unsqueeze(reorder_onehot[0],dim=0) , 
+                                     torch.unsqueeze(src_tokens[0],dim=0),
+                                     src_lengths[0], test_miss_len, self.reorder_factor )
+            print("Reorder_Miss_token:{}    len:{}     KL_DISS:{:2.5f}   MSE:{:2.5f}".format(
+                                     test_miss_token,test_miss_len,test_kl_loss,test_mse_loss))
+            test_output = torch.argmax(outputs['word_ins']['out'][0], dim=-1)
+            print("Pred:{}".format(torch.unique_consecutive(test_output[test_output!= 10160])))     
+            print("tgtt:{}".format(tgt_tokens[0]))        
+            
+        self.TEST_STEP += 1
+        #=========================================test
+
+        return outputs    
+        
+    def get_normalized_probs(self, net_output, log_probs, sample=None):
+        """Get normalized probabilities (or log probs) from a net's output."""
+        logits = net_output[0].float()
+        if log_probs:
+            return F.log_softmax(logits, dim=-1)
+        else:
+            return F.softmax(logits, dim=-1)
+      
+        
+    def initialize_output_tokens(self, src_tokens):
+        initial_output_tokens = src_tokens
         initial_output_scores = initial_output_tokens.new_zeros(
             *initial_output_tokens.size()
         )
@@ -113,15 +350,43 @@ class NATRobertaModel(RobertaModel):
         output_scores = data_out.output_scores
         history = data_out.history        
         
-        output_masks  = output_tokens.ne(self.pad)
-        logit, inner_state = self.encoder(src_tokens = output_tokens, features_only=False, 
-                                          return_all_hiddens=False, classification_head_name=None, 
-                                          causal_attn=self.causal_attn,  **kwargs)   
+        if self.reorder_translation == "reorder_translation" :
+            reorder_logit = self.reorder_forward(src_tokens=output_tokens, src_lengths=None, 
+                                         tgt_tokens=None, **kwargs)['word_ins']['out']    
+                                 
+            reorder_voc = torch.argmax(reorder_logit, dim=-1) 
+            
+            reorder_pad = self.padding_from_source(reorder_voc, self.pad, output_tokens)
+            for index,(source, reorder) in enumerate(zip(output_tokens, reorder_pad)):
+                miss_token = ([x for x in source if x not in reorder])
+                if len(miss_token) >3 :
+                    print("sourcee:{}".format(source))                 
+                    print("reorder:{}".format(reorder))  
+                    print("paddddd:{}".format(reorder_pad[index]))
+                    print("MISS TOKEN:{}".format(miss_token))
+                    print("=======================================================================")   
+                                   
+                    
+                
+            
+            reorder_voc = self.padding_from_source(reorder_voc, self.pad, output_tokens)
+            logit = self.translator_forward(src_tokens=reorder_voc, src_lengths=None, 
+                                      tgt_tokens=None, **kwargs)['word_ins']['out']               
+                           
+        elif self.reorder_translation == "reorder" : 
+            logit = self.reorder_forward(src_tokens=output_tokens, src_lengths=None, 
+                                         tgt_tokens=None, **kwargs)['word_ins']['out']
+
+        elif self.reorder_translation == "translation" : 
+            logit = self.translator_forward(src_tokens=output_tokens, src_lengths=None,                                           
+                                         tgt_tokens=None, **kwargs)['word_ins']['out']
+            
         _scores, _tokens = F.log_softmax(logit,-1).max(-1)   
         output_scores=output_scores.type_as(_scores)
-
-        output_tokens.masked_scatter_(output_masks, _tokens[output_masks])
-        output_scores.masked_scatter_(output_masks, _scores[output_masks]) 
+        output_tokens = _tokens
+        output_scores = _scores 
+        #output_tokens.masked_scatter_(output_masks, _tokens[output_masks])
+        #output_scores.masked_scatter_(output_masks, _scores[output_masks]) 
         if history is not None:
             history.append(output_tokens.clone())                
         return data_out._replace(
@@ -131,237 +396,21 @@ class NATRobertaModel(RobertaModel):
             history=history,
         )
         
+    def upsampling(self, source_toks, num_upsampling_rate): 
+        upsampled_toks =  torch.repeat_interleave(source_toks, num_upsampling_rate, dim=1)
+        return upsampled_toks
+
+    def padding_from_source(self, tgt, pad_id, src):
+        src_masks  = src.eq(pad_id)             
+        tgt = tgt.masked_fill(src_masks,value=pad_id)
+        return tgt        
+       
+
+
         
-    
-
- 
-class NATRobertaEcoder(RobertaEncoder):
-    """NAT encoder."""
-    def __init__(self, args, src_dictionary, tgt_dictionary):
-        super().__init__(args, src_dictionary)
-        self.lm_head = self.build_lm_head(
-            embed_dim=args.encoder_embed_dim,
-            output_dim=len(tgt_dictionary),
-            activation_fn=args.activation_fn,
-            weight=(
-                self.sentence_encoder.embed_tokens.weight
-                if not args.untie_weights_roberta
-                else None
-            ),
-        )         
-        self.global_token = args.global_token
         
-    def build_encoder(self, args, dictionary, embed_tokens):
-        encoder = TransformerCausalEncoder(args, dictionary, embed_tokens)
-        encoder.apply(init_bert_params)
-        return encoder
-    
-    def forward(
-        self,
-        src_tokens,
-        features_only=False,
-        return_all_hiddens=False,
-        masked_tokens=None,
-        causal_attn=False,
-        **unused,
-    ):
-        """
-        Args:
-            src_tokens (LongTensor): input tokens of shape `(batch, src_len)`
-            features_only (bool, optional): skip LM head and just return
-                features. If True, the output will be of shape
-                `(batch, src_len, embed_dim)`.
-            return_all_hiddens (bool, optional): also return all of the
-                intermediate hidden states (default: False).
-
-        Returns:
-            tuple:
-                - the LM output of shape `(batch, src_len, vocab)`
-                - a dictionary of additional data, where 'inner_states'
-                  is a list of hidden states. Note that the hidden
-                  states have shape `(src_len, batch, vocab)`.
-        """
-        x, extra = self.extract_features(
-            src_tokens, return_all_hiddens=return_all_hiddens, causal_attn=causal_attn, 
-        )
-        if not features_only:
-            x = self.output_layer(x, masked_tokens=masked_tokens)
-        return x, extra
-
-    def extract_features(self, src_tokens, return_all_hiddens=False, causal_attn=False, **kwargs):
-        encoder_out = self.sentence_encoder(
-            src_tokens,
-            return_all_hiddens=return_all_hiddens,
-            causal_attn=causal_attn,
-            token_embeddings=kwargs.get("token_embeddings", None),
-            
-        )
-        # T x B x C -> B x T x C
-        features = encoder_out["encoder_out"][0].transpose(0, 1)
-        inner_states = encoder_out["encoder_states"] if return_all_hiddens else None
-        return features, {"inner_states": inner_states}
-
-
-class TransformerCausalEncoder(TransformerEncoder):
-    def __init__(self, args, dictionary, embed_tokens, return_fc=False):
-        super().__init__(args, dictionary, embed_tokens, return_fc=False)    
-        self._future_mask = torch.empty(0)
-        self.global_token = args.global_token
-    def buffered_future_mask(self, tensor):                          ###########add globa token all atten and shift atten
-        
-        dim = tensor.size(0)
-        # self._future_mask.device != tensor.device is not working in TorchScript. This is a workaround.
-        if (
-            self._future_mask.size(0) == 0
-            or (not self._future_mask.device == tensor.device)
-            or self._future_mask.size(0) < dim
-        ):
-            self._future_mask = torch.triu(
-                utils.fill_with_neg_inf(torch.zeros([dim, dim])), 1
-            )
-        if self.global_token :
-            self._future_mask[0].fill_(0)       # globa_token is all atten
-        self._future_mask = self._future_mask.to(tensor)
-        return self._future_mask[:dim, :dim]
-        
-    def forward(
-        self,
-        src_tokens,
-        src_lengths: Optional[torch.Tensor] = None,
-        return_all_hiddens: bool = False,
-        token_embeddings: Optional[torch.Tensor] = None,
-        causal_attn : bool = False,
-    ):
-        """
-        Args:
-            src_tokens (LongTensor): tokens in the source language of shape
-                `(batch, src_len)`
-            src_lengths (torch.LongTensor): lengths of each source sentence of
-                shape `(batch)`
-            return_all_hiddens (bool, optional): also return all of the
-                intermediate hidden states (default: False).
-            token_embeddings (torch.Tensor, optional): precomputed embeddings
-                default `None` will recompute embeddings
-        Returns:
-            dict:
-                - **encoder_out** (Tensor): the last encoder layer's output of
-                  shape `(src_len, batch, embed_dim)`
-                - **encoder_padding_mask** (ByteTensor): the positions of
-                  padding elements of shape `(batch, src_len)`
-                - **encoder_embedding** (Tensor): the (scaled) embedding lookup
-                  of shape `(batch, src_len, embed_dim)`
-                - **encoder_states** (List[Tensor]): all intermediate
-                  hidden states of shape `(src_len, batch, embed_dim)`.
-                  Only populated if *return_all_hiddens* is True.
-        """
-        return self.forward_scriptable(
-            src_tokens, src_lengths, return_all_hiddens, token_embeddings, causal_attn
-        )
-
-    # TorchScript doesn't support super() method so that the scriptable Subclass
-    # can't access the base class model in Torchscript.
-    # Current workaround is to add a helper function with different name and
-    # call the helper function from scriptable Subclass.
-    def forward_scriptable(
-        self,
-        src_tokens,
-        src_lengths: Optional[torch.Tensor] = None,
-        return_all_hiddens: bool = False,
-        token_embeddings: Optional[torch.Tensor] = None,
-        causal_attn : bool = False,
-    ):
-        """
-        Args:
-            src_tokens (LongTensor): tokens in the source language of shape
-                `(batch, src_len)`
-            src_lengths (torch.LongTensor): lengths of each source sentence of
-                shape `(batch)`
-            return_all_hiddens (bool, optional): also return all of the
-                intermediate hidden states (default: False).
-            token_embeddings (torch.Tensor, optional): precomputed embeddings
-                default `None` will recompute embeddings
-        Returns:
-            dict:
-                - **encoder_out** (Tensor): the last encoder layer's output of
-                  shape `(src_len, batch, embed_dim)`
-                - **encoder_padding_mask** (ByteTensor): the positions of
-                  padding elements of shape `(batch, src_len)`
-                - **encoder_embedding** (Tensor): the (scaled) embedding lookup
-                  of shape `(batch, src_len, embed_dim)`
-                - **encoder_states** (List[Tensor]): all intermediate
-                  hidden states of shape `(src_len, batch, embed_dim)`.
-                  Only populated if *return_all_hiddens* is True.
-        """
-        
-        # compute padding mask
-        encoder_padding_mask = src_tokens.eq(self.padding_idx)
-        has_pads = src_tokens.device.type == "xla" or encoder_padding_mask.any()
-        x, encoder_embedding = self.forward_embedding(src_tokens, token_embeddings)
-
-        # account for padding while computing the representation
-        if has_pads:
-            x = x * (1 - encoder_padding_mask.unsqueeze(-1).type_as(x))
- 
-
-        # B x T x C -> T x B x C
-        x = x.transpose(0, 1)
-
-        encoder_states = []
-        fc_results = []
-
-        if return_all_hiddens:
-            encoder_states.append(x)
-
-        # encoder layers
-        for layer in self.layers:
-            if causal_attn :
-                self_attn_mask = self.buffered_future_mask(x)
-            else:
-                self_attn_mask = None  
-            lr = layer(
-                x, encoder_padding_mask=encoder_padding_mask if has_pads else None , 
-                attn_mask=self_attn_mask,
-            )
-
-            if isinstance(lr, tuple) and len(lr) == 2:
-                x, fc_result = lr
-            else:
-                x = lr
-                fc_result = None
-
-            if return_all_hiddens and not torch.jit.is_scripting():
-                assert encoder_states is not None
-                encoder_states.append(x)
-                fc_results.append(fc_result)
-
-        if self.layer_norm is not None:
-            x = self.layer_norm(x)
-
-        # The Pytorch Mobile lite interpreter does not supports returning NamedTuple in
-        # `forward` so we use a dictionary instead.
-        # TorchScript does not support mixed values so the values are all lists.
-        # The empty list is equivalent to None.
-        src_lengths = (
-            src_tokens.ne(self.padding_idx)
-            .sum(dim=1, dtype=torch.int32)
-            .reshape(-1, 1)
-            .contiguous()
-        )
-        return {
-            "encoder_out": [x],  # T x B x C
-            "encoder_padding_mask": [encoder_padding_mask],  # B x T
-            "encoder_embedding": [encoder_embedding],  # B x T x C
-            "encoder_states": encoder_states,  # List[T x B x C]
-            "fc_results": fc_results,  # List[T x B x C]
-            "src_tokens": [],
-            "src_lengths": [src_lengths],
-        }
-    
-
-
-
 @register_model_architecture(
-    "nonautoregressive_roberta", "nonautoregressive_roberta"
+    "nonautoregressive_reorder_translation", "nonautoregressive_reorder_translation"
 )
 def base_architecture(args):
     args.encoder_layers = safe_getattr(args, "encoder_layers", 6)
@@ -410,6 +459,14 @@ def base_architecture(args):
     
     # NAT config
     args.encoder_causal_attn = safe_getattr(args, "encoder_causal_attn", False)
+    
+    # Reorder_Translation config
+    args.reorder_translation = safe_getattr(args, "reorder_translation", "reorder_translation")
+    args.freeze_module = safe_getattr(args, "freeze_module", "None")
+    args.pretrained_reorder = safe_getattr(args, "pretrained_reorder", None )
+    args.pretrained_translation = safe_getattr(args, "pretrained_translation", None )
+    args.num_upsampling_rate = safe_getattr(args, "num_upsampling_rate", 1 )
+    #args.num_upsampling_rate = safe_getattr(args, "global_token", False )
 
 
         

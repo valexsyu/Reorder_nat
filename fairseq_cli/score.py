@@ -43,7 +43,7 @@ def cli_main():
         args.sys
     ), "System output file {} does not exist".format(args.sys)
     assert os.path.exists(args.ref), "Reference file {} does not exist".format(args.ref)
-
+    import pdb;pdb.set_trace()
     dict = dictionary.Dictionary()
 
     def readlines(fd):

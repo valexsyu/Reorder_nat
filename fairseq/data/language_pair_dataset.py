@@ -22,6 +22,7 @@ def collate(
     input_feeding=True,
     pad_to_length=None,
     pad_to_multiple=1,
+    align_position_pad_index=None,
 ):
     if len(samples) == 0:
         return {}
@@ -65,6 +66,15 @@ def collate(
         return 1.0 / align_weights.float()
 
     id = torch.LongTensor([s["id"] for s in samples])
+
+    # samples = [item for item in samples if item["source"].ne(pad_idx).long().sum() < 254]  # valex remove too long sentance for positional embedding
+    
+    ###valex remove too long sentance for positional embedding , use 'id': 2200, 'source': torch.LongTensor([18,  3]) to instead
+    samples = [item for item in samples if item["source"].size(0) < 254]  # valex remove too long sentance for positional embedding
+    if len(samples) < 1 :
+        samples = [{'id': 2200, 'source': torch.LongTensor([18,  3]), 'target': torch.LongTensor([18,  3]), 'alignment': torch.LongTensor([0, 0])}]
+    ###valex
+        
     src_tokens = merge(
         "source",
         left_pad=left_pad_source,
@@ -109,6 +119,7 @@ def collate(
             )
     else:
         ntokens = src_lengths.sum().item()
+    
 
     batch = {
         "id": id,
@@ -125,10 +136,20 @@ def collate(
             0, sort_order
         )
 
+    size = src_tokens.size()
     if samples[0].get("alignment", None) is not None:
-        bsz, tgt_sz = batch["target"].shape
-        src_sz = batch["net_input"]["src_tokens"].shape[1]
+        if align_position_pad_index is None :
+            alignments_padding = samples[0]["alignment"].new(size).fill_(0) 
+        else:
+            alignments_padding = samples[0]["alignment"].new(size).fill_(align_position_pad_index)          
+        for idx , align_idx in enumerate(sort_order):
+            alignment = samples[align_idx]["alignment"][1::2]
+            alignments_padding[idx][:len(alignment)]=alignment # eos token use padding
 
+        batch["alignments"] = alignments_padding  #valex
+
+
+        """ valex use alignment
         offsets = torch.zeros((len(sort_order), 2), dtype=torch.long)
         offsets[:, 1] += torch.arange(len(sort_order), dtype=torch.long) * tgt_sz
         if left_pad_source:
@@ -144,13 +165,13 @@ def collate(
             for alignment in [samples[align_idx]["alignment"].view(-1, 2)]
             if check_alignment(alignment, src_len, tgt_len)
         ]
-
         if len(alignments) > 0:
             alignments = torch.cat(alignments, dim=0)
             align_weights = compute_alignment_weights(alignments)
 
             batch["alignments"] = alignments
             batch["align_weights"] = align_weights
+        """
 
     if samples[0].get("constraints", None) is not None:
         # Collate the packed constraints across the samples, padding to
@@ -226,9 +247,10 @@ class LanguagePairDataset(FairseqDataset):
         src_lang_id=None,
         tgt_lang_id=None,
         pad_to_multiple=1,
+        align_position_pad_index=None,
     ):
         if tgt_dict is not None:
-            assert src_dict.pad() == tgt_dict.pad()
+            assert src_dict.pad() == tgt_dict.pad()  #valex
             assert src_dict.eos() == tgt_dict.eos()
             assert src_dict.unk() == tgt_dict.unk()
         if tgt is not None:
@@ -297,6 +319,7 @@ class LanguagePairDataset(FairseqDataset):
         else:
             self.buckets = None
         self.pad_to_multiple = pad_to_multiple
+        self.align_position_pad_index=align_position_pad_index
 
     def get_batch_shapes(self):
         return self.buckets
@@ -386,6 +409,7 @@ class LanguagePairDataset(FairseqDataset):
             input_feeding=self.input_feeding,
             pad_to_length=pad_to_length,
             pad_to_multiple=self.pad_to_multiple,
+            align_position_pad_index=self.align_position_pad_index
         )
         if self.src_lang_id is not None or self.tgt_lang_id is not None:
             src_tokens = res["net_input"]["src_tokens"]
@@ -398,6 +422,7 @@ class LanguagePairDataset(FairseqDataset):
                 res["tgt_lang_id"] = (
                     torch.LongTensor([[self.tgt_lang_id]]).expand(bsz, 1).to(src_tokens)
                 )
+        
         return res
 
     def num_tokens(self, index):

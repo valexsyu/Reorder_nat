@@ -1,20 +1,36 @@
-# Copyright (c) Facebook, Inc. and its affiliates.
-#
-# This source code is licensed under the MIT license found in the
-# LICENSE file in the root directory of this source tree.
 
+from transformers import AutoModel, AutoModelForMaskedLM
 import torch
-import torch.nn.functional as F
+from fairseq import checkpoint_utils
+from fairseq.models import (
+    BaseFairseqModel,
+)
+PATH="/home/valexsyu/Doc/NMT/Reorder_nat/checkpoints/No-test/checkpoint_last.pt"
 
-logits = torch.randn(3, 10)
-print(logits)
-sampled_hard=F.gumbel_softmax(logits, tau=1, hard=True)
-sampled_soft = F.gumbel_softmax(logits, tau=1, hard=False)
-print(sampled_hard)
-print(sampled_soft)
+# model = AutoModelForMaskedLM.from_pretrained("jhu-clsp/bibert-ende")
 
+class NATPretrainedModel(BaseFairseqModel):
+    def __init__(self, translator):
+        super().__init__()
+        self.pretrained_lm = AutoModel.from_pretrained("jhu-clsp/bibert-ende") 
+        self.translator = translator
+        for params in self.pretrained_lm.parameters() :
+            params.requires_grad=False                
+        self.pretrained_lm.eval()         
 
+    @classmethod
+    def build_model(cls):
+        """Build a new model instance."""
+ 
+        translator = AutoModelForMaskedLM.from_pretrained("jhu-clsp/bibert-ende")
 
+        return cls(translator)
 
+model = NATPretrainedModel.build_model()
 
-
+checkpoint_utils.torch_persistent_save(
+    model.state_dict,
+    PATH,
+)
+print(model)
+# torch.save(model.state_dict(), PATH)

@@ -197,14 +197,22 @@ def _main(cfg: DictConfig, output_file):
     )
 
     # Handle tokenization and BPE
+
     tokenizer = task.build_tokenizer(cfg.tokenizer)
-    bpe = task.build_bpe(cfg.bpe)
+    #bpe = task.build_bpe(cfg.bpe)
+    bpe = task.build_bpe(cfg.bpe) 
+    bpe_src = task.build_bpe(cfg.bpe, if_src=True)
 
     def decode_fn(x):
         if bpe is not None:
             x = bpe.decode(x)
         if tokenizer is not None:
             x = tokenizer.decode(x)
+        return x
+
+    def decode_fn_src(x):
+        if bpe_src is not None:
+            x = bpe_src.decode(x, if_src=True)
         return x
 
     scorer = scoring.build_scorer(cfg.scoring, tgt_dict)
@@ -246,13 +254,12 @@ def _main(cfg: DictConfig, output_file):
                 )
             else:
                 src_tokens = None
-
+            
             target_tokens = None
             if has_target:
                 target_tokens = (
                     utils.strip_pad(sample["target"][i, :], tgt_dict.pad()).int().cpu()
                 )
-
             # Either retrieve the original sentences or regenerate them from tokens.
             if align_dict is not None:
                 src_str = task.dataset(cfg.dataset.gen_subset).src.get_original_text(
@@ -276,7 +283,8 @@ def _main(cfg: DictConfig, output_file):
                         ),
                     )
 
-            src_str = decode_fn(src_str)
+            src_str = decode_fn_src(src_str)
+            #src_str = decode_fn(src_str)
             if has_target:
                 target_str = decode_fn(target_str)
 
@@ -302,12 +310,13 @@ def _main(cfg: DictConfig, output_file):
                 if len(_tokens) > 1 :
                     result = removeDuplicates(_tokens) 
                 else:
-                    result = _tokens                    
+                    result = _tokens                
                 hypo_str = ' '.join(result)
                 #valex                
                 detok_hypo_str = decode_fn(hypo_str)
                 if not cfg.common_eval.quiet:
                     score = hypo["score"] / math.log(2)  # convert to base 2
+                    # entropy = hypo["entropy"]
                     # original hypothesis (after tokenization and BPE)
                     print(
                         "H-{}\t{}\t{}".format(sample_id, score, hypo_str),
@@ -333,6 +342,20 @@ def _main(cfg: DictConfig, output_file):
                         ),
                         file=output_file,
                     )
+                    # print(
+                    #     "E-{}\t{}".format(
+                    #         sample_id,
+                    #         " ".join(
+                    #             map(
+                    #                 lambda x: "{:.4f}".format(x),
+                    #                 # convert from base e to base 2
+                    #                 hypo["positional_entropys"]
+                    #                 .tolist(),
+                    #             )
+                    #         ),
+                    #     ),
+                    #     file=output_file,
+                    # )                    
 
                     if cfg.generation.print_alignment == "hard":
                         print(

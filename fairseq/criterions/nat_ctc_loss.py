@@ -27,30 +27,22 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
 
     def __init__(self, task, label_smoothing):
         super().__init__(task, label_smoothing)
+        self.pad_idx = task.target_dictionary.pad()
+        self.eos_idx = task.target_dictionary.eos()    
+        self.bos_idx = task.target_dictionary.bos()
         self.blank_idx = (
             task.target_dictionary.index(task.blank_symbol)
             if hasattr(task, "blank_symbol")
-            else 0
-        )
-        self.pad_idx = task.target_dictionary.pad()
-        self.eos_idx = task.target_dictionary.eos()    
-        self.num_umsamling_rate = task.cfg.num_upsampling_rate
-        self.global_token = task.cfg.global_token
+            else self.bos_idx
+        )        
 
     @classmethod
     def add_args(cls, parser):
         LabelSmoothedDualImitationCriterion.add_args(parser)
-        """
-        parser.add_argument(
-            "--num-upsampling-rate",
-            type=int,
-            default=3,
-            help="number of upsampling in embedding of encoder input",
-        )
-        """            
+       
     
     def _compute_ctc_loss(  #valex
-        self, outputs, targets, masks=None, name="loss", factor=1.0, model=None, sample=None
+        self, outputs, targets, masks=None, num_upsamling_rate=2, name="loss", factor=1.0, model=None, sample=None, 
     ):
         """
         outputs: batch x len x d_model
@@ -66,15 +58,14 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                 if dim is None
                 else x.float().mean(dim).type_as(x)
             )
-        if self.global_token :
-            outputs = outputs[:,1:,:]   # remove the bos token
+
         lprobs = model.get_normalized_probs(
             [outputs], log_probs=True
         ).contiguous()  # (T, B, C) from the encoder 
         
         if "src_lengths" in sample["net_input"]:
             input_lengths = sample["net_input"]["src_lengths"]
-            input_lengths = self.num_umsamling_rate*input_lengths              
+            input_lengths = num_upsamling_rate*input_lengths              
         else:
             if outputs["padding_mask"] is not None:
                 non_padding_mask = ~outputs["padding_mask"]
@@ -85,8 +76,9 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                 )
         
         pad_mask = (targets != self.pad_idx) & (
-                    targets != self.eos_idx 
-        )         
+                    targets != self.eos_idx) & (
+                    targets != self.bos_idx)
+                    
         targets_flat = targets.masked_select(pad_mask)
         if "target_lengths" in sample:
             target_lengths = sample["target_lengths"]
@@ -103,9 +95,8 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                 target_lengths,
                 blank=self.blank_idx, 
                 reduction="mean",
-                zero_infinity=False,
+                zero_infinity=True,
             )  
-
         loss = loss * factor
         nll_loss = loss
         
@@ -156,10 +147,39 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
         loss = loss * factor
         return {"name": name, "loss": loss, "nll_loss": nll_loss, "factor": factor}
 
+    def _compute_mse_loss(
+        self, outputs, targets, masks=None, label_smoothing=0.0, name="loss", factor=1.0
+    ):
+        """
+        outputs: batch x len x d_model
+        targets: batch x len
+        masks:   batch x len
+
+        policy_logprob: if there is some policy
+            depends on the likelihood score as rewards.
+        """
+
+        def mean_ds(x: Tensor, dim=None) -> Tensor:
+            return (
+                x.float().mean().type_as(x)
+                if dim is None
+                else x.float().mean(dim).type_as(x)
+            )
+
+        if masks is not None:
+            outputs, targets = outputs[masks], targets[masks]
+
+        
+        nll_loss = F.mse_loss(outputs,targets,reduction='sum')
+        loss = nll_loss
+
+        loss = loss * factor
+        return {"name": name, "loss": loss, "nll_loss": nll_loss, "factor": factor}
+
     def _custom_loss(self, loss, name="loss", factor=1.0):
         return {"name": name, "loss": loss, "factor": factor}
 
-    def forward(self, model, sample, reduce=True):
+    def forward(self, model, sample, update_num , reduce=True):
         """Compute the loss for the given sample.
         Returns a tuple with three elements:
         1) the loss
@@ -174,9 +194,12 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
             sample["net_input"]["src_lengths"],
         )
         #tgt_tokens, prev_output_tokens = sample["target"], sample["prev_target"]
-        tgt_tokens, src_noise_tokens = sample["target"], sample["src_noise_tokens"]
-
-        outputs = model(src_tokens, src_lengths, src_noise_tokens, tgt_tokens)
+        if sample.get("alignments", None) is not None: 
+            tgt_tokens , alignments= sample["target"], sample["alignments"]
+        else:
+            tgt_tokens = sample["target"]
+            alignments = None
+        outputs = model(src_tokens, src_lengths, tgt_tokens, alignments, update_num)
         losses, nll_loss = [], []
 
         for obj in outputs:
@@ -185,13 +208,15 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                     outputs[obj].get("out"),
                     outputs[obj].get("tgt"),
                     outputs[obj].get("mask", None),
+                    outputs[obj].get("num_upsampling_rate", 2),
                     name=obj + "-loss",
                     factor=1.0,
                     model=model,
                     sample=sample,
+                    
                 )
-            elif outputs[obj].get("loss_type", "CTC") == "NLL":
-                _losses = self._compute_loss(
+            elif outputs[obj].get("loss_type", "CTC") == "MSE":
+                _losses = self._compute_mse_loss(
                     outputs[obj].get("out"),
                     outputs[obj].get("tgt"),
                     outputs[obj].get("mask", None),

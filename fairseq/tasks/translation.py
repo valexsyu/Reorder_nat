@@ -58,6 +58,7 @@ def load_langpair_dataset(
     shuffle=True,
     pad_to_multiple=1,
     prepend_bos_src=None,
+    align_position_pad_index=None,
 ):
     def split_exists(split, src, tgt, lang, data_path):
         filename = os.path.join(data_path, "{}.{}-{}.{}".format(split, src, tgt, lang))
@@ -167,6 +168,7 @@ def load_langpair_dataset(
         num_buckets=num_buckets,
         shuffle=shuffle,
         pad_to_multiple=pad_to_multiple,
+        align_position_pad_index=align_position_pad_index,
     )
 
 
@@ -303,16 +305,17 @@ class TranslationTask(FairseqTask):
             raise Exception(
                 "Could not infer language pair, please provide it explicitly"
             )
-
+        src_dict_path = os.path.join(paths[0], "dict.{}.txt".format(cfg.source_lang))
+        tgt_dict_path = os.path.join(paths[0], "dict.{}.txt".format(cfg.target_lang))
         # load dictionaries
         src_dict = cls.load_dictionary(
-            os.path.join(paths[0], "dict.{}.txt".format(cfg.source_lang))
+            src_dict_path, str(src_dict_path)
         )
         tgt_dict = cls.load_dictionary(
-            os.path.join(paths[0], "dict.{}.txt".format(cfg.target_lang))
+            tgt_dict_path, str(tgt_dict_path)
         )
-        assert src_dict.pad() == tgt_dict.pad()
-        assert src_dict.eos() == tgt_dict.eos()
+        assert src_dict.pad() == tgt_dict.pad() # valex
+        assert src_dict.eos() == tgt_dict.eos()   
         assert src_dict.unk() == tgt_dict.unk()
         logger.info("[{}] dictionary: {} types".format(cfg.source_lang, len(src_dict)))
         logger.info("[{}] dictionary: {} types".format(cfg.target_lang, len(tgt_dict)))
@@ -379,7 +382,7 @@ class TranslationTask(FairseqTask):
             )
         return model
 
-    def valid_step(self, sample, model, criterion):
+    def valid_step(self, sample, model, criterion, update_num):
         loss, sample_size, logging_output = super().valid_step(sample, model, criterion)
         if self.cfg.eval_bleu:
             bleu = self._inference_with_bleu(self.sequence_generator, sample, model)
