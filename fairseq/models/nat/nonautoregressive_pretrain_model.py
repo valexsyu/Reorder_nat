@@ -42,6 +42,7 @@ class NATPretrainedModel(BaseFairseqModel):
         self.translator = translator
         self.src_dict = src_dict
         self.pad = self.src_dict.pad_index
+        self.mask = src_dict.indices["[MASK]"]
         self.label_smoothing = args.label_smoothing
         self.num_upsampling_rate = args.num_upsampling_rate
         self.use_pretrained_embedding = args.use_pretrained_embedding
@@ -54,6 +55,7 @@ class NATPretrainedModel(BaseFairseqModel):
         # self.lm_loss_layer = args.lm_loss_layer 
         self.lm_tr_layer = args.lm_tr_layer 
         self.lm_st_layer = args.lm_st_layer
+        self.upsample_fill_mask = args.upsample_fill_mask     
         if len(self.lm_st_layer) != len(self.lm_tr_layer):
             print("length of KD layer of student and teacher are not the same ")
             import pdb;pdb.set_trace()
@@ -224,6 +226,11 @@ class NATPretrainedModel(BaseFairseqModel):
             default=[-1],
             help="the lm loss layer , default is -1 (-1 means last layer)",
         )           
+        parser.add_argument(
+            "--upsample-fill-mask",
+            action="store_true",
+            help="upsample use mask to be token ",
+        )                 
         
                     
         
@@ -441,7 +448,7 @@ class NATPretrainedModel(BaseFairseqModel):
         return token_embeddings, bos_embeddings
 
     def get_pretrained_lprobs(self, src_tokens, model) :
-        device = src_tokens.device
+        device = src_tokens.device一日
         model.to(device)
         bos = self.src_dict.bos() * torch.ones(src_tokens.shape[0], 1, dtype=torch.long, device=device)
         src_tokens = torch.cat((bos, src_tokens), dim=1)
@@ -452,7 +459,13 @@ class NATPretrainedModel(BaseFairseqModel):
         
         return lm_lprobs
     def upsampling(self, source, rate): 
-        upsampled =  torch.repeat_interleave(source, rate, dim=1)
+        if self.upsample_fill_mask :
+            b,l = source.size()
+            mask = source.ne(self.pad)  #ex : soruce=[7,7,7,pad] mask=[True True True False]
+            mask_tokens = source.masked_fill(mask,self.mask)
+            upsampled = torch.stack((source, mask_tokens), dim=2).view(b, l*rate)
+        else:            
+            upsampled =  torch.repeat_interleave(source, rate, dim=1)
         return upsampled
 
     def translation(self, src_tokens, src_lengths, **kwargs):
@@ -566,6 +579,7 @@ def base_architecture(args):
     args.lm_st_layer  = safe_getattr( args, "lm_st_layer", [-1] )
     args.lm_start_step = safe_getattr( args, "lm_start_step", 75000)
     
+    args.upsample_fill_mask  = safe_getattr( args, "upsample_fill_mask", False )
     
 
 

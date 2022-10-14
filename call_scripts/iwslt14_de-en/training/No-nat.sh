@@ -60,6 +60,8 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --align-position-pad-index 513 \
     --update-freq 6 \
     --keep-best-checkpoints 5 \
+    --wandb-project Test \
+    --wandb-entity valex-jcx \
     --pretrained-model-name jhu-clsp/bibert-ende \
     --pretrained-lm-name jhu-clsp/bibert-ende \
     --eval-bleu-print-samples \
@@ -67,6 +69,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
     --max-update 100000 \
     --lm-head-frozen \
+    --upsample-fill-mask \
     --train-subset valid
 endmsg
 
