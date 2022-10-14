@@ -2,9 +2,9 @@ source $HOME/.bashrc
 conda activate base
 #---------Path Setting-------------------#
 CHECKPOINT=checkpoints/No-test
-DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_mbert/de-en-databin
+DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_baseline_iwslt14_de_en_52k/de-en-databin
 MAX_TOKENS=2048
-MAX_EPOCH=2
+MAX_EPOCH=400
 CUR_START_EPOCH=300
 CUDA_DEVICES=0
 #---------Battleship Setting-------------#
@@ -60,14 +60,12 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --align-position-pad-index 513 \
     --update-freq 6 \
     --keep-best-checkpoints 5 \
-    --pretrained-model-name bert-base-multilingual-uncased \
-    --pretrained-lm-name bert-base-multilingual-uncased \
+    --pretrained-model-name jhu-clsp/bibert-ende \
+    --pretrained-lm-name jhu-clsp/bibert-ende \
     --eval-bleu-print-samples \
     --eval-bleu --eval-bleu-remove-bpe \
     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
-    --lm-loss \
     --max-update 100000 \
-    --num-translation-update 100000 \
     --lm-head-frozen \
     --train-subset valid
 endmsg

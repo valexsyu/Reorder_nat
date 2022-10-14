@@ -179,7 +179,7 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
     def _custom_loss(self, loss, name="loss", factor=1.0):
         return {"name": name, "loss": loss, "factor": factor}
 
-    def forward(self, model, sample, update_num , reduce=True):
+    def forward(self, model, sample, update_num , pretrained_lm=None, lm_loss_layer=-1, reduce=True):
         """Compute the loss for the given sample.
         Returns a tuple with three elements:
         1) the loss
@@ -199,7 +199,7 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
         else:
             tgt_tokens = sample["target"]
             alignments = None
-        outputs = model(src_tokens, src_lengths, tgt_tokens, alignments, update_num)
+        outputs = model(src_tokens, src_lengths, tgt_tokens, alignments, update_num, pretrained_lm, lm_loss_layer)
         losses, nll_loss = [], []
 
         for obj in outputs:

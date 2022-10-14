@@ -21,6 +21,7 @@ from fairseq.tasks.translation import (
 )
 from fairseq.utils import new_arange
 from typing import Optional
+from transformers import AutoModel, AutoModelForMaskedLM
 
 NOISE_CHOICES = ChoiceEnum(["random_delete", "random_mask", "no_noise", "full_mask"])
 FREEZE_MODULE = ChoiceEnum(["reorder", "translator","None"])
@@ -62,7 +63,16 @@ class TranslationAlignReorderConfig(TranslationConfig):
     align_position_pad_index: int = field(
         default=513, metadata={"help": "position padding index, defult is 0 "},
     )      
-
+    # args for pretrained models:
+    pretrained_lm_name: str = field(
+        default="None", metadata={"help": "Name of the path for the LM model"},
+    )  
+    lm_loss_dis: bool = field(
+        default=False, metadata={"help": "compute LM loss using distribution"},
+    )  
+    lm_loss_layer: int = field(
+        default=-1, metadata={"help": "the lm loss layer , default is -1 (-1 means last layer)"},
+    )                 
       
 
 @register_task("translation_align_reorder", dataclass=TranslationAlignReorderConfig)
@@ -87,6 +97,15 @@ class TranslationaAlignReorder(TranslationTask):
         self.iterative_reorder_translator = cfg.iterative_reorder_translator
         self.switch = True
         self.align_position_pad_index = cfg.align_position_pad_index
+        if cfg.pretrained_lm_name == "None" :
+            self.pretrained_lm = None
+        else:
+            if cfg.lm_loss_dis :
+                self.pretrained_lm = AutoModelForMaskedLM.from_pretrained(cfg.pretrained_lm_name)
+            else:
+                self.pretrained_lm = AutoModel.from_pretrained(cfg.pretrained_lm_name) 
+        self.lm_loss_layer = cfg.lm_loss_layer
+        
 
   
     @classmethod
@@ -301,18 +320,18 @@ class TranslationaAlignReorder(TranslationTask):
     ):  
         model.train()
  
-        if self.iterative_reorder_translator :             
-            if update_num % self.iter_num_reorder == 0 :                 
-                self.switch = not self.switch    
-                if self.switch :
-                    print("Freeze module : reorder")
-                else:
-                    print("Freeze module : translator")
+        # if self.iterative_reorder_translator :             
+        #     if update_num % self.iter_num_reorder == 0 :                 
+        #         self.switch = not self.switch    
+        #         if self.switch :
+        #             print("Freeze module : reorder")
+        #         else:
+        #             print("Freeze module : translator")
                               
-            if self.switch :                 
-                self.freeze_module =  'reorder'             
-            else :                 
-                self.freeze_module = 'translator'        
+        #     if self.switch :                 
+        #         self.freeze_module =  'reorder'             
+        #     else :                 
+        #         self.freeze_module = 'translator'        
             
         """ for merge only use
         cuda0 = torch.device('cuda:0')
@@ -321,7 +340,8 @@ class TranslationaAlignReorder(TranslationTask):
         logging_output={'loss': 0, 'sample_size' : 1}#, 'nll_loss': torch.Tensor(0.187), 'ntokens': 960, 'nsentences': 40, 'sample_size': 1, 'word_ins-loss': 0.18786469101905823}
         return loss, sample_size, logging_output
         """
-        loss, sample_size, logging_output = criterion(model, sample, update_num)
+        loss, sample_size, logging_output = criterion(model, sample, update_num,
+                                                      self.pretrained_lm, self.lm_loss_layer)
          
         if ignore_grad:
             loss *= 0

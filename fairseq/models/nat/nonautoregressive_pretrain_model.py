@@ -47,35 +47,26 @@ class NATPretrainedModel(BaseFairseqModel):
         self.use_pretrained_embedding = args.use_pretrained_embedding
         self.use_drop_embedding = 1    
         self.lm_loss = args.lm_loss 
-        self.lm_loss_dis = args.lm_loss_dis
+        # self.lm_loss_dis = args.lm_loss_dis
         self.pretrained_model_name = args.pretrained_model_name 
         self.pretrained_embedding_name = args.pretrained_embedding_name
-        self.pretrained_lm_name = args.pretrained_lm_name
-        self.lm_loss_self = args.lm_loss_self
-        self.lm_loss_layer = args.lm_loss_layer 
+        # self.pretrained_lm_name = args.pretrained_lm_name
+        # self.lm_loss_layer = args.lm_loss_layer 
         self.lm_tr_layer = args.lm_tr_layer 
         self.lm_st_layer = args.lm_st_layer
         if len(self.lm_st_layer) != len(self.lm_tr_layer):
             print("length of KD layer of student and teacher are not the same ")
             import pdb;pdb.set_trace()
-        if self.pretrained_lm_name is None :
-            if self.lm_loss_self : 
-                if self.pretrained_model_name  == "distilbert-base-multilingual-cased" :
-                    self.pretrained_lm = self.translator.bert
-                elif self.pretrained_model_name  == "bert-base-multilingual-uncased" :
-                    self.pretrained_lm = self.translator.bert
-                elif self.pretrained_model_name  == "jhu-clsp/bibert-ende" :               
-                    self.pretrained_lm = self.translator.roberta 
-            else:                
-                self.pretrained_lm = None
-        else:
-            if self.lm_loss_dis :
-                self.pretrained_lm = AutoModelForMaskedLM.from_pretrained(self.pretrained_lm_name)
-            else:
-                self.pretrained_lm = AutoModel.from_pretrained(self.pretrained_lm_name) 
-            for params in self.pretrained_lm.parameters() :
-                params.requires_grad=False                
-            self.pretrained_lm.eval() 
+        # if self.pretrained_lm_name is None :
+        #     self.pretrained_lm = None
+        # else:
+        #     if self.lm_loss_dis :
+        #         self.pretrained_lm = AutoModelForMaskedLM.from_pretrained(self.pretrained_lm_name)
+        #     else:
+        #         self.pretrained_lm = AutoModel.from_pretrained(self.pretrained_lm_name) 
+        #     for params in self.pretrained_lm.parameters() :
+        #         params.requires_grad=False                
+        #     self.pretrained_lm.eval() 
             
 
         if self.pretrained_embedding_name is None:
@@ -151,10 +142,10 @@ class NATPretrainedModel(BaseFairseqModel):
         parser.add_argument("--pretrained-model-name", default=None, type=str,
                     help="Name of the path for the pre-trained model"
         )     
-        # args for pretrained models:
-        parser.add_argument("--pretrained-lm-name", default=None, type=str,
-                    help="Name of the path for the LM model"
-        )   
+        # # args for pretrained models:
+        # parser.add_argument("--pretrained-lm-name", default=None, type=str,
+        #             help="Name of the path for the LM model"
+        # )   
         parser.add_argument("--pretrained-embedding-name", default=None, type=str,
                     help="Name of the path for the embedding model"
         )                      
@@ -163,11 +154,11 @@ class NATPretrainedModel(BaseFairseqModel):
             action="store_true",
             help="compute LM loss ",
         )    
-        parser.add_argument(
-            "--lm-loss-dis",
-            action="store_true",
-            help="compute LM loss using distribution ",
-        )            
+        # parser.add_argument(
+        #     "--lm-loss-dis",
+        #     action="store_true",
+        #     help="compute LM loss using distribution ",
+        # )            
         
         parser.add_argument(
             "--reorder-arch-small",
@@ -202,23 +193,23 @@ class NATPretrainedModel(BaseFairseqModel):
             action="store_true",
             help="embedding of model is frozen",
         )        
-        parser.add_argument(
-            "--lm-loss-self",
-            action="store_true",
-            help="self lm loss",
-        )            
+        # parser.add_argument(
+        #     "--lm-loss-self",
+        #     action="store_true",
+        #     help="self lm loss",
+        # )            
         parser.add_argument(
             "--lm-loss-type",
             type=str,
             default="COS",
             help="COS or MSE",
         )                          
-        parser.add_argument(
-            "--lm-loss-layer",
-            type=int,
-            default=-1,
-            help="the lm loss layer , default is -1 (-1 means last layer)",
-        )                
+        # parser.add_argument(
+        #     "--lm-loss-layer",
+        #     type=int,
+        #     default=-1,
+        #     help="the lm loss layer , default is -1 (-1 means last layer)",
+        # )                
         parser.add_argument(
             "--lm-st-layer",
             type=int,
@@ -265,7 +256,8 @@ class NATPretrainedModel(BaseFairseqModel):
 
                
     def forward(
-        self, src_tokens, src_lengths, tgt_tokens, alignments, update_num, **kwargs
+        self, src_tokens, src_lengths, tgt_tokens, alignments, update_num,
+        pretrained_lm=None, lm_loss_layer=-1, **kwargs
     ):  
         # if self.lm_loss and update_num > self.num_translation_update*0.75 :
         if self.lm_loss and update_num > self.lm_start_step :
@@ -287,9 +279,10 @@ class NATPretrainedModel(BaseFairseqModel):
                 "loss_type": "CTC",
             }
         }
-        if self.pretrained_lm is not None :
+        if pretrained_lm is not None :
             with torch.no_grad():
-                target_token_embeddings, target_bos_embeddings = self.get_pretrained_embedding(tgt_tokens, self.pretrained_lm, self.lm_loss_layer)            
+                target_token_embeddings, target_bos_embeddings = \
+                                  self.get_pretrained_embedding(tgt_tokens, pretrained_lm, lm_loss_layer)            
             
             if self.do_lm_loss :        
                 lm_loss_output = self.compute_lm_rep_loss(output_rep=output_hidden_states, logits=logits, src_tokens=src_upsample_tokens, \
@@ -433,11 +426,9 @@ class NATPretrainedModel(BaseFairseqModel):
 
     def get_pretrained_embedding(self, src_tokens, model, output_layer=-1) :
         device = src_tokens.device
-        # self.pretrained_embedding.to(device) 
         model.to(device) 
         bos = self.src_dict.bos() * torch.ones(src_tokens.shape[0], 1, dtype=torch.long, device=device)
         src_tokens = torch.cat((bos, src_tokens), dim=1)
-        # lm_outputs = self.pretrained_embedding(src_tokens, output_hidden_states=True, return_dict=True) 
         lm_outputs = model(src_tokens, output_hidden_states=True, return_dict=True) 
         token_embeddings = lm_outputs['hidden_states'][output_layer].detach()
         # random_num = torch.rand(1)
@@ -449,12 +440,12 @@ class NATPretrainedModel(BaseFairseqModel):
 
         return token_embeddings, bos_embeddings
 
-    def get_pretrained_lprobs(self, src_tokens) :
+    def get_pretrained_lprobs(self, src_tokens, model) :
         device = src_tokens.device
-        self.pretrained_lm.to(device)
+        model.to(device)
         bos = self.src_dict.bos() * torch.ones(src_tokens.shape[0], 1, dtype=torch.long, device=device)
         src_tokens = torch.cat((bos, src_tokens), dim=1)
-        lm_outputs = self.pretrained_lm(src_tokens, output_hidden_states=False, return_dict=True)
+        lm_outputs = model(src_tokens, output_hidden_states=False, return_dict=True)
         logits = lm_outputs["logits"]
         lm_lprobs = F.log_softmax(logits[:, 1:, :].detach(),-1) 
         src_tokens = src_tokens[:, 1:]                
@@ -474,43 +465,41 @@ class NATPretrainedModel(BaseFairseqModel):
                                     inputs_embeds=translator_token_embedding)                
                 
         else:       
-        ## forget to use bos to training
-        #     bos = self.src_dict.bos() * torch.ones(src_tokens.shape[0], 1, dtype=torch.long, device=src_tokens.device)
-        #     src_tokens_upsample = self.upsampling(src_tokens, self.num_upsampling_rate)
-        #     src_tokens_upsample = torch.cat((bos, src_tokens_upsample), dim=1)  
-        #     output_translator = self.translator.forward(input_ids = src_tokens_upsample, output_hidden_states=True, return_dict=True, 
-        #                             inputs_embeds=None)     
-        # logits = output_translator['logits'][:,1:,:]
-        # hidden_states = output_translator['hidden_states'][-1][:,1:,:]
+        # forget to use bos to training
+            bos = self.src_dict.bos() * torch.ones(src_tokens.shape[0], 1, dtype=torch.long, device=src_tokens.device)
+            src_tokens_upsample = self.upsampling(src_tokens, self.num_upsampling_rate)
+            src_tokens_upsample = torch.cat((bos, src_tokens_upsample), dim=1)  
+            output_translator = self.translator.forward(input_ids = src_tokens_upsample, output_hidden_states=True, return_dict=True, 
+                                    inputs_embeds=None)     
+        logits = output_translator['logits'][:,1:,:]
+        hidden_states = output_translator['hidden_states'][-1][:,1:,:]
 
-            if self.pretrained_model_name is not None:
-                if self.pretrained_model_name  == "distilbert-base-multilingual-cased" :
-                   token_embeddings = self.translator.distilbert.embeddings.word_embeddings(src_tokens)
-                elif self.pretrained_model_name  == "bert-base-multilingual-uncased" :
-                    token_embeddings = self.translator.bert.embeddings.word_embeddings(src_tokens)
-                elif self.pretrained_model_name  == "jhu-clsp/bibert-ende" :
-                    token_embeddings = self.translator.roberta.embeddings.word_embeddings(src_tokens)
-                else:
-                    import pdb;pdb.set_trace()
-                    print ("Model Error")
+        #     if self.pretrained_model_name is not None:
+        #         if self.pretrained_model_name  == "distilbert-base-multilingual-cased" :
+        #            token_embeddings = self.translator.distilbert.embeddings.word_embeddings(src_tokens)
+        #         elif self.pretrained_model_name  == "bert-base-multilingual-uncased" :
+        #             token_embeddings = self.translator.bert.embeddings.word_embeddings(src_tokens)
+        #         elif self.pretrained_model_name  == "jhu-clsp/bibert-ende" :
+        #             token_embeddings = self.translator.roberta.embeddings.word_embeddings(src_tokens)
+        #         else:
+        #             import pdb;pdb.set_trace()
+        #             print ("Model Error")
                 
-            else:
-                token_embeddings = self.translator.sentence_encoder.embed_tokens(src_tokens) 
-                import pdb;pdb.set_trace()
+        #     else:
+        #         token_embeddings = self.translator.sentence_encoder.embed_tokens(src_tokens) 
+        #         import pdb;pdb.set_trace()
             
-        translator_token_embedding = self.upsampling(token_embeddings, self.num_upsampling_rate)
-        if bos_embeddings is not None:
-            translator_token_embedding = torch.cat((bos_embeddings, translator_token_embedding), dim=1)
-        output_translator = self.translator.forward(input_ids = None, output_hidden_states=True, return_dict=True, 
-                                    inputs_embeds=translator_token_embedding)
-        logits = output_translator['logits']
-        hidden_states = output_translator['hidden_states'][-1]
+        # translator_token_embedding = self.upsampling(token_embeddings, self.num_upsampling_rate)
+        # if bos_embeddings is not None:
+        #     translator_token_embedding = torch.cat((bos_embeddings, translator_token_embedding), dim=1)
+        # output_translator = self.translator.forward(input_ids = None, output_hidden_states=True, return_dict=True, 
+        #                             inputs_embeds=translator_token_embedding)
+        # logits = output_translator['logits']
+        # hidden_states = output_translator['hidden_states'][-1]
         
-
-
-        if bos_embeddings is not None :
-            logits = logits[:,1:,:]
-            hidden_states = hidden_states[:,1:,:]
+        # if bos_embeddings is not None :
+        #     logits = logits[:,1:,:]
+        #     hidden_states = hidden_states[:,1:,:]
 
         return logits, hidden_states 
              
@@ -567,12 +556,12 @@ def base_architecture(args):
     args.init_translator  = safe_getattr( args, "init_translator", False )
     args.init_reorder  = safe_getattr( args, "init_reorder", False )
     args.lm_loss  = safe_getattr( args, "lm_loss", False )
-    args.lm_loss_dis  = safe_getattr( args, "lm_loss_dis", False )
+    # args.lm_loss_dis  = safe_getattr( args, "lm_loss_dis", False )
     args.lm_head_frozen  = safe_getattr( args, "lm_head_frozen", False )
     args.embedding_frozen  = safe_getattr( args, "embedding_frozen", False )
     args.lm_loss_self  = safe_getattr( args, "lm_loss_self", False )
     args.lm_loss_type  = safe_getattr( args, "lm_loss_type", "COS" )
-    args.lm_loss_layer  = safe_getattr( args, "lm_loss_layer", -1 )
+    # args.lm_loss_layer  = safe_getattr( args, "lm_loss_layer", -1 )
     args.lm_tr_layer  = safe_getattr( args, "lm_tr_layer", [-1] )
     args.lm_st_layer  = safe_getattr( args, "lm_st_layer", [-1] )
     args.lm_start_step = safe_getattr( args, "lm_start_step", 75000)
@@ -589,7 +578,7 @@ def base_architecture(args):
     args.use_pretrained_embedding = safe_getattr(args, "use_pretrained_embedding", False )
     args.pretrained_model_name = safe_getattr(args, "pretrained_model_name", None )
     args.pretrained_embedding_name = safe_getattr(args, "pretrained_embedding_name", None )
-    args.pretrained_lm_name = safe_getattr(args, "pretrained_lm_name", None )
+    # args.pretrained_lm_name = safe_getattr(args, "pretrained_lm_name", None )
     args.reorder_arch_small = safe_getattr(args, "reorder_arch_small", False )
     
     

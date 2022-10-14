@@ -3,7 +3,7 @@ conda activate base
 #---------Path Setting-------------------#
 CHECKPOINT=checkpoints/No-6-2-03-translation-lm
 DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_52k/de-en-databin
-MAX_TOKENS=3072
+MAX_TOKENS=2048
 MAX_EPOCH=400
 CUR_START_EPOCH=300
 CUDA_DEVICES=0
@@ -58,7 +58,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --left-pad-source \
     --prepend-bos \
     --align-position-pad-index 513 \
-    --update-freq 4 \
+    --update-freq 6 \
     --wandb-project ReorderNAT5 \
     --keep-best-checkpoints 5 \
     --pretrained-model-name jhu-clsp/bibert-ende \
@@ -68,7 +68,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
     --lm-loss \
     --max-update 100000 \
-    --num-translation-update 100000 \
+    --lm-start-step 70000 \
     --lm-head-frozen \
     --train-subset train
 #--curricular-learning \

@@ -67,7 +67,6 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --eval-bleu --eval-bleu-remove-bpe \
     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
     --max-update 100000 \
-    --num-translation-update 100000 \
     --lm-head-frozen \
     --train-subset train
 #--curricular-learning \

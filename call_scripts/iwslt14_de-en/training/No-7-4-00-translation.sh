@@ -1,7 +1,7 @@
 #---------Path Setting-------------------#
 CHECKPOINT=checkpoints/No-7-4-00-translation
 DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_mbert/de-en-databin
-MAX_TOKENS=3072
+MAX_TOKENS=2048
 MAX_EPOCH=400
 CUR_START_EPOCH=300
 CUDA_DEVICES=0
@@ -56,7 +56,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --left-pad-source \
     --prepend-bos \
     --align-position-pad-index 513 \
-    --update-freq 4 \
+    --update-freq 6 \
     --wandb-project ReorderNAT5 \
     --keep-best-checkpoints 5 \
     --pretrained-model-name bert-base-multilingual-uncased \
@@ -65,7 +65,6 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --eval-bleu --eval-bleu-remove-bpe \
     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
     --max-update 100000 \
-    --num-translation-update 100000 \
     --lm-head-frozen \
     --embedding-frozen \
     --train-subset train
