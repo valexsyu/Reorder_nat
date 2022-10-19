@@ -58,7 +58,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --left-pad-source \
     --prepend-bos \
     --align-position-pad-index 513 \
-    --update-freq 3 \
+    --update-freq 6 \
     --wandb-project NAT-Pretrained-Model \
     --wandb-entity valex-jcx \
     --keep-best-checkpoints 5 \
@@ -71,6 +71,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --max-update 100000 \
     --lm-start-step 70000 \
     --lm-head-frozen \
+    --upsample-fill-mask \
     --dynamic-upsampling \
     --train-subset train
 #--curricular-learning \

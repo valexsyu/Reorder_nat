@@ -1,7 +1,7 @@
 source $HOME/.bashrc 
 conda activate base
 #---------Path Setting-------------------#
-CHECKPOINT=checkpoints/No-6-2-50-translation-dy
+CHECKPOINT=checkpoints/No-6-2-60-translation-dy
 DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_baseline_iwslt14_de_en_52k/de-en-databin
 MAX_TOKENS=2048
 MAX_EPOCH=400

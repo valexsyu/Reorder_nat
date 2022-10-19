@@ -500,7 +500,7 @@ class NATPretrainedModel(BaseFairseqModel):
                 new_t_w = F.one_hot(new_location, num_classes=new_length).masked_fill(mask.unsqueeze(-1), 0)
                 
             else:
-                new_location = torch.cat((new_location, torch.ones((B, 1)).to(new_location)*new_length), 1)
+                new_location = torch.cat((new_location, torch.ones((x.size(0), 1)).to(new_location)*new_length), 1)
                 location_to_exp = 2**(new_location+1)
                 diff = (location_to_exp[:, 1:]-location_to_exp[:, :-1])
                 diff_to_bit = integer2bit(diff, new_length+1)
@@ -550,11 +550,13 @@ class NATPretrainedModel(BaseFairseqModel):
                 mask_tokens = source.masked_fill(mask,self.mask)
                 upsampled = torch.stack((source, mask_tokens), dim=2).view(b, l*rate)
         else:    
-            # if self.dynamic_upsampling :
-            #     insert_mask = False
-            #     t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate)  
-            # else:                        
-            upsampled =  torch.repeat_interleave(source, rate, dim=1)
+            if self.dynamic_upsampling :
+                insert_mask = False
+                import pdb;pdb.set_trace()
+                t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate) 
+                return t_x   
+            else:                        
+                upsampled =  torch.repeat_interleave(source, rate, dim=1)
         return upsampled
 
     def translation(self, src_tokens, src_lengths, **kwargs):
