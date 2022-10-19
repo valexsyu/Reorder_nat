@@ -3,19 +3,20 @@ conda activate base
 # --use-align-position \
 # -----------    Setting    -------------
 # CHECKPOINTS=("No-6-1-000-translation-init" "No-6-1-003-translation-init-lm" "No-6-1-00-translation" "No-6-1-03-translation-lm")
-CHECKPOINTS=("No-6-2-00-translation-old")
+CHECKPOINTS=("No-6-2-00-translation" "No-6-2-03-translation-lm" "No-6-2-20-translation" "No-6-2-23-translation-lm")
 REORDER_TRANSLATION=translation
 # REORDER_TRANSLATION=reorder_translation
 # DATA_TYPES=("test" "valid" "train")
 TOPK=5
 DATA_TYPES=("test") #"valid")
-CHECK_TYPES=("best_top$TOPK")
+CHECK_TYPES=("last" "best" ) #"best_top$TOPK")
 DATA=iwslt14.de-en
 #DATABIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en/de-en-databin #Bin Data of TEST dataset
 # DATABIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_52k/de-en-databin #Bin Data of TEST dataset
 # DATABIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_mbert/de-en-databin #Bin Data of TEST dataset
 # DATABIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_52k/de-en-databin
 DATABIN=data/nat_position_reorder/awesome/Bibert_token_iwslt14_de_en_52k/de-en-databin
+# DATABIN=data/nat_position_reorder/awesome/Bibert_token_distill_baseline_iwslt14_de_en_52k/de-en-databin
 CHECKPOINTS_PATH=checkpoints
 
 BATCH_SIZE=128
@@ -46,7 +47,7 @@ for No in "${CHECKPOINTS[@]}" ; do
 	 
 	CHECKPOINTS_ROOT=$CHECKPOINTS_PATH/$No
 	
-    # avg_topk_best_checkpoints $CHECKPOINTS_ROOT $TOPK $CHECKPOINTS_ROOT/checkpoint_best_top$TOPK.pt
+    avg_topk_best_checkpoints $CHECKPOINTS_ROOT $TOPK $CHECKPOINTS_ROOT/checkpoint_best_top$TOPK.pt
 
 
 	# ---------------------------------------0
@@ -145,6 +146,52 @@ done
 # 	done
 # done
 
+
+
+# # # =============================================================================================================================
+CHECKPOINTS=("No-6-2-30-translation_mask" "No-6-2-33-translation-lm_mask")
+REORDER_TRANSLATION=translation
+
+for No in "${CHECKPOINTS[@]}" ; do
+	 
+	CHECKPOINTS_ROOT=$CHECKPOINTS_PATH/$No
+	
+    avg_topk_best_checkpoints $CHECKPOINTS_ROOT $TOPK $CHECKPOINTS_ROOT/checkpoint_best_top$TOPK.pt
+
+
+	# ---------------------------------------0
+	ck_ch1=last
+	ck_ch2=best
+	for ck_ch in "${CHECK_TYPES[@]}"; do
+	    for data_type in "${DATA_TYPES[@]}" ; do
+			RESULT_PATH=$CHECKPOINTS_ROOT/$data_type/$ck_ch.bleu/$DATA
+			CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
+				#hrun $GPU -N $NODE -c $CPU -t $TIME -m $MEM python generate.py \
+				python generate.py \
+					$DATABIN \
+					--gen-subset $data_type \
+					--task $TASK \
+					--path $CHECKPOINTS_ROOT/$CHECKPOINTS_DATA \
+					--results-path $RESULT_PATH \
+					--arch $ARCH \
+					--iter-decode-max-iter 0 \
+					--criterion $CRITERION \
+					--beam 1 \
+					--no-repeat-ngram-size 1 \
+					--left-pad-source \
+                    --prepend-bos \
+					--pretrained-lm-name jhu-clsp/bibert-ende \
+					--pretrained-model-name jhu-clsp/bibert-ende \
+					--sacrebleu \
+					--bpe bibert \
+					--pretrained-bpe ${PRE} --pretrained-bpe-src ${PRE_SRC} \
+					--remove-bpe \
+                    --upsample-fill-mask \
+					--batch-size $BATCH_SIZE 
+			
+		done
+	done
+done
 
 
 

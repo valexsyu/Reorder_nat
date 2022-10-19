@@ -1,5 +1,5 @@
 # DATA_ROOT=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_token_distill_wmt14_de_en_52k
-DATA_ROOT=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_52k
+DATA_ROOT=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_token_distill_baseline_iwslt14_de_en_52k
 DATA_TYPES=("test" "valid" "train")
 LANGS=("de" "en")
 RESULT_ROOT=$DATA_ROOT/num_words_each_line/

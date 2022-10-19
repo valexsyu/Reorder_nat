@@ -6,14 +6,14 @@ conda activate base
 # --use-align-position \
 # -----------    Setting    -------------
 # CHECKPOINTS=("No-7-1-000-translation-init" "No-7-1-003-translation-init-lm" "No-7-1-00-translation" "No-7-1-03-translation")
-CHECKPOINTS=( "No-7-4-03-translation-lm")
+CHECKPOINTS=( "No-7-4-00-translation" "No-7-4-03-translation-lm")
 REORDER_TRANSLATION=translation
 # REORDER_TRANSLATION=reorder_translation
 # DATA_TYPES=("test" "valid" "train")
 TOPK=5
 DATA_TYPES=("test")
 # CHECK_TYPES=("last" "best" "best_top$TOPK")
-CHECK_TYPES=("last" "best" "best_top$TOPK")
+CHECK_TYPES=("best_top$TOPK")
 DATA=iwslt14.de-en
 #DATABIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en/de-en-databin #Bin Data of TEST dataset
 # DATABIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_52k/de-en-databin #Bin Data of TEST dataset

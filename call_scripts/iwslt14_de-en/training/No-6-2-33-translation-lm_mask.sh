@@ -58,7 +58,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --left-pad-source \
     --prepend-bos \
     --align-position-pad-index 513 \
-    --update-freq 6 \
+    --update-freq 3 \
     --wandb-project NAT-Pretrained-Model \
     --wandb-entity valex-jcx \
     --keep-best-checkpoints 5 \

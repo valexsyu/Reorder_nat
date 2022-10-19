@@ -2,8 +2,8 @@ source $HOME/.bashrc
 conda activate base
 #---------Path Setting-------------------#
 CHECKPOINT=checkpoints/No-test
-DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_baseline_iwslt14_de_en_52k/de-en-databin
-MAX_TOKENS=2048
+DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_52k/de-en-databin
+MAX_TOKENS=500
 MAX_EPOCH=400
 CUR_START_EPOCH=300
 CUDA_DEVICES=0
@@ -53,15 +53,13 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --max-tokens $MAX_TOKENS \
     --max-epoch $MAX_EPOCH \
     --noise no_noise \
-    --num-upsampling-rate 2 \
+    --num-upsampling-rate 2.5 \
     --save-interval 1 \
     --left-pad-source \
     --prepend-bos \
     --align-position-pad-index 513 \
     --update-freq 6 \
     --keep-best-checkpoints 5 \
-    --wandb-project Test \
-    --wandb-entity valex-jcx \
     --pretrained-model-name jhu-clsp/bibert-ende \
     --pretrained-lm-name jhu-clsp/bibert-ende \
     --eval-bleu-print-samples \
@@ -70,6 +68,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --max-update 100000 \
     --lm-head-frozen \
     --upsample-fill-mask \
+    --dynamic-upsampling \
     --train-subset valid
 endmsg
 

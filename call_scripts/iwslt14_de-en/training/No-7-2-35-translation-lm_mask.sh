@@ -1,8 +1,8 @@
 source $HOME/.bashrc 
 conda activate base
 #---------Path Setting-------------------#
-CHECKPOINT=checkpoints/No-6-2-30-translation_mask
-DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_52k/de-en-databin
+CHECKPOINT=checkpoints/No-7-2-35-translation-lm_mask
+DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_valid-nondistill_iwslt14_de_en_mbert/de-en-databin
 MAX_TOKENS=2048
 MAX_EPOCH=400
 CUR_START_EPOCH=300
@@ -58,16 +58,18 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --left-pad-source \
     --prepend-bos \
     --align-position-pad-index 513 \
-    --update-freq 3 \
+    --update-freq 6 \
     --wandb-project NAT-Pretrained-Model \
     --wandb-entity valex-jcx \
     --keep-best-checkpoints 5 \
-    --pretrained-model-name jhu-clsp/bibert-ende \
-    --pretrained-lm-name jhu-clsp/bibert-ende \
+    --pretrained-model-name bert-base-multilingual-uncased \
+    --pretrained-lm-name bert-base-multilingual-uncased \
     --eval-bleu-print-samples \
     --eval-bleu --eval-bleu-remove-bpe \
     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
+    --lm-loss \
     --max-update 100000 \
+    --lm-start-step 75000 \
     --lm-head-frozen \
     --upsample-fill-mask \
     --train-subset train

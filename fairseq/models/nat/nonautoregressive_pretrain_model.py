@@ -33,6 +33,7 @@ from transformers import AutoModel, AutoModelForMaskedLM
 from torch.distributions import Categorical
 import numpy as np
 from scipy.optimize import linear_sum_assignment as lsa
+from fairseq.utils import new_arange
 
 
 @register_model("nat_pretrained_model") 
@@ -55,7 +56,8 @@ class NATPretrainedModel(BaseFairseqModel):
         # self.lm_loss_layer = args.lm_loss_layer 
         self.lm_tr_layer = args.lm_tr_layer 
         self.lm_st_layer = args.lm_st_layer
-        self.upsample_fill_mask = args.upsample_fill_mask     
+        self.upsample_fill_mask = args.upsample_fill_mask
+        self.dynamic_upsampling = args.dynamic_upsampling 
         if len(self.lm_st_layer) != len(self.lm_tr_layer):
             print("length of KD layer of student and teacher are not the same ")
             import pdb;pdb.set_trace()
@@ -127,7 +129,7 @@ class NATPretrainedModel(BaseFairseqModel):
        
         parser.add_argument(
             "--num-upsampling-rate",
-            type=int,
+            type=float,
             default=2,
             help="The multiplier value of the source upsampling",
         )  
@@ -230,8 +232,13 @@ class NATPretrainedModel(BaseFairseqModel):
             "--upsample-fill-mask",
             action="store_true",
             help="upsample use mask to be token ",
-        )                 
-        
+        )       
+        parser.add_argument(
+            "--dynamic-upsampling",
+            action="store_true",
+            help="upsample use dynamic upsampling ",
+        )                   
+       
                     
         
 
@@ -458,13 +465,95 @@ class NATPretrainedModel(BaseFairseqModel):
         src_tokens = src_tokens[:, 1:]                
         
         return lm_lprobs
-    def upsampling(self, source, rate): 
+    def upsampling(self, source, rate):          
+        def dynamic_upsample_token(x, insert_mask=False , rate=2):
+            new_length = int(x.size(1) * rate)
+            pad = self.src_dict.pad()
+            bos = self.src_dict.bos()
+            eos = self.src_dict.eos()
+            ### the mask is True when padding/bos/eos 
+            mask = ~(
+                x.ne(pad) & x.ne(bos) & x.ne(eos)
+            )            
+            l = (x.new_ones(x.size(0), x.size(1)) * rate).float()
+            l = l.masked_fill(mask, 0)
+            e = torch.cumsum(l, 1)
+            c = e - l / 2
+            t = e[:, -1].ceil().long()
+            # pdb.set_trace()
+
+            # t = new_arange(t, t.max())[None, :].expand(l.size(0), -1)  # B x L2
+            t = new_arange(t, new_length)[None, :].expand(l.size(0), -1)  # B x L2
+
+            t_mask = t >= e[:, -1:]   # target padding mask
+            w = -(t[:, None, :] - c[:, :, None]) ** 2 / 0.3
+
+            w = w.float()
+            w = w.masked_fill(mask.unsqueeze(-1), -10000.0)
+            w = w.masked_fill(t_mask.unsqueeze(1), -10000.0)
+            t_w = F.softmax(w, dim=1)   # B x L x L2
+
+            new_location = t_w.argmax(-1)
+            
+            if insert_mask:
+                
+                new_t_w = F.one_hot(new_location, num_classes=new_length).masked_fill(mask.unsqueeze(-1), 0)
+                
+            else:
+                new_location = torch.cat((new_location, torch.ones((B, 1)).to(new_location)*new_length), 1)
+                location_to_exp = 2**(new_location+1)
+                diff = (location_to_exp[:, 1:]-location_to_exp[:, :-1])
+                diff_to_bit = integer2bit(diff, new_length+1)
+                new_t_w = torch.flip(diff_to_bit[:, :, :-1], (2,))
+                
+            t_x = torch.einsum('bst,bs->bt', new_t_w.to(x).float(), x.float()).long().to(x)
+            # t_x = torch.matmul(x.float(), new_t_w.to(x).float()).to(x)
+            
+
+            if insert_mask:
+                t_x[torch.where(t_x == pad)] = self.mask
+                
+            t_x = t_x.masked_fill(t_mask, 0)
+                
+            return t_x, t_mask, w, t_w, new_t_w, new_location
+
+
+        # https://github.com/KarenUllrich/pytorch-binary-converter/blob/master/binary_converter.py
+        def integer2bit(integer, num_bits=8):
+            """Turn integer tensor to binary representation.
+                Args:
+                    integer : torch.Tensor, tensor with integers
+                    num_bits : Number of bits to specify the precision. Default: 8.
+                Returns:
+                    Tensor: Binary tensor. Adds last dimension to original tensor for
+                    bits.
+            """
+            dtype = integer.type()
+            exponent_bits = -torch.arange(-(num_bits - 1), 1).type(dtype)
+            exponent_bits = exponent_bits.repeat(integer.shape + (1,))
+            out = integer.unsqueeze(-1) / 2 ** exponent_bits
+            return (out - (out % 1)) % 2        
+        
+        
+        
+        
+                
+
         if self.upsample_fill_mask :
-            b,l = source.size()
-            mask = source.ne(self.pad)  #ex : soruce=[7,7,7,pad] mask=[True True True False]
-            mask_tokens = source.masked_fill(mask,self.mask)
-            upsampled = torch.stack((source, mask_tokens), dim=2).view(b, l*rate)
-        else:            
+            if self.dynamic_upsampling :
+                insert_mask = True
+                t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate)  
+                return t_x  
+            else :
+                b,l = source.size()
+                mask = source.ne(self.pad)  #ex : soruce=[7,7,7,pad] mask=[True True True False]
+                mask_tokens = source.masked_fill(mask,self.mask)
+                upsampled = torch.stack((source, mask_tokens), dim=2).view(b, l*rate)
+        else:    
+            # if self.dynamic_upsampling :
+            #     insert_mask = False
+            #     t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate)  
+            # else:                        
             upsampled =  torch.repeat_interleave(source, rate, dim=1)
         return upsampled
 
@@ -580,6 +669,8 @@ def base_architecture(args):
     args.lm_start_step = safe_getattr( args, "lm_start_step", 75000)
     
     args.upsample_fill_mask  = safe_getattr( args, "upsample_fill_mask", False )
+    args.dynamic_upsampling  = safe_getattr( args, "dynamic_upsampling", False )
+    
     
 
 
