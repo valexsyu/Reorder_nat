@@ -252,7 +252,7 @@ fi
 
 
 CHECKPOINT=checkpoints/$experiment_id
-DATA_BIN=data/nat/$dataset/de-en-databin
+DATA_BIN=/livingrooms/valexsyu/dataset/nat/$dataset/de-en-databin
 
 
 ##----------RUN  Bash-----------------------------
