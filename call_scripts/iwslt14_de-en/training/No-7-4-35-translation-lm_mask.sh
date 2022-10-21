@@ -73,6 +73,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --lm-head-frozen \
     --embedding-frozen \
     --upsample-fill-mask \
+    --embedding-frozen \
     --train-subset train
 #--curricular-learning \
 #--curricular-learning-start-epoch $CUR_START_EPOCH \

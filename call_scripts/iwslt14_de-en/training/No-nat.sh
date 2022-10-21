@@ -2,7 +2,7 @@ source $HOME/.bashrc
 conda activate base
 #---------Path Setting-------------------#
 CHECKPOINT=checkpoints/No-test
-DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_baseline_iwslt14_de_en_52k/de-en-databin
+DATA_BIN=data/nat_position_reorder/awesome/Bibert_token_distill_valid-nondistill_iwslt14_de_en_mbert/de-en-databin
 MAX_TOKENS=2048
 MAX_EPOCH=400
 CUR_START_EPOCH=300
@@ -53,22 +53,26 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --max-tokens $MAX_TOKENS \
     --max-epoch $MAX_EPOCH \
     --noise no_noise \
-    --num-upsampling-rate 2.2 \
+    --num-upsampling-rate 2 \
     --save-interval 1 \
     --left-pad-source \
     --prepend-bos \
     --align-position-pad-index 513 \
     --update-freq 6 \
     --keep-best-checkpoints 5 \
-    --pretrained-model-name jhu-clsp/bibert-ende \
-    --pretrained-lm-name jhu-clsp/bibert-ende \
+    --pretrained-model-name bert-base-multilingual-uncased \
+    --pretrained-lm-name bert-base-multilingual-uncased \
     --eval-bleu-print-samples \
     --eval-bleu --eval-bleu-remove-bpe \
     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
+    --lm-loss \
     --max-update 100000 \
+    --lm-start-step 75000 \
     --lm-head-frozen \
-    --dynamic-upsampling \
-    --train-subset valid
+    --embedding-frozen \
+    --upsample-fill-mask \
+    --embedding-frozen \
+    --train-subset train
 endmsg
 
 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip.sh

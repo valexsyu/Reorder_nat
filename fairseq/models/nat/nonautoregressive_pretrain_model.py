@@ -46,6 +46,8 @@ class NATPretrainedModel(BaseFairseqModel):
         self.mask = src_dict.indices["[MASK]"]
         self.label_smoothing = args.label_smoothing
         self.num_upsampling_rate = args.num_upsampling_rate
+        if self.num_upsampling_rate >= 10 :
+            self.num_upsampling_rate = self.num_upsampling_rate / 10
         self.use_pretrained_embedding = args.use_pretrained_embedding
         self.use_drop_embedding = 1    
         self.lm_loss = args.lm_loss 
@@ -455,7 +457,7 @@ class NATPretrainedModel(BaseFairseqModel):
         return token_embeddings, bos_embeddings
 
     def get_pretrained_lprobs(self, src_tokens, model) :
-        device = src_tokens.device一日
+        device = src_tokens.device
         model.to(device)
         bos = self.src_dict.bos() * torch.ones(src_tokens.shape[0], 1, dtype=torch.long, device=device)
         src_tokens = torch.cat((bos, src_tokens), dim=1)
@@ -467,7 +469,8 @@ class NATPretrainedModel(BaseFairseqModel):
         return lm_lprobs
     def upsampling(self, source, rate):          
         def dynamic_upsample_token(x, insert_mask=False , rate=2):
-            new_length = int(x.size(1) * rate)
+            B, L = x.size(0), x.size(1)
+            new_length = int(L * rate)
             pad = self.src_dict.pad()
             bos = self.src_dict.bos()
             eos = self.src_dict.eos()
@@ -475,7 +478,7 @@ class NATPretrainedModel(BaseFairseqModel):
             mask = ~(
                 x.ne(pad) & x.ne(bos) & x.ne(eos)
             )            
-            l = (x.new_ones(x.size(0), x.size(1)) * rate).float()
+            l = (x.new_ones(B, L) * rate).float()
             l = l.masked_fill(mask, 0)
             e = torch.cumsum(l, 1)
             c = e - l / 2
@@ -500,11 +503,10 @@ class NATPretrainedModel(BaseFairseqModel):
                 new_t_w = F.one_hot(new_location, num_classes=new_length).masked_fill(mask.unsqueeze(-1), 0)
                 
             else:
-                new_location = torch.cat((new_location, torch.ones((x.size(0), 1)).to(new_location)*new_length), 1)
-                location_to_exp = 2**(new_location+1)
-                diff = (location_to_exp[:, 1:]-location_to_exp[:, :-1])
-                diff_to_bit = integer2bit(diff, new_length+1)
-                new_t_w = torch.flip(diff_to_bit[:, :, :-1], (2,))
+                new_t_w = F.one_hot(new_location, num_classes=new_length).masked_fill(mask.unsqueeze(-1), 0)
+                new_location = torch.cat((new_location, torch.ones((B, 1)).to(new_location)*new_length), 1)
+                new_t_w[(torch.arange(0, new_length, dtype=torch.float32).unsqueeze(0).repeat(B, L, 1).to(new_location) >= new_location[:, :-1].unsqueeze(-1)) &
+                        (torch.arange(0, new_length, dtype=torch.float32).unsqueeze(0).repeat(B, L, 1).to(new_location) < new_location[:, 1:].unsqueeze(-1))] = 1
                 
             t_x = torch.einsum('bst,bs->bt', new_t_w.to(x).float(), x.float()).long().to(x)
             # t_x = torch.matmul(x.float(), new_t_w.to(x).float()).to(x)
@@ -548,15 +550,14 @@ class NATPretrainedModel(BaseFairseqModel):
                 b,l = source.size()
                 mask = source.ne(self.pad)  #ex : soruce=[7,7,7,pad] mask=[True True True False]
                 mask_tokens = source.masked_fill(mask,self.mask)
-                upsampled = torch.stack((source, mask_tokens), dim=2).view(b, l*rate)
+                upsampled = torch.stack((source, mask_tokens), dim=2).view(b, int(l*rate))
         else:    
             if self.dynamic_upsampling :
                 insert_mask = False
-                import pdb;pdb.set_trace()
                 t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate) 
                 return t_x   
             else:                        
-                upsampled =  torch.repeat_interleave(source, rate, dim=1)
+                upsampled =  torch.repeat_interleave(source, int(rate), dim=1)
         return upsampled
 
     def translation(self, src_tokens, src_lengths, **kwargs):
