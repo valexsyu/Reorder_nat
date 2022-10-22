@@ -161,9 +161,11 @@ function default_setting() {
     max_tokens=2048
     max_epoch=400
     update_freq=6
+    echo "$gpu"
     
 }
 
+default_setting
 
 VALID_ARGS=$(getopt -o e:g:b: --long experiment:,gpu:,batch_size:,max-tokens:,max-epoch: -- "$@")
 if [[ $? -ne 0 ]]; then
@@ -192,33 +194,19 @@ while [ : ]; do
     --max-epoch)
       max_epoch="$2"
       shift 2
-      ;;                 
+      ;;          
     --) shift; 
         break
   esac
 done
 
-default_setting
 get_dataset "$experiment_id"
 get_pretrain_model "$experiment_id"
 get_fix_lm_swe "$experiment_id"
 get_voc "$experiment_id"
 get_kd_model "$experiment_id"
 get_ctc "$experiment_id"
-update_freq=$((batch_size/max_tokens))
-# echo "$dataset"
-# echo "$pretrained_model"
-# echo "$gpu"
-# echo "$fix_lm"
-# echo "$fix_swe"
-# echo "$voc"
-# echo "$lm_loss_dis"
-# echo "$lm_loss_layer"
-# echo "$lm_loss"
-# echo "$insert_position"
-# echo "$dynamic_upsampling"
-# echo "$num_upsampling_rate"
-# echo "$insert_mask"
+update_freq=$(((batch_size/max_tokens)/gpu))
 echo -e "Experiment:$experiment_id \nGPU_Number:$gpu \nBatch_Size:$batch_size \nMax_Tokens:$max_tokens \nMax_Epoch:$max_epoch \nUpdate_Freq:$update_freq"
 echo -e "Dataset:$dataset  \nPretrained_Model:$pretrained_model \nFix_LM:$fix_lm \nFix_SWE:$fix_swe"
 echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss"
