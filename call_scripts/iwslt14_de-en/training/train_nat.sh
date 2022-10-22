@@ -315,7 +315,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --max-epoch $MAX_EPOCH \
     --update-freq $UPDATE_FREQ \
     --num-upsampling-rate $NUM_UPSAMPLING_RATE \
-    --train-subset valid \
+    --train-subset train \
 endmsg
 
 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip.sh
