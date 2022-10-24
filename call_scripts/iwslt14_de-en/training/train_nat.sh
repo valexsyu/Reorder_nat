@@ -161,7 +161,6 @@ function default_setting() {
     max_tokens=2048
     max_epoch=400
     update_freq=6
-    echo "$gpu"
     
 }
 
