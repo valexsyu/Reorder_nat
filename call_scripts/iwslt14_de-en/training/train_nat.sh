@@ -14,10 +14,10 @@ function get_dataset() {
         dataset="distill_iwslt14_de_en_bibert"
     elif [ "$i" = "3" ]
     then
-        dataset="iwslt14_ro_en"
+        dataset="distill_baseline_iwslt14_de_en_mbert"
     elif [ "$i" = "4" ]
     then
-        dataset="iwslt14_en_de"
+        dataset="distill_baseline_iwslt14_de_en_bibert"
     else
         echo "error dataset id "
     fi
