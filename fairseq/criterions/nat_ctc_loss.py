@@ -42,7 +42,7 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
        
     
     def _compute_ctc_loss(  #valex
-        self, outputs, targets, masks=None, num_upsamling_rate=2, name="loss", factor=1.0, model=None, sample=None, 
+        self, outputs, targets, masks=None, num_upsampling_rate=2, name="loss", factor=1.0, model=None, sample=None, 
     ):
         """
         outputs: batch x len x d_model
@@ -65,7 +65,10 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
         
         if "src_lengths" in sample["net_input"]:
             input_lengths = sample["net_input"]["src_lengths"]
-            input_lengths = num_upsamling_rate*input_lengths              
+            input_lengths_upsample = (num_upsampling_rate*input_lengths).type_as(input_lengths) 
+           
+            
+
         else:
             if outputs["padding_mask"] is not None:
                 non_padding_mask = ~outputs["padding_mask"]
@@ -86,17 +89,19 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
             target_lengths = pad_mask.sum(-1)
 
         lprobs = lprobs.transpose(0,1)    
-        
+
+ 
         with torch.backends.cudnn.flags(enabled=False):
             loss = F.ctc_loss(
                 lprobs,
                 targets_flat,
-                input_lengths,
+                input_lengths_upsample,
                 target_lengths,
                 blank=self.blank_idx, 
                 reduction="mean",
                 zero_infinity=True,
-            )  
+            )           
+            
         loss = loss * factor
         nll_loss = loss
         
@@ -208,7 +213,7 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                     outputs[obj].get("out"),
                     outputs[obj].get("tgt"),
                     outputs[obj].get("mask", None),
-                    outputs[obj].get("num_upsampling_rate", 2),
+                    outputs[obj].get("num_upsampling_rate", 2), 
                     name=obj + "-loss",
                     factor=1.0,
                     model=model,

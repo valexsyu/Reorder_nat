@@ -289,7 +289,7 @@ class NATPretrainedModel(BaseFairseqModel):
                 "out": logits,
                 "tgt": tgt_tokens,
                 "mask": None if src_upsample_tokens is None else src_upsample_tokens.ne(self.pad),
-                "num_upsamling_rate": self.num_upsampling_rate,
+                "num_upsampling_rate": self.num_upsampling_rate,
                 "ls": self.label_smoothing,
                 "nll_loss": True,
                 "loss_type": "CTC",
@@ -470,7 +470,8 @@ class NATPretrainedModel(BaseFairseqModel):
     def upsampling(self, source, rate):          
         def dynamic_upsample_token(x, insert_mask=False , rate=2):
             B, L = x.size(0), x.size(1)
-            new_length = int(L * rate)
+            new_length = torch.Tensor([L * rate]).int().item()
+            # new_length = int(L * rate)   # 50*2.3=114.9999999
             pad = self.src_dict.pad()
             bos = self.src_dict.bos()
             eos = self.src_dict.eos()
@@ -516,7 +517,6 @@ class NATPretrainedModel(BaseFairseqModel):
                 t_x[torch.where(t_x == pad)] = self.mask
                 
             t_x = t_x.masked_fill(t_mask, 0)
-                
             return t_x, t_mask, w, t_w, new_t_w, new_location
 
 
