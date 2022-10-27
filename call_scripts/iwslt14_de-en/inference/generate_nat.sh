@@ -229,19 +229,19 @@ for i in "${!exp_array[@]}"; do
     # echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss"
     # echo -e "Insert_Position:$insert_position \nDY_upsampling:$dynamic_upsampling \nNum_Upsampling_Rate:$num_upsampling_rate \nInsert_Mask:$insert_mask"
      
-    BOOL_COMMAND="   "
-    if [ "$fix_lm" = "True" ]
-    then
-        BOOL_COMMAND+=" --lm-head-frozen"
-    fi
-    if [ "$fix_swe" = "True" ]
-    then
-        BOOL_COMMAND+=" --embedding-frozen"
-    fi
-    if [ "$lm_loss_dis" = "True" ]
-    then
-        BOOL_COMMAND+=" --lm-loss-dis"
-    fi
+    BOOL_COMMAND="        "
+    # if [ "$fix_lm" = "True" ]
+    # then
+    #     BOOL_COMMAND+=" --lm-head-frozen"
+    # fi
+    # if [ "$fix_swe" = "True" ]
+    # then
+    #     BOOL_COMMAND+=" --embedding-frozen"
+    # fi
+    # if [ "$lm_loss_dis" = "True" ]
+    # then
+    #     BOOL_COMMAND+=" --lm-loss-dis"
+    # fi
     # if [ "$lm_loss" = "True" ]
     # then
     #     BOOL_COMMAND+=" --lm-loss"
@@ -307,7 +307,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
         		--pretrained-bpe ${PRETRAINED_MODEL_NAME} --pretrained-bpe-src ${PRETRAINED_MODEL_NAME} \
         		--remove-bpe \
         		--upsample-fill-mask \
-        		--batch-size $BATCH_SIZE 
+        		--batch-size $BATCH_SIZE \
 endmsg
 
         cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh
@@ -318,7 +318,9 @@ endmsg
         bash $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh          
         done
     done
-      
+
+
+
 done
 
 

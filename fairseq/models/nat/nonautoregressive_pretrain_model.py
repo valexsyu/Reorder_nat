@@ -87,6 +87,7 @@ class NATPretrainedModel(BaseFairseqModel):
         self.do_lm_loss = False
         self.lm_head_frozen = args.lm_head_frozen
         self.embedding_frozen = args.embedding_frozen
+        self.insert_position = args.insert_position
         self.lm_loss_type = args.lm_loss_type
         if self.lm_head_frozen :
             if self.pretrained_model_name  == "distilbert-base-multilingual-cased" :
@@ -239,7 +240,13 @@ class NATPretrainedModel(BaseFairseqModel):
             "--dynamic-upsampling",
             action="store_true",
             help="upsample use dynamic upsampling ",
-        )                   
+        )       
+        parser.add_argument(
+            "--insert-position",
+            type=str,
+            default="uniform",
+            help="uniform/right/left",
+        )                       
        
                     
         
@@ -673,6 +680,8 @@ def base_architecture(args):
     
     args.upsample_fill_mask  = safe_getattr( args, "upsample_fill_mask", False )
     args.dynamic_upsampling  = safe_getattr( args, "dynamic_upsampling", False )
+    args.insert_position  = safe_getattr( args, "insert_position", "uniform" )
+    
     
     
 
