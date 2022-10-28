@@ -18,6 +18,18 @@ function get_dataset() {
     elif [ "$i" = "4" ]
     then
         dataset="distill_baseline_iwslt14_de_en_bibert"
+    elif [ "$i" = "5" ]
+    then
+        dataset="distill_iwslt14_de_en_dmbert"
+    elif [ "$i" = "6" ]
+    then
+        dataset="distill_iwslt14_baseline_de_en_dmbert"
+    elif [ "$i" = "7" ]
+    then
+        dataset="distill_iwslt14_de_en_xlmr"
+    elif [ "$i" = "8" ]
+    then
+        dataset="distill_iwslt14_baseline_de_en_xlmr"                                
     else
         echo "error dataset id "
     fi
@@ -35,10 +47,12 @@ function get_pretrain_model() {
         pretrained_model_name="jhu-clsp/bibert-ende"
     elif [ "$i" = "3" ]
     then
-        pretrained_model="distill-mbert"
+        pretrained_model="dmbert"
+        pretrained_model_name="distilbert-base-multilingual-cased"
     elif [ "$i" = "4" ]
     then
-        pretrained_model="xmlr"
+        pretrained_model="xlmr"
+        pretrained_model_name="xlm-roberta-base"
     else
         echo "error pretrained model id "
     fi
@@ -260,6 +274,7 @@ LM_LOSS_LAYER=$lm_loss_layer
 LM_LOSS_DIS=$lm_loss_dis
 INSERT_MASK=$insert_mask
 NUM_UPSAMPLING_RATE=$num_upsampling_rate
+INSERT_POSITION=$insert_position
 
 
 "  > $CHECKPOINT/temp.sh
@@ -302,6 +317,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --max-epoch $MAX_EPOCH \
     --update-freq $UPDATE_FREQ \
     --num-upsampling-rate $NUM_UPSAMPLING_RATE \
+    --insert-position $INSERT_POSITION \
     --train-subset train \
 endmsg
 

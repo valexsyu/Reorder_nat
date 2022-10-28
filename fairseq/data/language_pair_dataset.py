@@ -67,13 +67,12 @@ def collate(
 
     id = torch.LongTensor([s["id"] for s in samples])
 
-    # samples = [item for item in samples if item["source"].ne(pad_idx).long().sum() < 254]  # valex remove too long sentance for positional embedding
     
-    ###valex remove too long sentance for positional embedding , use 'id': 2200, 'source': torch.LongTensor([18,  3]) to instead
-    samples = [item for item in samples if item["source"].size(0) < 254]  # valex remove too long sentance for positional embedding
-    if len(samples) < 1 :
-        samples = [{'id': 2200, 'source': torch.LongTensor([18,  3]), 'target': torch.LongTensor([18,  3]), 'alignment': torch.LongTensor([0, 0])}]
-    ###valex
+    # ###valex remove too long sentance for positional embedding , use 'id': 2200, 'source': torch.LongTensor([18,  3]) to instead
+    # samples = [item for item in samples if item["source"].size(0) < 254]  # valex remove too long sentance for positional embedding
+    # if len(samples) < 1 :
+    #     samples = [{'id': 2200, 'source': torch.LongTensor([18,  3]), 'target': torch.LongTensor([18,  3]), 'alignment': torch.LongTensor([0, 0])}]
+    # ###valex
         
     src_tokens = merge(
         "source",

@@ -43,7 +43,10 @@ class NATPretrainedModel(BaseFairseqModel):
         self.translator = translator
         self.src_dict = src_dict
         self.pad = self.src_dict.pad_index
-        self.mask = src_dict.indices["[MASK]"]
+        try :
+            self.mask = src_dict.indices["[MASK]"]
+        except:
+            self.mask = src_dict.indices["<mask>"]
         self.label_smoothing = args.label_smoothing
         self.num_upsampling_rate = args.num_upsampling_rate
         if self.num_upsampling_rate >= 10 :
@@ -96,6 +99,8 @@ class NATPretrainedModel(BaseFairseqModel):
                 lm_head = [self.translator.cls]
             elif self.pretrained_model_name  == "jhu-clsp/bibert-ende" :
                 lm_head = [self.translator.lm_head]
+            elif self.pretrained_model_name  == "xlm-roberta-base" :
+                lm_head = [self.translator.lm_head]
             else:
                 import pdb;pdb.set_trace()
                 print ("Model name Error : args.pretrained_model_name") 
@@ -109,7 +114,9 @@ class NATPretrainedModel(BaseFairseqModel):
             elif self.pretrained_model_name  == "bert-base-multilingual-uncased" :
                 model_embeddings = self.translator.bert.embeddings
             elif self.pretrained_model_name  == "jhu-clsp/bibert-ende" :
-                model_embeddings = self.translator.roberta.embeddings                                 
+                model_embeddings = self.translator.roberta.embeddings       
+            elif self.pretrained_model_name  == "xlm-roberta-base" :
+                model_embeddings = self.translator.roberta.embeddings                                            
             else:
                 import pdb;pdb.set_trace()
                 print ("Model name Error : args.pretrained_model_name") 
@@ -475,7 +482,7 @@ class NATPretrainedModel(BaseFairseqModel):
         
         return lm_lprobs
     def upsampling(self, source, rate):          
-        def dynamic_upsample_token(x, insert_mask=False , rate=2):
+        def dynamic_upsample_token(x, insert_mask=False , rate=2, insertion_position='uniform'):
             B, L = x.size(0), x.size(1)
             new_length = torch.Tensor([L * rate]).int().item()
             # new_length = int(L * rate)   # 50*2.3=114.9999999
@@ -497,61 +504,69 @@ class NATPretrainedModel(BaseFairseqModel):
             t = new_arange(t, new_length)[None, :].expand(l.size(0), -1)  # B x L2
 
             t_mask = t >= e[:, -1:]   # target padding mask
-            w = -(t[:, None, :] - c[:, :, None]) ** 2 / 0.3
-
-            w = w.float()
-            w = w.masked_fill(mask.unsqueeze(-1), -10000.0)
-            w = w.masked_fill(t_mask.unsqueeze(1), -10000.0)
-            t_w = F.softmax(w, dim=1)   # B x L x L2
-
-            new_location = t_w.argmax(-1)
             
-            if insert_mask:
+            if insertion_position == 'uniform':            
+                w = -(t[:, None, :] - c[:, :, None]) ** 2 / 0.3
+
+                w = w.float()
+                w = w.masked_fill(mask.unsqueeze(-1), -10000.0)
+                w = w.masked_fill(t_mask.unsqueeze(1), -10000.0)
+                t_w = F.softmax(w, dim=1)   # B x L x L2
+
+                new_location = t_w.argmax(-1)
                 
+                if insert_mask:
+                    
+                    new_t_w = F.one_hot(new_location, num_classes=new_length).masked_fill(mask.unsqueeze(-1), 0)
+                    
+                else:
+                    new_t_w = F.one_hot(new_location, num_classes=new_length).masked_fill(mask.unsqueeze(-1), 0)
+                    new_location = torch.cat((new_location, torch.ones((B, 1)).to(new_location)*new_length), 1)
+                    new_t_w[(torch.arange(0, new_length, dtype=torch.float32).unsqueeze(0).repeat(B, L, 1).to(new_location) >= new_location[:, :-1].unsqueeze(-1)) &
+                            (torch.arange(0, new_length, dtype=torch.float32).unsqueeze(0).repeat(B, L, 1).to(new_location) < new_location[:, 1:].unsqueeze(-1))] = 1
+                    
+                t_x = torch.einsum('bst,bs->bt', new_t_w.to(x).float(), x.float()).long().to(x)
+                # t_x = torch.matmul(x.float(), new_t_w.to(x).float()).to(x)
+                
+
+                if insert_mask:
+                    t_x[torch.where(t_x == pad)] = self.mask
+                    
+                t_x = t_x.masked_fill(t_mask, pad)
+                return t_x, t_mask, w, t_w, new_t_w, new_location                
+            
+            elif insertion_position == 'left':
+                t_x = x.new_zeros(x.size(0), new_length) 
+                seq_lengths = L - mask.sum(axis=1)
+                mask_length = ((rate-1)*seq_lengths).long()
+                new_location = torch.arange(0, L).unsqueeze(0).repeat(B, 1).to(x) + mask_length.unsqueeze(-1) + 1
                 new_t_w = F.one_hot(new_location, num_classes=new_length).masked_fill(mask.unsqueeze(-1), 0)
                 
-            else:
-                new_t_w = F.one_hot(new_location, num_classes=new_length).masked_fill(mask.unsqueeze(-1), 0)
-                new_location = torch.cat((new_location, torch.ones((B, 1)).to(new_location)*new_length), 1)
-                new_t_w[(torch.arange(0, new_length, dtype=torch.float32).unsqueeze(0).repeat(B, L, 1).to(new_location) >= new_location[:, :-1].unsqueeze(-1)) &
-                        (torch.arange(0, new_length, dtype=torch.float32).unsqueeze(0).repeat(B, L, 1).to(new_location) < new_location[:, 1:].unsqueeze(-1))] = 1
+                t_x = torch.einsum('bst,bs->bt', new_t_w.to(x).float(), x.float()).to(x)
                 
-            t_x = torch.einsum('bst,bs->bt', new_t_w.to(x).float(), x.float()).long().to(x)
-            # t_x = torch.matmul(x.float(), new_t_w.to(x).float()).to(x)
-            
-
-            if insert_mask:
                 t_x[torch.where(t_x == pad)] = self.mask
                 
-            t_x = t_x.masked_fill(t_mask, 0)
-            return t_x, t_mask, w, t_w, new_t_w, new_location
-
-
-        # https://github.com/KarenUllrich/pytorch-binary-converter/blob/master/binary_converter.py
-        def integer2bit(integer, num_bits=8):
-            """Turn integer tensor to binary representation.
-                Args:
-                    integer : torch.Tensor, tensor with integers
-                    num_bits : Number of bits to specify the precision. Default: 8.
-                Returns:
-                    Tensor: Binary tensor. Adds last dimension to original tensor for
-                    bits.
-            """
-            dtype = integer.type()
-            exponent_bits = -torch.arange(-(num_bits - 1), 1).type(dtype)
-            exponent_bits = exponent_bits.repeat(integer.shape + (1,))
-            out = integer.unsqueeze(-1) / 2 ** exponent_bits
-            return (out - (out % 1)) % 2        
-        
-        
-        
-        
+                t_x = t_x.masked_fill(t_mask, pad)
                 
+                return t_x, t_mask, [], [], new_t_w, new_location       
+            elif insertion_position == 'right':
+                t_x = torch.full((x.size(0), new_length), self.mask).to(x)
+                # t_x = x.new_ones(x.size(0), new_length) * 4
+                t_x[:, :L] = x.masked_fill(mask, self.mask)
+                
+                t_x = t_x.masked_fill(t_mask, pad)
+                
+                return t_x, t_mask, [], [], [], []                
+            else:
+                import pdb;pdb.set_trace()
+                print("insertion_position is not well define")
+                         
+
 
         if self.upsample_fill_mask :
             if self.dynamic_upsampling :
                 insert_mask = True
-                t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate)  
+                t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate, insertion_position=self.insert_position)  
                 return t_x  
             else :
                 b,l = source.size()

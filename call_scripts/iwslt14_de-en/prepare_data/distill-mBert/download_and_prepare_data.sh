@@ -1,5 +1,5 @@
-DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_detoken_distill_iwslt14_de_en
-TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_token_distill_iwslt14_de_en_distill-mbert-1
+DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_detoken_distill_valid-nondistill_iwslt14_de_en
+TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_token_distill_valid-nondistill_iwslt14_de_en_distill-mbert
 MODEL_NAME=distilbert-base-multilingual-cased
 ## tokenize translation data
 mkdir $TOKEN_PATH
