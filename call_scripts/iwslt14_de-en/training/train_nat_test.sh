@@ -290,6 +290,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --lr 0.0002 --lr-scheduler inverse_sqrt \
     --stop-min-lr '1e-09' --warmup-updates 10000 \
     --warmup-init-lr '1e-07' \
+    --fp16 \
     --weight-decay 0.01 \
     --log-format 'simple' --log-interval 100 \
     --fixed-validation-seed 7 \
