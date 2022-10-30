@@ -105,7 +105,7 @@ class RobertaEmbeddings(nn.Module):
                 position_ids = create_position_ids_from_input_ids(input_ids, self.padding_idx, past_key_values_length)
                 
                 #valex
-                position_ids[position_ids>512]=512
+                position_ids[position_ids>(self.position_embeddings.weight.shape[0]-1)]=self.position_embeddings.weight.shape[0]-1
                 #valex
                 
             else:
@@ -134,8 +134,9 @@ class RobertaEmbeddings(nn.Module):
         token_type_embeddings = self.token_type_embeddings(token_type_ids)
 
         embeddings = inputs_embeds + token_type_embeddings
-        if self.position_embedding_type == "absolute":
+        if self.position_embedding_type == "absolute":               
             position_embeddings = self.position_embeddings(position_ids)
+                
             embeddings += position_embeddings
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
@@ -817,11 +818,10 @@ class RobertaModel(RobertaPreTrainedModel):
             if hasattr(self.embeddings, "token_type_ids"):
                 buffered_token_type_ids = self.embeddings.token_type_ids[:, :seq_length]
                 # valex
-                if seq_length > 512 :
-                    expad_type_ids = torch.zeros(seq_length-513).to(buffered_token_type_ids).unsqueeze(0)
+                if seq_length > (self.embeddings.position_embeddings.weight.shape[0]) :
+                    expad_type_ids = torch.zeros(seq_length-(self.embeddings.position_embeddings.weight.shape[0])).to(buffered_token_type_ids).unsqueeze(0)
                     buffered_token_type_ids = torch.cat((buffered_token_type_ids,expad_type_ids), axis=1)
                 # valex
-                
                 buffered_token_type_ids_expanded = buffered_token_type_ids.expand(batch_size, seq_length)
                 token_type_ids = buffered_token_type_ids_expanded
             else:
