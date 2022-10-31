@@ -19,8 +19,8 @@ conda activate base
 
 
 ##valex train
-mkdir checkpoints/2-2-1-1-H12-UD15M
-cp checkpoints/2-2-1-1-N-UD15M/checkpoint_*_70000.pt checkpoints/2-2-1-1-H12-UD15M/checkpoint_last.pt
+# mkdir checkpoints/2-2-1-1-H12-UD15M
+# cp checkpoints/2-2-1-1-N-UD15M/checkpoint_*_70000.pt checkpoints/2-2-1-1-H12-UD15M/checkpoint_last.pt 
 bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UD15M
 
 # mkdir checkpoints/2-2-1-1-H12-UF30M

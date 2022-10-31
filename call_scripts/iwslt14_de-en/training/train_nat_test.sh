@@ -41,18 +41,27 @@ function get_pretrain_model() {
     then
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
+        init_translator=False
     elif [ "$i" = "2" ]
     then
         pretrained_model="bibert"
         pretrained_model_name="jhu-clsp/bibert-ende"
+        init_translator=False
     elif [ "$i" = "3" ]
     then
         pretrained_model="dmbert"
         pretrained_model_name="distilbert-base-multilingual-cased"
+        init_translator=False
     elif [ "$i" = "4" ]
     then
         pretrained_model="xlmr"
         pretrained_model_name="xlm-roberta-base"
+        init_translator=False
+    elif [ "$i" = "5" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"     
+        init_translator=True
     else
         echo "error pretrained model id "
     fi
@@ -224,6 +233,7 @@ echo -e "Experiment:$experiment_id \nGPU_Number:$gpu \nBatch_Size:$batch_size \n
 echo -e "Dataset:$dataset  \nPretrained_Model:$pretrained_model \nFix_LM:$fix_lm \nFix_SWE:$fix_swe"
 echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss"
 echo -e "Insert_Position:$insert_position \nDY_upsampling:$dynamic_upsampling \nNum_Upsampling_Rate:$num_upsampling_rate \nInsert_Mask:$insert_mask"
+echo -e "Init_Translator:$init_translator "
 
 BOOL_COMMAND="   "
 if [ "$fix_lm" = "True" ]
@@ -249,6 +259,11 @@ fi
 if [ "$insert_mask" = "True" ]
 then
     BOOL_COMMAND+=" --upsample-fill-mask"
+fi
+
+if [ "$init_translator" = "True" ]
+then
+    BOOL_COMMAND+=" --init-translator"
 fi
 
 
@@ -290,7 +305,6 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --lr 0.0002 --lr-scheduler inverse_sqrt \
     --stop-min-lr '1e-09' --warmup-updates 10000 \
     --warmup-init-lr '1e-07' \
-    --fp16 \
     --weight-decay 0.01 \
     --log-format 'simple' --log-interval 100 \
     --fixed-validation-seed 7 \
@@ -317,7 +331,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --update-freq $UPDATE_FREQ \
     --num-upsampling-rate $NUM_UPSAMPLING_RATE \
     --insert-position $INSERT_POSITION \
-    --train-subset valid \
+    --train-subset train \
 endmsg
 
 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip.sh
