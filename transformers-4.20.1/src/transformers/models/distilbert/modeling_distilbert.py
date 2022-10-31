@@ -122,13 +122,19 @@ class Embeddings(nn.Module):
         # isues similar to issue #5664
         if hasattr(self, "position_ids"):
             position_ids = self.position_ids[:, :seq_length]
+
+            # valex
+            if seq_length > (self.position_embeddings.weight.shape[0]) :
+                expad_position_ids = torch.zeros(seq_length-(self.position_embeddings.weight.shape[0])).to(position_ids).unsqueeze(0)
+                position_ids = torch.cat((position_ids,expad_position_ids), axis=1)
+            # valex                     
+            
         else:
             position_ids = torch.arange(seq_length, dtype=torch.long, device=input_ids.device)  # (max_seq_length)
             position_ids = position_ids.unsqueeze(0).expand_as(input_ids)  # (bs, max_seq_length)
 
         word_embeddings = self.word_embeddings(input_ids)  # (bs, max_seq_length, dim)
         position_embeddings = self.position_embeddings(position_ids)  # (bs, max_seq_length, dim)
-
         embeddings = word_embeddings + position_embeddings  # (bs, max_seq_length, dim)
         embeddings = self.LayerNorm(embeddings)  # (bs, max_seq_length, dim)
         embeddings = self.dropout(embeddings)  # (bs, max_seq_length, dim)
