@@ -2,11 +2,15 @@
 source $HOME/.bashrc 
 conda activate base
 #---------Path Setting-------------------#
-
+# Model    Bibert Tr.   #Baseline Tr.
+# mbert       1            3
+# bibert      2            4 
+# dmbert      5            6
+# xlmr        7            8
 
 function get_dataset() {
     i=$(echo $1 | cut -d - -f 1)
-    if [ "$i" = "1" ]
+    if [ "$i" = "1" ]     
     then
         dataset="distill_iwslt14_de_en_mbert"
     elif [ "$i" = "2" ]
@@ -23,13 +27,13 @@ function get_dataset() {
         dataset="distill_iwslt14_de_en_dmbert"
     elif [ "$i" = "6" ]
     then
-        dataset="distill_iwslt14_baseline_de_en_dmbert"
+        dataset="distill_baseline_iwslt14_de_en_dmbert"
     elif [ "$i" = "7" ]
     then
         dataset="distill_iwslt14_de_en_xlmr"
     elif [ "$i" = "8" ]
     then
-        dataset="distill_iwslt14_baseline_de_en_xlmr"                                
+        dataset="distill_baseline_iwslt14_de_en_xlmr"                                
     else
         echo "error dataset id "
     fi

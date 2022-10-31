@@ -1,5 +1,9 @@
-DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_detoken_distill_valid-nondistill_iwslt14_de_en
-TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_token_distill_valid-nondistill_iwslt14_de_en_xlmr
+#!/bin/bash
+source $HOME/.bashrc 
+conda activate base
+
+DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/baseline_detoken_distill_valid-nondistill_iwslt14_de_en
+TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/baseline_token_distill_valid-nondistill_iwslt14_de_en_xlmr
 MODEL_NAME=xlm-roberta-base
 ## tokenize translation data
 mkdir $TOKEN_PATH
@@ -13,3 +17,5 @@ do
 done
 
 python get_vocab.py --tokenizer $MODEL_NAME --output $TOKEN_PATH/src_vocab.txt
+
+cp $TOKEN_PATH/src_vocab.txt $TOKEN_PATH/tgt_vocab.txt
