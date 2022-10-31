@@ -14,10 +14,22 @@ function get_dataset() {
         dataset="distill_iwslt14_de_en_bibert"
     elif [ "$i" = "3" ]
     then
-        dataset="iwslt14_ro_en"
+        dataset="distill_baseline_iwslt14_de_en_mbert"
     elif [ "$i" = "4" ]
     then
-        dataset="iwslt14_en_de"
+        dataset="distill_baseline_iwslt14_de_en_bibert"
+    elif [ "$i" = "5" ]
+    then
+        dataset="distill_iwslt14_de_en_dmbert"
+    elif [ "$i" = "6" ]
+    then
+        dataset="distill_iwslt14_baseline_de_en_dmbert"
+    elif [ "$i" = "7" ]
+    then
+        dataset="distill_iwslt14_de_en_xlmr"
+    elif [ "$i" = "8" ]
+    then
+        dataset="distill_iwslt14_baseline_de_en_xlmr"                                
     else
         echo "error dataset id "
     fi
@@ -35,10 +47,12 @@ function get_pretrain_model() {
         pretrained_model_name="jhu-clsp/bibert-ende"
     elif [ "$i" = "3" ]
     then
-        pretrained_model="distill-mbert"
+        pretrained_model="dmbert"
+        pretrained_model_name="distilbert-base-multilingual-cased"
     elif [ "$i" = "4" ]
     then
-        pretrained_model="xmlr"
+        pretrained_model="xlmr"
+        pretrained_model_name="xlm-roberta-base"
     else
         echo "error pretrained model id "
     fi
