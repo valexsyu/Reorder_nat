@@ -46,18 +46,26 @@ function get_pretrain_model() {
     then
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"
+        BATCH_SIZE=60
     elif [ "$i" = "2" ]
     then
         pretrained_model="bibert"
         pretrained_model_name="jhu-clsp/bibert-ende"
+        bpe="bibert"
+        BATCH_SIZE=60
     elif [ "$i" = "3" ]
     then
         pretrained_model="dmbert"
         pretrained_model_name="distilbert-base-multilingual-cased"
+        bpe="bibert"
+        BATCH_SIZE=60
     elif [ "$i" = "4" ]
     then
         pretrained_model="xlmr"
         pretrained_model_name="xlm-roberta-base"
+        bpe="xlmr"
+        BATCH_SIZE=20
     else
         echo "error pretrained model id "
     fi
@@ -225,7 +233,7 @@ done
 
 
 TOPK=5
-BATCH_SIZE=60
+
 DATA_TYPES=("test")
 CHECK_TYPES=("last" "best" "best_top$TOPK")
 ARCH=nat_pretrained_model
@@ -281,7 +289,7 @@ for i in "${!exp_array[@]}"; do
     CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
 
 
-    avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
+    # avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
     
 
     echo -e "Checkpoint : $CHECKPOINT\t  Batchsize : $BATCH_SIZE"
@@ -300,6 +308,7 @@ for i in "${!exp_array[@]}"; do
         PRETRAINED_MODE=$pretrained_model
         ARCH=$ARCH
         BATCH_SIZE=$BATCH_SIZE
+        BPE=$bpe
 
         "  > $CHECKPOINT/temp.sh
 
@@ -322,7 +331,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
         		--pretrained-lm-name $PRETRAINED_MODEL_NAME \
         		--pretrained-model-name $PRETRAINED_MODEL_NAME \
         		--sacrebleu \
-        		--bpe bibert \
+        		--bpe $BPE \
         		--pretrained-bpe ${PRETRAINED_MODEL_NAME} --pretrained-bpe-src ${PRETRAINED_MODEL_NAME} \
         		--remove-bpe \
         		--upsample-fill-mask \
