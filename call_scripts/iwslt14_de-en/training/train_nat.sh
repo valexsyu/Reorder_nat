@@ -139,7 +139,7 @@ function get_kd_model() {
             lm_loss=False
         else
             echo "error kd model id "
-            
+            exit 1
         fi
     fi
 }
@@ -193,12 +193,15 @@ function default_setting() {
     max_tokens=2048
     max_epoch=400
     update_freq=6
+    dryrun=False
+    train_subset=train
+    dataroot=/livingrooms/valexsyu/dataset/nat    
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b: --long experiment:,gpu:,batch_size:,max-tokens:,max-epoch: -- "$@")
+VALID_ARGS=$(getopt -o e:g:b: --long experiment:,gpu:,batch_size:,dryrun,max-tokens:,max-epoch:,twcc,valid-set -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -218,6 +221,10 @@ while [ : ]; do
       batch_size="$2"
       shift 2
       ;;    
+    --dryrun)
+      dryrun=True
+      shift 1
+      ;;             
     --max-tokens)
       max_tokens="$2"
       shift 2
@@ -225,7 +232,18 @@ while [ : ]; do
     --max-epoch)
       max_epoch="$2"
       shift 2
-      ;;          
+      ;;  
+    --twcc)
+      dataroot="twcc"
+      echo "Not implement"
+      exit 1 
+      shift 1
+      ;;      
+    --valid-set)      
+      train_subset=valid
+      dryrun=True
+      shift 1
+      ;;              
     --) shift; 
         break
   esac
@@ -274,11 +292,18 @@ if [ "$init_translator" = "True" ]
 then
     BOOL_COMMAND+=" --init-translator"
 fi
-
+if [ "$dryrun" = "False" ]
+then
+    BOOL_COMMAND+="  --wandb-project"
+    BOOL_COMMAND+=" NAT-Pretrained-Model"
+    BOOL_COMMAND+="  --wandb-entity"
+    BOOL_COMMAND+=" valex-jcx"
+fi
 
 
 CHECKPOINT=checkpoints/$experiment_id
-DATA_BIN=/livingrooms/valexsyu/dataset/nat/$dataset/de-en-databin
+# DATA_BIN=/livingrooms/valexsyu/dataset/nat/$dataset/de-en-databin
+DATA_BIN=$dataroot/$dataset/de-en-databin
 
 
 ##----------RUN  Bash-----------------------------
@@ -300,6 +325,7 @@ LM_LOSS_DIS=$lm_loss_dis
 INSERT_MASK=$insert_mask
 NUM_UPSAMPLING_RATE=$num_upsampling_rate
 INSERT_POSITION=$insert_position
+TRAIN_SUBSET=$train_subset
 
 
 "  > $CHECKPOINT/temp.sh
@@ -331,8 +357,6 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --keep-best-checkpoints 5 \
     --eval-bleu-print-samples \
     --eval-bleu --eval-bleu-remove-bpe \
-    --wandb-project NAT-Pretrained-Model \
-    --wandb-entity valex-jcx \
     --max-update 100000 \
     --lm-start-step 75000 \
     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
@@ -343,7 +367,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --update-freq $UPDATE_FREQ \
     --num-upsampling-rate $NUM_UPSAMPLING_RATE \
     --insert-position $INSERT_POSITION \
-    --train-subset train \
+    --train-subset $TRAIN_SUBSET \
 endmsg
 
 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip.sh
