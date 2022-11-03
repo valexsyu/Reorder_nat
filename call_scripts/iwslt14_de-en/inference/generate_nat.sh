@@ -289,7 +289,7 @@ for i in "${!exp_array[@]}"; do
     CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
 
 
-    # avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
+    avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
     
 
     echo -e "Checkpoint : $CHECKPOINT\t  Batchsize : $BATCH_SIZE"
