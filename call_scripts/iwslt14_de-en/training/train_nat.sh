@@ -36,6 +36,7 @@ function get_dataset() {
         dataset="distill_baseline_iwslt14_de_en_xlmr"                                
     else
         echo "error dataset id "
+        exit 1
     fi
 }
 
@@ -68,6 +69,7 @@ function get_pretrain_model() {
         init_translator=True
     else
         echo "error pretrained model id "
+        exit 1
     fi
 }
 
@@ -91,6 +93,7 @@ function get_fix_lm_swe() {
         fix_swe=False
     else
         echo "error fix lm and swe id "
+        exit 1
     fi
 }
 
@@ -107,6 +110,7 @@ function get_voc() {
         voc="3"
     else
         echo "error voc id "
+        exit 1
     fi
 }
 
@@ -135,6 +139,7 @@ function get_kd_model() {
             lm_loss=False
         else
             echo "error kd model id "
+            
         fi
     fi
 }

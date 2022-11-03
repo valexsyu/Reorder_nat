@@ -37,6 +37,7 @@ function get_dataset() {
         dataset="distill_baseline_iwslt14_de_en_xlmr"                                
     else
         echo "error dataset id "
+        exit 1
     fi
 }
 
@@ -66,8 +67,15 @@ function get_pretrain_model() {
         pretrained_model_name="xlm-roberta-base"
         bpe="xlmr"
         BATCH_SIZE=20
+    elif [ "$i" = "5" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"     
+        bpe="bibert"
+        BATCH_SIZE=60      
     else
         echo "error pretrained model id "
+        exit 1
     fi
 }
 
@@ -91,6 +99,7 @@ function get_fix_lm_swe() {
         fix_swe=False
     else
         echo "error fix lm and swe id "
+        exit 1
     fi
 }
 
@@ -107,6 +116,7 @@ function get_voc() {
         voc="3"
     else
         echo "error voc id "
+        exit 1
     fi
 }
 
@@ -135,6 +145,7 @@ function get_kd_model() {
             lm_loss=False
         else
             echo "error kd model id "
+            exit 1
         fi
     fi
 }
@@ -346,9 +357,6 @@ endmsg
         bash $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh          
         done
     done
-
-
-
 done
 
 
