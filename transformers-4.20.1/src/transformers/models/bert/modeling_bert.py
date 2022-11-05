@@ -219,6 +219,12 @@ class BertEmbeddings(nn.Module):
 
         if position_ids is None:
             position_ids = self.position_ids[:, past_key_values_length : seq_length + past_key_values_length]
+            
+            # valex
+            if seq_length > (self.position_embeddings.weight.shape[0]) :
+                expad_position_ids = torch.zeros(seq_length-(self.position_embeddings.weight.shape[0])).to(position_ids).unsqueeze(0)
+                position_ids = torch.cat((position_ids,expad_position_ids), axis=1)
+            # valex               
 
         # Setting the token_type_ids to the registered buffer in constructor where it is all zeros, which usually occurs
         # when its auto-generated, registered buffer helps users when tracing the model without passing token_type_ids, solves
@@ -981,6 +987,11 @@ class BertModel(BertPreTrainedModel):
         if token_type_ids is None:
             if hasattr(self.embeddings, "token_type_ids"):
                 buffered_token_type_ids = self.embeddings.token_type_ids[:, :seq_length]
+                # valex
+                if seq_length > (self.embeddings.position_embeddings.weight.shape[0]) :
+                    expad_type_ids = torch.zeros(seq_length-(self.embeddings.position_embeddings.weight.shape[0])).to(buffered_token_type_ids).unsqueeze(0)
+                    buffered_token_type_ids = torch.cat((buffered_token_type_ids,expad_type_ids), axis=1)
+                # valex                
                 buffered_token_type_ids_expanded = buffered_token_type_ids.expand(batch_size, seq_length)
                 token_type_ids = buffered_token_type_ids_expanded
             else:
