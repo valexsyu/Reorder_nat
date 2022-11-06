@@ -39,7 +39,10 @@ function get_dataset() {
         dataset="distill_baseline_wmt16_en_ro_mbert"                                
     elif [ "$i" = "B" ]
     then
-        dataset="distill_baseline_wmt16_ro_en_mbert"                                
+        dataset="distill_baseline_wmt16_ro_en_mbert"                    
+    elif [ "$i" = "C" ]
+    then
+        dataset="distill_fnc_wmt16_ro_en_mbert"                              
     else        
         echo "error dataset id "
         exit 1
