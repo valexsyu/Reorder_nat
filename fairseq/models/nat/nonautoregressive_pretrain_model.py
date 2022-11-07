@@ -63,6 +63,9 @@ class NATPretrainedModel(BaseFairseqModel):
         self.lm_st_layer = args.lm_st_layer
         self.upsample_fill_mask = args.upsample_fill_mask
         self.dynamic_upsampling = args.dynamic_upsampling 
+        self.dynamic_rate=args.dynamic_rate
+        if self.dynamic_rate :
+            self.dynamic_upsampling = True
         if len(self.lm_st_layer) != len(self.lm_tr_layer):
             print("length of KD layer of student and teacher are not the same ")
             import pdb;pdb.set_trace()
@@ -244,16 +247,22 @@ class NATPretrainedModel(BaseFairseqModel):
             help="upsample use mask to be token ",
         )       
         parser.add_argument(
-            "--dynamic-upsampling",
+            "--dynamic-upsampling",   #float rate with clipping
             action="store_true",
-            help="upsample use dynamic upsampling ",
+            help="upsample use dynamic upsampling (float rate with clipping) ",
         )       
         parser.add_argument(
             "--insert-position",
             type=str,
             default="uniform",
             help="uniform/right/left",
-        )                       
+        )    
+        parser.add_argument(
+            "--dynamic-rate",        
+            action="store_true",
+            help="upsample use dynamic rate with dynamic upsampling if the length after upsampling is > 512   ",
+        )          
+                           
        
                     
         
@@ -296,14 +305,14 @@ class NATPretrainedModel(BaseFairseqModel):
             self.do_lm_loss = False
             
 
-        logits, output_hidden_states = self.translation(src_tokens, src_lengths, **kwargs)
-        src_upsample_tokens = self.upsampling(src_tokens, self.num_upsampling_rate)
+        logits, output_hidden_states, rate = self.translation(src_tokens, src_lengths, **kwargs)
+        src_upsample_tokens, rate = self.upsampling(src_tokens, rate)
         result = {
             "word_ins": {
                 "out": logits,
                 "tgt": tgt_tokens,
                 "mask": None if src_upsample_tokens is None else src_upsample_tokens.ne(self.pad),
-                "num_upsampling_rate": self.num_upsampling_rate,
+                "num_upsampling_rate": rate,
                 "ls": self.label_smoothing,
                 "nll_loss": True,
                 "loss_type": "CTC",
@@ -370,7 +379,7 @@ class NATPretrainedModel(BaseFairseqModel):
         #                             tgt_tokens=tgt_tokens, tgt_output_rep=target_token_embeddings, \
         #                             reduce=True)          
         
-        logits, output_hidden_states = self.translation(src_tokens, src_lengths, **kwargs) 
+        logits, output_hidden_states, rate= self.translation(src_tokens, src_lengths, **kwargs) 
 
         _scores, _tokens = F.log_softmax(logits, dim=-1).max(-1)      
 
@@ -565,9 +574,15 @@ class NATPretrainedModel(BaseFairseqModel):
 
         if self.upsample_fill_mask :
             if self.dynamic_upsampling :
+                if self.dynamic_rate :
+                    B, L = source.size(0), source.size(1)
+                    new_length = torch.Tensor([L * rate]).int().item()    
+                    if new_length > self.translator.config.max_position_embeddings :
+                        rate= float(self.translator.config.max_position_embeddings)/float(L)
+                    
                 insert_mask = True
                 t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate, insertion_position=self.insert_position)  
-                return t_x  
+                return t_x, rate  
             else :
                 b,l = source.size()
                 mask = source.ne(self.pad)  #ex : soruce=[7,7,7,pad] mask=[True True True False]
@@ -583,12 +598,17 @@ class NATPretrainedModel(BaseFairseqModel):
                     import pdb;pdb.set_trace()
         else:    
             if self.dynamic_upsampling :
+                if self.dynamic_rate :
+                    B, L = source.size(0), source.size(1)
+                    new_length = torch.Tensor([L * rate]).int().item()    
+                    if new_length > self.translator.config.max_position_embeddings :
+                        rate= float(self.translator.config.max_position_embeddings)/float(L)                
                 insert_mask = False
                 t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate) 
-                return t_x   
+                return t_x, rate 
             else:                        
                 upsampled =  torch.repeat_interleave(source, int(rate), dim=1)
-        return upsampled
+        return upsampled, rate
 
     def translation(self, src_tokens, src_lengths, **kwargs):
         bos_embeddings = None
@@ -602,7 +622,7 @@ class NATPretrainedModel(BaseFairseqModel):
         else:       
         # forget to use bos to training
             bos = self.src_dict.bos() * torch.ones(src_tokens.shape[0], 1, dtype=torch.long, device=src_tokens.device)
-            src_tokens_upsample = self.upsampling(src_tokens, self.num_upsampling_rate)
+            src_tokens_upsample, rate = self.upsampling(src_tokens, self.num_upsampling_rate)
             src_tokens_upsample = torch.cat((bos, src_tokens_upsample), dim=1)  
             output_translator = self.translator.forward(input_ids = src_tokens_upsample, output_hidden_states=True, return_dict=True, 
                                     inputs_embeds=None)     
@@ -636,7 +656,7 @@ class NATPretrainedModel(BaseFairseqModel):
         #     logits = logits[:,1:,:]
         #     hidden_states = hidden_states[:,1:,:]
 
-        return logits, hidden_states 
+        return logits, hidden_states , rate
              
 
 @register_model_architecture(
@@ -703,6 +723,7 @@ def base_architecture(args):
     
     args.upsample_fill_mask  = safe_getattr( args, "upsample_fill_mask", False )
     args.dynamic_upsampling  = safe_getattr( args, "dynamic_upsampling", False )
+    args.dynamic_rate = safe_getattr( args, "dynamic_rate", False )
     args.insert_position  = safe_getattr( args, "insert_position", "uniform" )
     
     
