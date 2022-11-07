@@ -42,7 +42,13 @@ function get_dataset() {
         dataset="distill_baseline_wmt16_ro_en_mbert"                    
     elif [ "$i" = "C" ]
     then
-        dataset="distill_fnc_wmt16_ro_en_mbert"                              
+        dataset="distill_fnc_wmt16_ro_en_mbert"         
+    elif [ "$i" = "D" ]
+    then
+        dataset="distill_mbart_wmt16_en_ro_mbert"   
+    elif [ "$i" = "E" ]
+    then
+        dataset="distill_bibert_wmt14_en_de_52k"                                        
     else        
         echo "error dataset id "
         exit 1
@@ -176,6 +182,9 @@ function get_ctc() {
         D)
             dynamic_upsampling=True
             ;;
+        R)
+            dynamic_rate=True
+            ;;
         *) 
             echo "dynamic upsampling is wrong id"
             exit 1    
@@ -204,13 +213,14 @@ function default_setting() {
     update_freq=6
     dryrun=False
     train_subset=train
+    max_update=100000
     dataroot=/livingrooms/valexsyu/dataset/nat    
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b: --long experiment:,gpu:,batch_size:,dryrun,max-tokens:,max-epoch:,twcc,valid-set -- "$@")
+VALID_ARGS=$(getopt -o e:g:b: --long experiment:,gpu:,batch_size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,valid-set -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -242,6 +252,10 @@ while [ : ]; do
       max_epoch="$2"
       shift 2
       ;;  
+    --max-update)
+      max_update="$2"
+      shift 2
+      ;;        
     --twcc)
       dataroot="twcc"
       echo "Not implement"
@@ -301,6 +315,12 @@ if [ "$init_translator" = "True" ]
 then
     BOOL_COMMAND+=" --init-translator"
 fi
+
+if [ "$dynamic_rate" = "True" ]
+then
+    BOOL_COMMAND+=" --dynamic-rate"
+fi
+
 if [ "$dryrun" = "False" ]
 then
     BOOL_COMMAND+="  --wandb-project"
@@ -335,6 +355,7 @@ INSERT_MASK=$insert_mask
 NUM_UPSAMPLING_RATE=$num_upsampling_rate
 INSERT_POSITION=$insert_position
 TRAIN_SUBSET=$train_subset
+MAX_UPDATE=$max_update
 
 
 "  > $CHECKPOINT/temp.sh
@@ -366,7 +387,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --keep-best-checkpoints 5 \
     --eval-bleu-print-samples \
     --eval-bleu --eval-bleu-remove-bpe \
-    --max-update 100000 \
+    --max-update $MAX_UPDATE \
     --lm-start-step 75000 \
     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
     --pretrained-lm-name $PRETRAINED_LM_NAME \
