@@ -257,9 +257,7 @@ while [ : ]; do
       shift 2
       ;;        
     --twcc)
-      dataroot="twcc"
-      echo "Not implement"
-      exit 1 
+      dataroot="../nat_data"
       shift 1
       ;;      
     --valid-set)      
