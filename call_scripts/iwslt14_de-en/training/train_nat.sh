@@ -257,7 +257,7 @@ while [ : ]; do
       shift 2
       ;;        
     --twcc)
-      dataroot="../nat_data"
+      dataroot="/work/valex1377/CTC_PLM/nat_data"
       shift 1
       ;;      
     --valid-set)      
