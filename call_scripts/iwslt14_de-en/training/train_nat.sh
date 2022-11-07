@@ -207,8 +207,8 @@ function get_ctc() {
 
 function default_setting() {
     gpu=1
-    batch_size=12288
-    max_tokens=2048
+    batch_size=12288  
+    max_tokens=2048  
     max_epoch=400
     update_freq=6
     dryrun=False
@@ -327,6 +327,9 @@ then
     BOOL_COMMAND+=" valex-jcx"
 fi
 
+if [ ! -d "checkpoints" ]; then
+    mkdir checkpoints
+fi
 
 CHECKPOINT=checkpoints/$experiment_id
 # DATA_BIN=/livingrooms/valexsyu/dataset/nat/$dataset/de-en-databin

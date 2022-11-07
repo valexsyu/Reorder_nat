@@ -379,7 +379,7 @@ class NATPretrainedModel(BaseFairseqModel):
         #                             tgt_tokens=tgt_tokens, tgt_output_rep=target_token_embeddings, \
         #                             reduce=True)          
         
-        logits, output_hidden_states, rate= self.translation(src_tokens, src_lengths, **kwargs) 
+        logits, output_hidden_states, _= self.translation(src_tokens, src_lengths, **kwargs) 
 
         _scores, _tokens = F.log_softmax(logits, dim=-1).max(-1)      
 
