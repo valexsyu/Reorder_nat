@@ -188,6 +188,9 @@ function get_ctc() {
         D)
             dynamic_upsampling=True
             ;;
+        R)
+            dynamic_rate=True
+            ;;
         *) 
             echo "dynamic upsampling is wrong id"
             exit 1    
@@ -306,6 +309,11 @@ for i in "${!exp_array[@]}"; do
     if [ "$insert_mask" = "True" ]
     then
         BOOL_COMMAND+=" --upsample-fill-mask"
+    fi
+    
+    if [ "$dynamic_rate" = "True" ]
+    then
+        BOOL_COMMAND+=" --dynamic-rate"
     fi
 
 
