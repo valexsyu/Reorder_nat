@@ -214,13 +214,14 @@ function default_setting() {
     dryrun=False
     train_subset=train
     max_update=100000
-    dataroot=/livingrooms/valexsyu/dataset/nat    
+    dataroot=/livingrooms/valexsyu/dataset/nat  
+    fp16=False  
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b: --long experiment:,gpu:,batch_size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,valid-set -- "$@")
+VALID_ARGS=$(getopt -o e:g:b: --long experiment:,gpu:,batch_size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -257,9 +258,13 @@ while [ : ]; do
       shift 2
       ;;        
     --twcc)
-      dataroot="/work/valex1377/CTC_PLM/nat_data"
+      dataroot="../nat_data"
       shift 1
       ;;      
+    --fp16)
+      fp16=True
+      shift 1
+      ;;        
     --valid-set)      
       train_subset=valid
       dryrun=True
@@ -326,6 +331,12 @@ then
     BOOL_COMMAND+="  --wandb-entity"
     BOOL_COMMAND+=" valex-jcx"
 fi
+
+if [ "$fp16" = "True" ]
+then
+    BOOL_COMMAND+=" --fp16"
+fi
+
 
 if [ ! -d "checkpoints" ]; then
     mkdir checkpoints

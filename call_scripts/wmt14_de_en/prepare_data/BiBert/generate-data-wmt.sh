@@ -4,7 +4,7 @@ cd /home/valexsyu/Doc/NMT/BiBERT
 source $HOME/.bashrc 
 conda activate bibert
 
-for trans_dir in "de-en" ;  #"en-de" "de-en"
+for trans_dir in "de-en" ; 
 do
     if [ "$trans_dir" = "en-de" ]  
     then
