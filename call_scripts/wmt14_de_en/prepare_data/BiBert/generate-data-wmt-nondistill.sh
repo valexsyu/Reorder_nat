@@ -27,7 +27,7 @@ do
     for prefix in "train" ; do 
         CUDA_VISIBLE_DEVICES=0 fairseq-generate \
         ${STPATH} --path ${MODELPATH}checkpoint_best.pt --bpe bert --pretrained_bpe ${PRE} --pretrained_bpe_src ${PRE_SRC} \
-        --beam 1 --lenpen 0.6 --remove-bpe --vocab_file=${STPATH}/dict.en.txt --batch-size 200 \
+        --beam 1 --lenpen 0.6 --remove-bpe --vocab_file=${STPATH}/dict.en.txt --batch-size 300 \
         --gen-subset $prefix |tee ${STPATH}/generate-nondistill-$prefix.out
     done
 
