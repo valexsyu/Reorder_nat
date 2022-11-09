@@ -221,7 +221,7 @@ function default_setting() {
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b: --long experiment:,gpu:,batch_size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set -- "$@")
+VALID_ARGS=$(getopt -o e:g:b: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -237,7 +237,7 @@ while [ : ]; do
       gpu="$2"
       shift 2
       ;;   
-    -b | --batch_size)
+    -b | --batch-size)
       batch_size="$2"
       shift 2
       ;;    
@@ -256,7 +256,7 @@ while [ : ]; do
     --max-update)
       max_update="$2"
       shift 2
-      ;;        
+      ;;              
     --twcc)
       dataroot="../nat_data"
       shift 1
