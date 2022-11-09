@@ -63,31 +63,31 @@ function get_pretrain_model() {
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
         bpe="bibert"
-        BATCH_SIZE=60
+        batch_size=60
     elif [ "$i" = "2" ]
     then
         pretrained_model="bibert"
         pretrained_model_name="jhu-clsp/bibert-ende"
         bpe="bibert"
-        BATCH_SIZE=60
+        batch_size=60
     elif [ "$i" = "3" ]
     then
         pretrained_model="dmbert"
         pretrained_model_name="distilbert-base-multilingual-cased"
         bpe="bibert"
-        BATCH_SIZE=60
+        batch_size=60
     elif [ "$i" = "4" ]
     then
         pretrained_model="xlmr"
         pretrained_model_name="xlm-roberta-base"
         bpe="xlmr"
-        BATCH_SIZE=20
+        batch_size=20
     elif [ "$i" = "5" ]
     then
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"     
         bpe="bibert"
-        BATCH_SIZE=60      
+        batch_size=60      
     else
         echo "error pretrained model id "
         exit 1
@@ -230,35 +230,66 @@ function avg_topk_best_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e: --long experiment: -- "$*")
+VALID_ARGS=$(getopt -o e:,b --long experiment:,twcc;batch-size -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
 
 eval set -- "$VALID_ARGS"
+
 while [ : ]; do
 
   case "$1" in 
     -e | --experiment)
-        # experiment_ids="$2"
-        echo "$2"
-	    read -ra exp_array <<<$2
-        echo "Numbers of experinments : ${#exp_array[@]}"
-
-        if [ "${#exp_array[@]}" -gt 1 ]; then
-            echo "List of experiments:"
-            for i in "${exp_array[@]}"; do
-                # Do what you need based on $i
-                echo -e "\t$i"
-            done
-        fi
+        experiment_ids="$2"     
+        echo "$experiment_ids" 
+        exp_array+=("$experiment_ids")
         shift 2
         ;;
-      
+    --twcc)
+      dataroot="../nat_data"
+      shift 1
+      ;;        
+    -b | --batch-size)
+      batch_size="$2"
+      shift 2
+      ;;          
     --) shift; 
         break
   esac
 done
+
+if [ "${#exp_array[@]}" -gt 1 ]; then
+    echo "List of experiments:"
+    for i in "${exp_array[@]}"; do
+        # Do what you need based on $i
+        echo -e "\t$i"
+    done
+fi
+
+# while [ : ]; do
+
+#   case "$1" in 
+#     -e | --experiment)
+#         # experiment_ids="$2"
+#         echo "$2"
+# 	    read -ra exp_array <<<$2
+#         echo "Numbers of experinments : ${#exp_array[@]}"
+
+#         if [ "${#exp_array[@]}" -gt 1 ]; then
+#             echo "List of experiments:"
+#             for i in "${exp_array[@]}"; do
+#                 # Do what you need based on $i
+#                 echo -e "\t$i"
+#             done
+#         fi
+#         shift 2
+#         ;;
+      
+#     --) shift; 
+#         break
+#   esac
+# done
 
 
 TOPK=5
@@ -319,14 +350,13 @@ for i in "${!exp_array[@]}"; do
 
 
 
-
     CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
 
 
     avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
     
 
-    echo -e "Checkpoint : $CHECKPOINT\t  Batchsize : $BATCH_SIZE"
+    echo -e "Checkpoint : $CHECKPOINT\t  Batchsize : $batch_size"
 # ---------------------------------------
     for ck_ch in "${CHECK_TYPES[@]}"; do
         for data_type in "${DATA_TYPES[@]}" ; do
@@ -341,7 +371,7 @@ for i in "${!exp_array[@]}"; do
         DATA_TYPE=$data_type
         PRETRAINED_MODE=$pretrained_model
         ARCH=$ARCH
-        BATCH_SIZE=$BATCH_SIZE
+        BATCH_SIZE=$batch_size
         BPE=$bpe
 
         "  > $CHECKPOINT/temp.sh
