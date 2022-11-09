@@ -63,31 +63,26 @@ function get_pretrain_model() {
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
         bpe="bibert"
-        batch_size=60
     elif [ "$i" = "2" ]
     then
         pretrained_model="bibert"
         pretrained_model_name="jhu-clsp/bibert-ende"
         bpe="bibert"
-        batch_size=60
     elif [ "$i" = "3" ]
     then
         pretrained_model="dmbert"
         pretrained_model_name="distilbert-base-multilingual-cased"
         bpe="bibert"
-        batch_size=60
     elif [ "$i" = "4" ]
     then
         pretrained_model="xlmr"
         pretrained_model_name="xlm-roberta-base"
         bpe="xlmr"
-        batch_size=20
     elif [ "$i" = "5" ]
     then
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"     
         bpe="bibert"
-        batch_size=60      
     else
         echo "error pretrained model id "
         exit 1
@@ -213,10 +208,11 @@ function get_ctc() {
 
 function default_setting() {
     gpu=1
-    batch_size=12288
+    batch_size=60
     max_tokens=2048
     max_epoch=400
     update_freq=6
+    dataroot=/livingrooms/valexsyu/dataset/nat
     
 }
 
@@ -230,7 +226,7 @@ function avg_topk_best_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b --long experiment:,twcc;batch-size -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -259,7 +255,9 @@ while [ : ]; do
   esac
 done
 
-if [ "${#exp_array[@]}" -gt 1 ]; then
+echo "========================================================"
+
+if [ "${#exp_array[@]}" -gt 0 ]; then
     echo "List of experiments:"
     for i in "${exp_array[@]}"; do
         # Do what you need based on $i
@@ -310,7 +308,7 @@ for i in "${!exp_array[@]}"; do
     get_voc "$experiment_id"
     get_kd_model "$experiment_id"
     get_ctc "$experiment_id"
-    update_freq=$(((batch_size/max_tokens)/gpu))
+    # update_freq=$(((batch_size/max_tokens)/gpu))
     # echo -e "Experiment:$experiment_id \nGPU_Number:$gpu \nBatch_Size:$batch_size \nMax_Tokens:$max_tokens \nMax_Epoch:$max_epoch \nUpdate_Freq:$update_freq"
     # echo -e "Dataset:$dataset  \nPretrained_Model:$pretrained_model \nFix_LM:$fix_lm \nFix_SWE:$fix_swe"
     # echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss"
@@ -364,7 +362,7 @@ for i in "${!exp_array[@]}"; do
         CRITERION=$CRITERION
         CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
         TASK=$TASK
-        DATA_BIN=/livingrooms/valexsyu/dataset/nat/$dataset/de-en-databin
+        DATA_BIN=$dataroot/$dataset/de-en-databin
         PRETRAINED_MODEL_NAME=$pretrained_model_name
         RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/
         CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
