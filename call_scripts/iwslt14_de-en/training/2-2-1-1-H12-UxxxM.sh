@@ -1,9 +1,4 @@
-source $HOME/.bashrc 
-conda activate base
-
-bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UF40M -g 3 --max-tokens 1024
-bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UR45M -g 3 --max-tokens 1024
-bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UR25M -g 3
-bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UR22M -g 3
-bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UR20M -g 3
-bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UR15M -g 3
+CUDA_VISIABLE_DEVICES=0 bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UR25M --twcc --fp16 --save-interval-updates 70000 --max-tokens 3072
+CUDA_VISIABLE_DEVICES=0 bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UR22M --twcc --fp16 --save-interval-updates 70000 --max-tokens 3072
+CUDA_VISIABLE_DEVICES=0 bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UR20M --twcc --fp16 --save-interval-updates 70000 --max-tokens 4096
+CUDA_VISIABLE_DEVICES=0 bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UR15M --twcc --fp16 --save-interval-updates 70000 --max-tokens 4096
