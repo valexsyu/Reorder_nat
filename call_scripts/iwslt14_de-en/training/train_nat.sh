@@ -216,12 +216,13 @@ function default_setting() {
     max_update=100000
     dataroot=/livingrooms/valexsyu/dataset/nat  
     fp16=False  
+    save_interval_updates=10000
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -256,7 +257,11 @@ while [ : ]; do
     --max-update)
       max_update="$2"
       shift 2
-      ;;              
+      ;;           
+    -s | --save-interval-updates)
+      save_interval_updates="$2"
+      shift 2
+      ;;          
     --twcc)
       dataroot="../nat_data"
       shift 1
@@ -368,6 +373,7 @@ NUM_UPSAMPLING_RATE=$num_upsampling_rate
 INSERT_POSITION=$insert_position
 TRAIN_SUBSET=$train_subset
 MAX_UPDATE=$max_update
+SAVE_INTERVAL_UPDATES=$save_interval_updates
 
 
 "  > $CHECKPOINT/temp.sh
@@ -386,7 +392,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --weight-decay 0.01 \
     --log-format 'simple' --log-interval 100 \
     --fixed-validation-seed 7 \
-    --save-interval-updates 10000 \
+    --save-interval-updates $SAVE_INTERVAL_UPDATES \
 	--criterion nat_ctc_loss \
 	--arch nat_pretrained_model \
     --tensorboard-logdir $CHECKPOINT/tensorboard \
