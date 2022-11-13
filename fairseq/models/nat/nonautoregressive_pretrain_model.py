@@ -29,7 +29,7 @@ from fairseq.modules import (
 from fairseq.utils import safe_getattr, safe_hasattr
 logger = logging.getLogger(__name__)
 
-from transformers import AutoModel, AutoModelForMaskedLM
+from transformers import AutoModel, AutoModelForMaskedLM, AutoConfig
 from torch.distributions import Categorical
 import numpy as np
 from scipy.optimize import linear_sum_assignment as lsa
@@ -261,6 +261,13 @@ class NATPretrainedModel(BaseFairseqModel):
             "--dynamic-rate",        
             action="store_true",
             help="upsample use dynamic rate with dynamic upsampling if the length after upsampling is > 512   ",
+        )         
+        
+        parser.add_argument(
+            "--dropout",
+            type=float,
+            default=0.1,
+            help="dropout",
         )          
                            
        
@@ -283,7 +290,13 @@ class NATPretrainedModel(BaseFairseqModel):
                 args.tokens_per_sample = task.max_positions()
             args.max_positions = args.tokens_per_sample
                    
-        translator = AutoModelForMaskedLM.from_pretrained(args.pretrained_model_name)
+        translator_config = AutoConfig.from_pretrained(args.pretrained_model_name)
+        if not safe_hasattr(translator_config, "hidden_dropout_prob"):
+            translator_config.dropout = args.dropout
+        else:
+            translator_config.hidden_dropout_prob = args.dropout
+        
+        translator = AutoModelForMaskedLM.from_pretrained(args.pretrained_model_name, config=translator_config)
         if args.init_translator :
             translator.apply(init_bert_params)  
 

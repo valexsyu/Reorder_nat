@@ -217,12 +217,13 @@ function default_setting() {
     dataroot=/livingrooms/valexsyu/dataset/nat  
     fp16=False  
     save_interval_updates=10000
+    dropout=0.1
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates: -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -274,7 +275,11 @@ while [ : ]; do
       train_subset=valid
       dryrun=True
       shift 1
-      ;;              
+      ;;       
+    --dropout)
+      dropout="$2"
+      shift 2
+      ;;     
     --) shift; 
         break
   esac
@@ -374,6 +379,7 @@ INSERT_POSITION=$insert_position
 TRAIN_SUBSET=$train_subset
 MAX_UPDATE=$max_update
 SAVE_INTERVAL_UPDATES=$save_interval_updates
+DROPOUT=$dropout
 
 
 "  > $CHECKPOINT/temp.sh
@@ -390,6 +396,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --stop-min-lr '1e-09' --warmup-updates 10000 \
     --warmup-init-lr '1e-07' \
     --weight-decay 0.01 \
+    --dropout $DROPOUT \
     --log-format 'simple' --log-interval 100 \
     --fixed-validation-seed 7 \
     --save-interval-updates $SAVE_INTERVAL_UPDATES \
