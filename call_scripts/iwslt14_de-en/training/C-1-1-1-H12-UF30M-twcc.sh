@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/iwslt14_de-en/training/train_nat.sh -e C-1-1-1-H12-UF30M --fp16 --max-update 100000 --save-interval-updates 70000 --twcc -g 8 -b 65520 --max-tokens 2730
