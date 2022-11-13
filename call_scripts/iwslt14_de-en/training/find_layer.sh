@@ -15,3 +15,7 @@ bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 1-1-1-1-H11-UF20T  --ma
 bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 1-1-1-1-H9-UF20T  --max-update 100000 --fp16 --save-interval-updates 70000 --max-tokens 3072
 bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 1-1-1-1-H7-UF20T  --max-update 100000 --fp16 --save-interval-updates 70000 --max-tokens 3072
 
+bash call_scripts/iwslt14_de-en/inference/generate_nat.sh -e 2-2-1-1-H11-UF20M -e 2-2-1-1-H7-UF20M -e 1-1-1-1-H11-UF20T -e 1-1-1-1-H9-UF20T -e 1-1-1-1-H7-UF20T
+
+bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UF50M --fp16 --save-interval-updates 70000
+
