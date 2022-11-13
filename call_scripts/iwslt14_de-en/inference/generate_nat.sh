@@ -213,6 +213,7 @@ function default_setting() {
     max_epoch=400
     update_freq=6
     dataroot=/livingrooms/valexsyu/dataset/nat
+    cpu=False
     
 }
 
@@ -226,7 +227,7 @@ function avg_topk_best_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size: -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -245,7 +246,11 @@ while [ : ]; do
     --twcc)
       dataroot="../nat_data"
       shift 1
-      ;;        
+      ;;     
+    --cpu)
+      cpu=True
+      shift 1
+      ;;             
     -b | --batch-size)
       batch_size="$2"
       shift 2
@@ -343,6 +348,12 @@ for i in "${!exp_array[@]}"; do
     if [ "$dynamic_rate" = "True" ]
     then
         BOOL_COMMAND+=" --dynamic-rate"
+    fi
+
+    
+    if [ "$cpu" = "True" ]
+    then
+        BOOL_COMMAND+=" --cpu"
     fi
 
 
