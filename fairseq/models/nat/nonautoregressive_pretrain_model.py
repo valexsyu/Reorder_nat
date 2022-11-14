@@ -600,7 +600,9 @@ class NATPretrainedModel(BaseFairseqModel):
                 b,l = source.size()
                 mask = source.ne(self.pad)  #ex : soruce=[7,7,7,pad] mask=[True True True False]
                 mask_tokens = source.masked_fill(mask,self.mask)
-                if rate == 4 :
+                if rate == 5 :
+                    upsampled = torch.stack((source, mask_tokens, mask_tokens, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))                   
+                elif rate == 4 :
                     upsampled = torch.stack((source, mask_tokens, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))                
                 elif rate == 3 :
                     upsampled = torch.stack((source, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))
