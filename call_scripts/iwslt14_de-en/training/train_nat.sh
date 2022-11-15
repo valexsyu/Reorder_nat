@@ -82,6 +82,11 @@ function get_pretrain_model() {
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"     
         init_translator=True
+    elif [ "$i" = "6" ]
+    then
+        pretrained_model="bibert"
+        pretrained_model_name="jhu-clsp/bibert-ende"
+        init_translator=True        
     else
         echo "error pretrained model id "
         exit 1
