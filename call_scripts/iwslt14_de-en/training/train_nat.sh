@@ -12,43 +12,61 @@ function get_dataset() {
     i=$(echo $1 | cut -d - -f 1)
     if [ "$i" = "1" ]     
     then
-        dataset="distill_iwslt14_de_en_mbert"
+        dataset="iwslt14_de_en_bibertDist_mbert"
     elif [ "$i" = "2" ]
     then
-        dataset="distill_iwslt14_de_en_bibert"
+        dataset="iwslt14_de_en_bibertDist_bibert"
     elif [ "$i" = "3" ]
     then
-        dataset="distill_baseline_iwslt14_de_en_mbert"
+        dataset="iwslt14_de_en_BlDist_mbert"
     elif [ "$i" = "4" ]
     then
-        dataset="distill_baseline_iwslt14_de_en_bibert"
+        dataset="iwslt14_de_en_BlDist_bibert"
     elif [ "$i" = "5" ]
     then
-        dataset="distill_iwslt14_de_en_dmbert"
+        dataset="iwslt14_de_en_bibertDist_dmbert"
     elif [ "$i" = "6" ]
     then
-        dataset="distill_baseline_iwslt14_de_en_dmbert"
+        dataset="iwslt14_de_en_BlDist_dmbert"
     elif [ "$i" = "7" ]
     then
-        dataset="distill_iwslt14_de_en_xlmr"
+        dataset="iwslt14_de_en_bibertDist_xlmr"
     elif [ "$i" = "8" ]
     then
-        dataset="distill_baseline_iwslt14_de_en_xlmr"                                
+        dataset="iwslt14_de_en_BlDist_xlmr"                                
     elif [ "$i" = "A" ]
     then
-        dataset="distill_baseline_wmt16_en_ro_mbert"                                
+        dataset="wmt16_en_ro_BlDist_mbert"                                
     elif [ "$i" = "B" ]
     then
-        dataset="distill_baseline_wmt16_ro_en_mbert"                    
+        dataset="wmt16_ro_en_BlDist_mbert"                    
     elif [ "$i" = "C" ]
     then
-        dataset="distill_fnc_wmt16_ro_en_mbert"         
+        dataset="wmt16_ro_en_fncDist_mbert"         
     elif [ "$i" = "D" ]
     then
-        dataset="distill_mbart_wmt16_en_ro_mbert"   
+        dataset="wmt16_en_ro_mbartDist_mbert"   
     elif [ "$i" = "E" ]
     then
-        dataset="distill_bibert_wmt14_en_de_52k"                                        
+        dataset="wmt14_en_de_bibertDist_bibert"     
+    elif [ "$i" = "F" ]
+    then
+        dataset="wmt14_de_en_bibertDist_bibert" 
+    elif [ "$i" = "G" ]
+    then
+        dataset="wmt14_en_de_bibert" 
+    elif [ "$i" = "H" ]
+    then
+        dataset="wmt14_de_en_bibert" 
+    elif [ "$i" = "I" ]
+    then
+        dataset="iwslt14_en_de_bibert" 
+    elif [ "$i" = "J" ]
+    then
+        dataset="iwslt14_de_en_bibert" 
+    elif [ "$i" = "K" ]
+    then
+        dataset="iwslt14_en_de_bibertDist_bibert"                                                                                    
     else        
         echo "error dataset id "
         exit 1
