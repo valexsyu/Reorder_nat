@@ -441,7 +441,6 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --pretrained-lm-name $PRETRAINED_LM_NAME \
     --pretrained-model-name $PRETRAINED_MODEL_NAME \
     --max-tokens $MAX_TOKENS \
-    --max-epoch $MAX_EPOCH \
     --update-freq $UPDATE_FREQ \
     --num-upsampling-rate $NUM_UPSAMPLING_RATE \
     --insert-position $INSERT_POSITION \
@@ -462,3 +461,4 @@ bash $CHECKPOINT/scrip.sh
     # --lm-loss-layer $LM_LOSS_LAYER \
     # --lm-loss-dis $LM_LOSS_DIS \
     # --upsample-fill-mask $INSERT_MASK \
+    # --max-epoch $MAX_EPOCH \
