@@ -241,12 +241,13 @@ function default_setting() {
     fp16=False  
     save_interval_updates=10000
     dropout=0.1
+    lm_start_step=75000
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout: -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -303,6 +304,10 @@ while [ : ]; do
       dropout="$2"
       shift 2
       ;;     
+    --lm-start-step)
+      lm_start_step="$2"
+      shift 2
+      ;;        
     --) shift; 
         break
   esac
@@ -403,6 +408,7 @@ TRAIN_SUBSET=$train_subset
 MAX_UPDATE=$max_update
 SAVE_INTERVAL_UPDATES=$save_interval_updates
 DROPOUT=$dropout
+LM_START_STEP=$lm_start_step
 
 
 "  > $CHECKPOINT/temp.sh
@@ -436,7 +442,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --eval-bleu-print-samples \
     --eval-bleu --eval-bleu-remove-bpe \
     --max-update $MAX_UPDATE \
-    --lm-start-step 75000 \
+    --lm-start-step $LM_START_STEP \
     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
     --pretrained-lm-name $PRETRAINED_LM_NAME \
     --pretrained-model-name $PRETRAINED_MODEL_NAME \
