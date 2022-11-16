@@ -439,6 +439,25 @@ endmsg
     done
 done
 
+for i in "${!exp_array[@]}"; do 
+    experiment_id=${exp_array[$i]}
+    CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
+    echo "=========No.$((i+1))  ID:$experiment_id:============="    
+    for data_type in "${DATA_TYPES[@]}" ; do
+        output_bleu_array=()
+        for ck_ch in "${CHECK_TYPES[@]}"; do
+            RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-test.txt
+            # echo "$data_type/$ck_ch:"
+            lastln=$(tail -n1 $RESULT_PATH)
+            # echo $lastln
+            output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1) 
+            # echo "$output_bleu"
+            output_bleu_array+=("$output_bleu/")
+        done
+        echo "${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
+    done
+done
+
 
 
 
