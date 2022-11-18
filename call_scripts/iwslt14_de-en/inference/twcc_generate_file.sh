@@ -1,1 +1,0 @@
-CUDA_VISIBLE_DEVICES=0 bash call_scripts/iwslt14_de-en/inference/generate_nat.sh -e E-2-1-1-H12-UF30M --twcc -b 60
