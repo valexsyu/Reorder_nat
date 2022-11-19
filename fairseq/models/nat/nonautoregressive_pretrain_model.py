@@ -639,7 +639,11 @@ class NATPretrainedModel(BaseFairseqModel):
             bos = self.src_dict.bos() * torch.ones(src_tokens.shape[0], 1, dtype=torch.long, device=src_tokens.device)
             src_tokens_upsample, rate = self.upsampling(src_tokens, self.num_upsampling_rate)
             src_tokens_upsample = torch.cat((bos, src_tokens_upsample), dim=1)  
-            output_translator = self.translator.forward(input_ids = src_tokens_upsample, output_hidden_states=True, return_dict=True, 
+            atttention_mask=src_tokens_upsample.ne(self.pad)
+            output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
+                                attention_mask=atttention_mask,
+                                encoder_attention_mask=atttention_mask,
+                                output_hidden_states=True, return_dict=True, 
                                     inputs_embeds=None)     
         logits = output_translator['logits'][:,1:,:]
         hidden_states = output_translator['hidden_states'][-1][:,1:,:]
