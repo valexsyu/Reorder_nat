@@ -28,7 +28,11 @@ bash call_scripts/iwslt14_de-en/inference/generate_nat.sh -e 1-1-1-1-H6-UF20M
 bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-N-UF50M --fp16 --save-interval-updates 70000
 bash call_scripts/iwslt14_de-en/inference/generate_nat.sh -e 2-2-1-1-N-UF50M
 bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H7-UF20M --fp16 --save-interval-updates 70000
-bash call_scripts/iwslt14_de-en/inference/generate_nat.sh -e 2-2-1-1-H7-UF20M
+bash call_scripts/iwslt14_de-en/inference/generate_nat.sh -e 2-2-1-1-H7-UF20M ## atten_mask added
+bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UF40T --fp16 --save-interval-updates 70000 --max-tokens 2048 
+bash call_scripts/iwslt14_de-en/inference/generate_nat.sh -e 2-2-1-1-H12-UF40T
+bash call_scripts/iwslt14_de-en/training/train_nat.sh -e 2-2-1-1-H12-UD40T --fp16 --save-interval-updates 70000 --max-tokens 2048
+bash call_scripts/iwslt14_de-en/inference/generate_nat.sh -e 2-2-1-1-H12-UD40T 
 
 
 
