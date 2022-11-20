@@ -232,6 +232,7 @@ function default_setting() {
     update_freq=6
     dataroot=/livingrooms/valexsyu/dataset/nat
     cpu=False
+    data_subset=("test")
     
 }
 
@@ -245,7 +246,7 @@ function avg_topk_best_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -273,6 +274,32 @@ while [ : ]; do
       batch_size="$2"
       shift 2
       ;;          
+    --data-subset)
+        case $2 in 
+            test)
+                data_subset=("test")
+                ;;
+            test-valid)
+                data_subset=("test")
+                data_subset+=("valid")
+                ;;
+            test-valid-train)
+                data_subset=("test")
+                data_subset+=("valid")
+                data_subset+=("train")
+                ;;
+            valid)
+                data_subset=("valid")
+                ;;
+            train)
+                data_subset=("train")
+                ;;                                
+            *) 
+                echo "data-setset id is wrong"
+                exit 1    
+        esac
+      shift 2
+      ;;             
     --) shift; 
         break
   esac
@@ -312,10 +339,8 @@ fi
 #   esac
 # done
 
-
 TOPK=5
-
-DATA_TYPES=("test")
+# DATA_TYPES=${data_subset[@]}
 CHECK_TYPES=("last" "best" "best_top$TOPK")
 ARCH=nat_pretrained_model
 CRITERION=nat_ctc_loss
@@ -374,9 +399,6 @@ for i in "${!exp_array[@]}"; do
         BOOL_COMMAND+=" --cpu"
     fi
 
-
-
-
     CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
 
 
@@ -386,22 +408,22 @@ for i in "${!exp_array[@]}"; do
     echo -e "Checkpoint : $CHECKPOINT\t  Batchsize : $batch_size"
 # ---------------------------------------
     for ck_ch in "${CHECK_TYPES[@]}"; do
-        for data_type in "${DATA_TYPES[@]}" ; do
-        echo "
-        CRITERION=$CRITERION
-        CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
-        TASK=$TASK
-        DATA_BIN=$dataroot/$dataset/de-en-databin
-        PRETRAINED_MODEL_NAME=$pretrained_model_name
-        RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/
-        CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
-        DATA_TYPE=$data_type
-        PRETRAINED_MODE=$pretrained_model
-        ARCH=$ARCH
-        BATCH_SIZE=$batch_size
-        BPE=$bpe
+        for data_type in "${data_subset[@]}" ; do
+            echo "
+            CRITERION=$CRITERION
+            CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
+            TASK=$TASK
+            DATA_BIN=$dataroot/$dataset/de-en-databin
+            PRETRAINED_MODEL_NAME=$pretrained_model_name
+            RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/
+            CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
+            DATA_TYPE=$data_type
+            PRETRAINED_MODE=$pretrained_model
+            ARCH=$ARCH
+            BATCH_SIZE=$batch_size
+            BPE=$bpe
 
-        "  > $CHECKPOINT/temp.sh
+            "  > $CHECKPOINT/temp.sh
 
 cat > $CHECKPOINT/temp1.sh << 'endmsg'
     
@@ -429,12 +451,12 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
         		--batch-size $BATCH_SIZE \
 endmsg
 
-        cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh
-        echo "$BOOL_COMMAND" >> $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh
+            cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh
+            echo "$BOOL_COMMAND" >> $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh
 
-        rm $CHECKPOINT/temp*
+            rm $CHECKPOINT/temp*
 
-        bash $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh          
+            bash $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh          
         done
     done
 done
@@ -443,10 +465,10 @@ for i in "${!exp_array[@]}"; do
     experiment_id=${exp_array[$i]}
     CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
     echo "=========No.$((i+1))  ID:$experiment_id:============="    
-    for data_type in "${DATA_TYPES[@]}" ; do
+    for data_type in "${data_subset[@]}" ; do
         output_bleu_array=()
         for ck_ch in "${CHECK_TYPES[@]}"; do
-            RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-test.txt
+            RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
             # echo "$data_type/$ck_ch:"
             lastln=$(tail -n1 $RESULT_PATH)
             # echo $lastln
@@ -454,7 +476,8 @@ for i in "${!exp_array[@]}"; do
             # echo "$output_bleu"
             output_bleu_array+=("$output_bleu/")
         done
-        echo "${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
+        echo -e "  data-subset: $data_type"
+        echo -e "\t${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
     done
 done
 
