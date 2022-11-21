@@ -238,6 +238,9 @@ function default_setting() {
     dataroot=/livingrooms/valexsyu/dataset/nat
     cpu=False
     data_subset=("test")
+    TOPK=5
+    ck_types=("last" "best" "best_top$TOPK")
+    load_exist_bleu=False
     
 }
 
@@ -251,7 +254,7 @@ function avg_topk_best_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset: -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -278,7 +281,11 @@ while [ : ]; do
     --debug)
       debug=True
       shift 1
-      ;;             
+      ;;  
+    --load-exist-bleu)
+      load_exist_bleu=True
+      shift 1
+      ;;                   
     -b | --batch-size)
       batch_size="$2"
       shift 2
@@ -308,7 +315,33 @@ while [ : ]; do
                 exit 1    
         esac
       shift 2
-      ;;             
+      ;;   
+    --ck-types)
+        case $2 in 
+            top)
+                ck_types=("best_top$TOPK")
+                ;;
+            best-top)
+                ck_types=("best")
+                ck_types+=("best_top$TOPK")
+                ;;
+            last-best-top)
+                ck_types=("last")
+                ck_types+=("best")
+                ck_types+=("best_top$TOPK")
+                ;;
+            best)
+                ck_types=("best")
+                ;;
+            last)
+                ck_types=("last")
+                ;;                                
+            *) 
+                echo "checkpoints type id is wrong"
+                exit 1    
+        esac
+      shift 2
+      ;;                 
     --) shift; 
         break
   esac
@@ -348,151 +381,170 @@ fi
 #   esac
 # done
 
-TOPK=5
+
 # DATA_TYPES=${data_subset[@]}
-CHECK_TYPES=("last" "best" "best_top$TOPK")
+# CHECK_TYPES=("last" "best" "best_top$TOPK")
 ARCH=nat_pretrained_model
 CRITERION=nat_ctc_loss
 TASK=translation_align_reorder
 CHECKPOINTS_PATH=checkpoints
 
-for i in "${!exp_array[@]}"; do 
-    experiment_id=${exp_array[$i]}
-    echo "=========================No.$((i+1))  ID:$experiment_id=============================="
-    get_dataset "$experiment_id"
-    get_pretrain_model "$experiment_id"
-    get_fix_lm_swe "$experiment_id"
-    get_voc "$experiment_id"
-    get_kd_model "$experiment_id"
-    get_ctc "$experiment_id"
-    # update_freq=$(((batch_size/max_tokens)/gpu))
-    # echo -e "Experiment:$experiment_id \nGPU_Number:$gpu \nBatch_Size:$batch_size \nMax_Tokens:$max_tokens \nMax_Epoch:$max_epoch \nUpdate_Freq:$update_freq"
-    # echo -e "Dataset:$dataset  \nPretrained_Model:$pretrained_model \nFix_LM:$fix_lm \nFix_SWE:$fix_swe"
-    # echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss"
-    # echo -e "Insert_Position:$insert_position \nDY_upsampling:$dynamic_upsampling \nNum_Upsampling_Rate:$num_upsampling_rate \nInsert_Mask:$insert_mask"
-     
-    BOOL_COMMAND="        "
-    # if [ "$fix_lm" = "True" ]
-    # then
-    #     BOOL_COMMAND+=" --lm-head-frozen"
-    # fi
-    # if [ "$fix_swe" = "True" ]
-    # then
-    #     BOOL_COMMAND+=" --embedding-frozen"
-    # fi
-    # if [ "$lm_loss_dis" = "True" ]
-    # then
-    #     BOOL_COMMAND+=" --lm-loss-dis"
-    # fi
-    # if [ "$lm_loss" = "True" ]
-    # then
-    #     BOOL_COMMAND+=" --lm-loss"
-    # fi
-    if [ "$dynamic_upsampling" = "True" ]
-    then
-        BOOL_COMMAND+=" --dynamic-upsampling"
-    fi
-    if [ "$insert_mask" = "True" ]
-    then
-        BOOL_COMMAND+=" --upsample-fill-mask"
-    fi
-    
-    if [ "$dynamic_rate" = "True" ]
-    then
-        BOOL_COMMAND+=" --dynamic-rate"
-    fi
 
-    
-    if [ "$cpu" = "True" ]
-    then
-        BOOL_COMMAND+=" --cpu"
-    fi
-    if [ "$debug" = "True" ]
-    then
-        BOOL_COMMAND+=" --debug"
-    fi    
+if [ "$load_exist_bleu" = "False" ]; then 
+    for i in "${!exp_array[@]}"; do 
+        experiment_id=${exp_array[$i]}
+        echo "=========================No.$((i+1))  ID:$experiment_id=============================="
+        get_dataset "$experiment_id"
+        get_pretrain_model "$experiment_id"
+        get_fix_lm_swe "$experiment_id"
+        get_voc "$experiment_id"
+        get_kd_model "$experiment_id"
+        get_ctc "$experiment_id"
+        # update_freq=$(((batch_size/max_tokens)/gpu))
+        # echo -e "Experiment:$experiment_id \nGPU_Number:$gpu \nBatch_Size:$batch_size \nMax_Tokens:$max_tokens \nMax_Epoch:$max_epoch \nUpdate_Freq:$update_freq"
+        # echo -e "Dataset:$dataset  \nPretrained_Model:$pretrained_model \nFix_LM:$fix_lm \nFix_SWE:$fix_swe"
+        # echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss"
+        # echo -e "Insert_Position:$insert_position \nDY_upsampling:$dynamic_upsampling \nNum_Upsampling_Rate:$num_upsampling_rate \nInsert_Mask:$insert_mask"
+        
+        BOOL_COMMAND="        "
+        # if [ "$fix_lm" = "True" ]
+        # then
+        #     BOOL_COMMAND+=" --lm-head-frozen"
+        # fi
+        # if [ "$fix_swe" = "True" ]
+        # then
+        #     BOOL_COMMAND+=" --embedding-frozen"
+        # fi
+        # if [ "$lm_loss_dis" = "True" ]
+        # then
+        #     BOOL_COMMAND+=" --lm-loss-dis"
+        # fi
+        # if [ "$lm_loss" = "True" ]
+        # then
+        #     BOOL_COMMAND+=" --lm-loss"
+        # fi
+        if [ "$dynamic_upsampling" = "True" ]
+        then
+            BOOL_COMMAND+=" --dynamic-upsampling"
+        fi
+        if [ "$insert_mask" = "True" ]
+        then
+            BOOL_COMMAND+=" --upsample-fill-mask"
+        fi
+        
+        if [ "$dynamic_rate" = "True" ]
+        then
+            BOOL_COMMAND+=" --dynamic-rate"
+        fi
 
-    CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
+        
+        if [ "$cpu" = "True" ]
+        then
+            BOOL_COMMAND+=" --cpu"
+        fi
+        if [ "$debug" = "True" ]
+        then
+            BOOL_COMMAND+=" --debug"
+        fi    
+
+        CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
 
 
-    avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
-    
+        avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
+        
 
-    echo -e "Checkpoint : $CHECKPOINT\t  Batchsize : $batch_size"
-# ---------------------------------------
-    for ck_ch in "${CHECK_TYPES[@]}"; do
-        for data_type in "${data_subset[@]}" ; do
-            echo "
-            CRITERION=$CRITERION
-            CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
-            TASK=$TASK
-            DATA_BIN=$dataroot/$dataset/de-en-databin
-            PRETRAINED_MODEL_NAME=$pretrained_model_name
-            RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/
-            CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
-            DATA_TYPE=$data_type
-            PRETRAINED_MODE=$pretrained_model
-            ARCH=$ARCH
-            BATCH_SIZE=$batch_size
-            BPE=$bpe
+        echo -e "Checkpoint : $CHECKPOINT\t  Batchsize : $batch_size"
+    # ---------------------------------------
+        for ck_ch in "${ck_types[@]}"; do
+            for data_type in "${data_subset[@]}" ; do
+                echo "
+                CRITERION=$CRITERION
+                CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
+                TASK=$TASK
+                DATA_BIN=$dataroot/$dataset/de-en-databin
+                PRETRAINED_MODEL_NAME=$pretrained_model_name
+                RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/
+                CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
+                DATA_TYPE=$data_type
+                PRETRAINED_MODE=$pretrained_model
+                ARCH=$ARCH
+                BATCH_SIZE=$batch_size
+                BPE=$bpe
 
-            "  > $CHECKPOINT/temp.sh
+                "  > $CHECKPOINT/temp.sh
 
 cat > $CHECKPOINT/temp1.sh << 'endmsg'
-    
+        
 
-        	python generate.py \
-        		$DATA_BIN \
-        		--gen-subset $DATA_TYPE \
-        		--task $TASK \
-        		--path $CHECKPOINT/$CHECKPOINTS_DATA \
-        		--results-path $RESULT_PATH \
-        		--arch $ARCH \
-        		--iter-decode-max-iter 0 \
-        		--criterion $CRITERION \
-        		--beam 1 \
-        		--no-repeat-ngram-size 1 \
-        		--left-pad-source \
+            python generate.py \
+                $DATA_BIN \
+                --gen-subset $DATA_TYPE \
+                --task $TASK \
+                --path $CHECKPOINT/$CHECKPOINTS_DATA \
+                --results-path $RESULT_PATH \
+                --arch $ARCH \
+                --iter-decode-max-iter 0 \
+                --criterion $CRITERION \
+                --beam 1 \
+                --no-repeat-ngram-size 1 \
+                --left-pad-source \
                 --prepend-bos \
-        		--pretrained-lm-name $PRETRAINED_MODEL_NAME \
-        		--pretrained-model-name $PRETRAINED_MODEL_NAME \
-        		--sacrebleu \
-        		--bpe $BPE \
-        		--pretrained-bpe ${PRETRAINED_MODEL_NAME} --pretrained-bpe-src ${PRETRAINED_MODEL_NAME} \
-        		--remove-bpe \
-        		--upsample-fill-mask \
-        		--batch-size $BATCH_SIZE \
+                --pretrained-lm-name $PRETRAINED_MODEL_NAME \
+                --pretrained-model-name $PRETRAINED_MODEL_NAME \
+                --sacrebleu \
+                --bpe $BPE \
+                --pretrained-bpe ${PRETRAINED_MODEL_NAME} --pretrained-bpe-src ${PRETRAINED_MODEL_NAME} \
+                --remove-bpe \
+                --upsample-fill-mask \
+                --batch-size $BATCH_SIZE \
 endmsg
 
-            cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh
-            echo "$BOOL_COMMAND" >> $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh
+                cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$ck_ch.sh
+                echo "$BOOL_COMMAND" >> $CHECKPOINT/scrip_generate_$ck_types.sh
 
-            rm $CHECKPOINT/temp*
+                rm $CHECKPOINT/temp*
 
-            bash $CHECKPOINT/scrip_generate_$CHECK_TYPES.sh          
+                bash $CHECKPOINT/scrip_generate_$ck_ch.sh          
+            done
         done
     done
-done
+fi
 
 for i in "${!exp_array[@]}"; do 
     experiment_id=${exp_array[$i]}
     CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
-    echo "=========No.$((i+1))  ID:$experiment_id:============="    
-    for data_type in "${data_subset[@]}" ; do
-        output_bleu_array=()
-        for ck_ch in "${CHECK_TYPES[@]}"; do
-            RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
-            # echo "$data_type/$ck_ch:"
-            lastln=$(tail -n1 $RESULT_PATH)
-            # echo $lastln
-            output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1) 
-            # echo "$output_bleu"
-            output_bleu_array+=("$output_bleu/")
+    if [ -d "$CHECKPOINT" ]; then
+        echo "=========No.$((i+1))  ID:$experiment_id:============="    
+        for data_type in "${data_subset[@]}" ; do
+            output_bleu_array=()
+            for ck_ch in "${ck_types[@]}"; do
+                RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
+                # echo "$data_type/$ck_ch:"
+                lastln=$(tail -n1 $RESULT_PATH)
+                # echo $lastln
+                output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1) 
+                # echo "$output_bleu"
+                output_bleu_array+=("$output_bleu/")
+            done
+            echo -e "  data-subset: $data_type"
+            echo -e "\t${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
         done
-        echo -e "  data-subset: $data_type"
-        echo -e "\t${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
-    done
+    else
+        no_exp_array+=("$experiment_id")
+    fi
 done
+
+
+if [ "${#no_exp_array[@]}" -gt 0 ]; then
+    echo "The experiments is NOT in the checkpoings path:"
+    for i in "${no_exp_array[@]}"; do
+        # Do what you need based on $i
+        echo -e "\t$i"
+    done
+fi
+
+
+
 
 
 
