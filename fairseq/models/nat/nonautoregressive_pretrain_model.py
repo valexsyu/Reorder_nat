@@ -645,7 +645,6 @@ class NATPretrainedModel(BaseFairseqModel):
             src_tokens_upsample = torch.cat((bos, src_tokens_upsample), dim=1)  
             atttention_mask=src_tokens_upsample.ne(self.pad)
             if self.no_atten_mask :
-                import pdb;pdb.set_trace()
                 output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
                                     output_hidden_states=True, return_dict=True, 
                                         inputs_embeds=None)                 
