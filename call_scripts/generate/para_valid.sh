@@ -147,3 +147,5 @@ bash call_scripts/generate_nat.sh -b 20 --data-subset test-valid \
 -e 2-2-1-1-H12-RD20M \
 -e 2-2-1-1-H12-LD20M \
 -e 2-2-1-1-H12-UD20M \
+
+bash

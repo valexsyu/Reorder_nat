@@ -651,8 +651,7 @@ class NATPretrainedModel(BaseFairseqModel):
                                         inputs_embeds=None)                 
             else:
                 output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
-                                attention_mask=atttention_mask,
-                                encoder_attention_mask=atttention_mask,
+                                attention_mask=atttention_mask,  #encoder_attention_mask=atttention_mask,
                                 output_hidden_states=True, return_dict=True, 
                                     inputs_embeds=None)     
         logits = output_translator['logits'][:,1:,:]
