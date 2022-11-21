@@ -475,7 +475,7 @@ def cli_main():
     )      
     args = options.parse_args_and_arch(parser)
     if args.debug :
-        print("Debug Now into pdb")
+        print("===================Debug Now into pdb=================")
         import pdb;pdb.set_trace()
     main(args)
 

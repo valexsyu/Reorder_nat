@@ -95,6 +95,7 @@ class NATPretrainedModel(BaseFairseqModel):
         self.embedding_frozen = args.embedding_frozen
         self.insert_position = args.insert_position
         self.lm_loss_type = args.lm_loss_type
+        self.no_atten_mask = args.no_atten_mask
         if self.lm_head_frozen :
             if self.pretrained_model_name  == "distilbert-base-multilingual-cased" :
                 lm_head = [self.translator.vocab_transform, self.translator.vocab_projector, self.translator.vocab_layer_norm]
@@ -269,7 +270,7 @@ class NATPretrainedModel(BaseFairseqModel):
             default=0.1,
             help="dropout",
         )          
-                           
+                     
        
                     
         
@@ -303,6 +304,9 @@ class NATPretrainedModel(BaseFairseqModel):
 
         if OmegaConf.is_config(args):
             OmegaConf.set_struct(args, True)
+
+        if task.cfg.no_atten_mask:
+            vars(args)['no_atten_mask'] = task.cfg.no_atten_mask            
 
         return cls(args, translator, task.source_dictionary, task.target_dictionary )
 
@@ -640,7 +644,13 @@ class NATPretrainedModel(BaseFairseqModel):
             src_tokens_upsample, rate = self.upsampling(src_tokens, self.num_upsampling_rate)
             src_tokens_upsample = torch.cat((bos, src_tokens_upsample), dim=1)  
             atttention_mask=src_tokens_upsample.ne(self.pad)
-            output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
+            if self.no_atten_mask :
+                import pdb;pdb.set_trace()
+                output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
+                                    output_hidden_states=True, return_dict=True, 
+                                        inputs_embeds=None)                 
+            else:
+                output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
                                 attention_mask=atttention_mask,
                                 encoder_attention_mask=atttention_mask,
                                 output_hidden_states=True, return_dict=True, 
@@ -744,6 +754,8 @@ def base_architecture(args):
     args.dynamic_upsampling  = safe_getattr( args, "dynamic_upsampling", False )
     args.dynamic_rate = safe_getattr( args, "dynamic_rate", False )
     args.insert_position  = safe_getattr( args, "insert_position", "uniform" )
+    
+    args.no_atten_mask = safe_getattr(args, "no_atten_mask", False )
     
     
     

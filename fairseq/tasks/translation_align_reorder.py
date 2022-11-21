@@ -72,7 +72,10 @@ class TranslationAlignReorderConfig(TranslationConfig):
     )  
     lm_loss_layer: int = field(
         default=-1, metadata={"help": "the lm loss layer , default is -1 (-1 means last layer)"},
-    )                 
+    )       
+    no_atten_mask: bool = field(
+        default=False, metadata={"help": "the model attention mask is None"},
+    )                
       
 
 @register_task("translation_align_reorder", dataclass=TranslationAlignReorderConfig)

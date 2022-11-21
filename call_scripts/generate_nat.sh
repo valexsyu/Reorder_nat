@@ -242,6 +242,7 @@ function default_setting() {
     ck_types=("last" "best" "best_top$TOPK")
     load_exist_bleu=False
     avg_ck_turnoff=False
+    no_atten_mask=False
     
 }
 
@@ -255,7 +256,7 @@ function avg_topk_best_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -290,7 +291,11 @@ while [ : ]; do
     --load-exist-bleu)
       load_exist_bleu=True
       shift 1
-      ;;                   
+      ;;       
+    --no-atten-mask)
+      no_atten_mask=True
+      shift 1
+      ;;                         
     -b | --batch-size)
       batch_size="$2"
       shift 2
@@ -456,6 +461,10 @@ if [ "$load_exist_bleu" = "False" ]; then
         then
             BOOL_COMMAND+=" --debug"
         fi    
+        if [ "$no_atten_mask" = "True" ]
+        then
+            BOOL_COMMAND+=" --no-atten-mask"
+        fi           
 
 
         
@@ -488,7 +497,8 @@ if [ "$load_exist_bleu" = "False" ]; then
                 # Check that the file has been generated.
                 FILE_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
                 last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
-                if [ $last_generate_word = "Generate" ]; then
+                if [ "$last_generate_word" = "Generate" ]
+                then
                     continue
                 fi
 

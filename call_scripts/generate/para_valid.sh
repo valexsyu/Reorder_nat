@@ -1,6 +1,6 @@
 source $HOME/.bashrc 
 conda activate base
-bash call_scripts/generate_nat.sh -b 200 --data-subset test-valid \
+bash call_scripts/generate_nat.sh -b 20 --data-subset test-valid \
 -e 1-1-2-1-H12-UF20T \
 -e 1-1-3-1-H12-UF20T \
 -e 1-1-3-1-H12-UF20T \
