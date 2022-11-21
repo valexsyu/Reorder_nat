@@ -496,7 +496,7 @@ if [ "$load_exist_bleu" = "False" ]; then
                 
                 # Check that the file has been generated.
                 FILE_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
-                last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}'))
+                last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
                 if [ "$last_generate_word" = "Generate" ]
                 then
                     continue
@@ -551,7 +551,7 @@ for i in "${!exp_array[@]}"; do
                 FILE_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
                 # echo "$data_type/$ck_ch:"
                 lastln=$(tail -n1 $FILE_PATH)
-                last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}'))
+                last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
                 if [ "$last_generate_word" = "Generate" ]
                 then
                     output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1)
