@@ -241,6 +241,7 @@ function default_setting() {
     TOPK=5
     ck_types=("last" "best" "best_top$TOPK")
     load_exist_bleu=False
+    avg_ck_turnoff=False
     
 }
 
@@ -254,7 +255,7 @@ function avg_topk_best_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types: -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -277,7 +278,11 @@ while [ : ]; do
     --cpu)
       cpu=True
       shift 1
-      ;;       
+      ;;      
+    --avg-ck-turnoff)
+      avg_ck_turnoff=True
+      shift 1
+      ;;          
     --debug)
       debug=True
       shift 1
@@ -393,6 +398,11 @@ CHECKPOINTS_PATH=checkpoints
 if [ "$load_exist_bleu" = "False" ]; then 
     for i in "${!exp_array[@]}"; do 
         experiment_id=${exp_array[$i]}
+        CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
+        if [ ! -d "$CHECKPOINT" ]; then
+            # echo "Folder is not exist"
+            continue
+        fi        
         echo "=========================No.$((i+1))  ID:$experiment_id=============================="
         get_dataset "$experiment_id"
         get_pretrain_model "$experiment_id"
@@ -447,10 +457,12 @@ if [ "$load_exist_bleu" = "False" ]; then
             BOOL_COMMAND+=" --debug"
         fi    
 
-        CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
 
+        
 
-        avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
+        if [ "$avg_ck_turnoff" = "False" ]; then
+            avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
+        fi
         
 
         echo -e "Checkpoint : $CHECKPOINT\t  Batchsize : $batch_size"
@@ -472,6 +484,14 @@ if [ "$load_exist_bleu" = "False" ]; then
                 BPE=$bpe
 
                 "  > $CHECKPOINT/temp.sh
+                
+                # Check that the file has been generated.
+                FILE_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
+                last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
+                if [ $last_generate_word = "Generate" ]; then
+                    continue
+                fi
+
 
 cat > $CHECKPOINT/temp1.sh << 'endmsg'
         
@@ -518,11 +538,17 @@ for i in "${!exp_array[@]}"; do
         for data_type in "${data_subset[@]}" ; do
             output_bleu_array=()
             for ck_ch in "${ck_types[@]}"; do
-                RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
+                FILE_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
                 # echo "$data_type/$ck_ch:"
-                lastln=$(tail -n1 $RESULT_PATH)
+                lastln=$(tail -n1 $FILE_PATH)
+                last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
+                if [ $last_generate_word = "Generate" ]; then
+                    output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1)
+                else
+                    output_bleu="Fail"                
+                fi
                 # echo $lastln
-                output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1) 
+                # output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1) 
                 # echo "$output_bleu"
                 output_bleu_array+=("$output_bleu/")
             done
