@@ -15,5 +15,5 @@ CUDA_VISIBLE_DEVICES=0 bash call_scripts/train_nat.sh -e 2-2-1-1-H4-UF20M --twcc
 CUDA_VISIBLE_DEVICES=0 bash call_scripts/train_nat.sh -e 2-2-1-1-H3-UF20M --twcc --fp16 --save-interval-updates 70000 --max-update 100000 --max-tokens 4096 -b 12288 -g 1 --dropout 0.1
 CUDA_VISIBLE_DEVICES=0 bash call_scripts/train_nat.sh -e 2-2-1-1-H2-UF20M --twcc --fp16 --save-interval-updates 70000 --max-update 100000 --max-tokens 4096 -b 12288 -g 1 --dropout 0.1
 CUDA_VISIBLE_DEVICES=0 bash call_scripts/train_nat.sh -e 2-2-1-1-H1-UF20M --twcc --fp16 --save-interval-updates 70000 --max-update 100000 --max-tokens 4096 -b 12288 -g 1 --dropout 0.1
-CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --twcc -b 60 \
+CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --twcc -b 60 --data-subset test-valid \
 -e 2-2-1-1-H5-UF20M -e 2-2-1-1-H4-UF20M -e 2-2-1-1-H3-UF20M -e 2-2-1-1-H2-UF20M -e 2-2-1-1-H1-UF20M

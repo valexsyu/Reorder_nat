@@ -468,8 +468,15 @@ def cli_main():
         help="Model architecture. For constructing tasks that rely on "
         "model args (e.g. `AudioPretraining`)",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="compute LM loss ",
+    )      
     args = options.parse_args_and_arch(parser)
-    
+    if args.debug :
+        print("Debug Now into pdb")
+        import pdb;pdb.set_trace()
     main(args)
 
 

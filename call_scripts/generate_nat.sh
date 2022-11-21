@@ -101,6 +101,11 @@ function get_pretrain_model() {
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"     
         bpe="bibert"
+    elif [ "$i" = "6" ]
+    then
+        pretrained_model="bibert"
+        pretrained_model_name="jhu-clsp/bibert-ende"
+        bpe="bibert"            
     else
         echo "error pretrained model id "
         exit 1
@@ -269,6 +274,10 @@ while [ : ]; do
     --cpu)
       cpu=True
       shift 1
+      ;;       
+    --debug)
+      debug=True
+      shift 1
       ;;             
     -b | --batch-size)
       batch_size="$2"
@@ -398,6 +407,10 @@ for i in "${!exp_array[@]}"; do
     then
         BOOL_COMMAND+=" --cpu"
     fi
+    if [ "$debug" = "True" ]
+    then
+        BOOL_COMMAND+=" --debug"
+    fi    
 
     CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
 
