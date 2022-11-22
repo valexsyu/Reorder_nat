@@ -1,4 +1,4 @@
-bash call_scripts/generate_nat.sh -b 50 --data-subset test-valid --no-atten-mask --avg-ck-turnoff \
+CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 50 --data-subset test-valid --no-atten-mask --avg-ck-turnoff --twcc \
 -e 1-1-2-1-H12-UF20T \
 -e 1-1-3-1-H12-UF20T \
 -e 1-1-3-1-H12-UF20T \
