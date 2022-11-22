@@ -75,7 +75,10 @@ class TranslationAlignReorderConfig(TranslationConfig):
     )       
     no_atten_mask: bool = field(
         default=False, metadata={"help": "the model attention mask is None"},
-    )                
+    )
+    debug: bool = field(
+        default=False, metadata={"help": "debug"},
+    )                      
       
 
 @register_task("translation_align_reorder", dataclass=TranslationAlignReorderConfig)

@@ -64,6 +64,7 @@ class NATPretrainedModel(BaseFairseqModel):
         self.upsample_fill_mask = args.upsample_fill_mask
         self.dynamic_upsampling = args.dynamic_upsampling 
         self.dynamic_rate=args.dynamic_rate
+        self.debug = args.debug
         if self.dynamic_rate :
             self.dynamic_upsampling = True
         if len(self.lm_st_layer) != len(self.lm_tr_layer):
@@ -269,7 +270,7 @@ class NATPretrainedModel(BaseFairseqModel):
             type=float,
             default=0.1,
             help="dropout",
-        )          
+        )              
                      
        
                     
@@ -306,7 +307,8 @@ class NATPretrainedModel(BaseFairseqModel):
             OmegaConf.set_struct(args, True)
 
         if task.cfg.no_atten_mask:
-            vars(args)['no_atten_mask'] = task.cfg.no_atten_mask            
+            vars(args)['no_atten_mask'] = task.cfg.no_atten_mask  
+            vars(args)['debug'] = task.cfg.debug          
 
         return cls(args, translator, task.source_dictionary, task.target_dictionary )
 
@@ -754,6 +756,7 @@ def base_architecture(args):
     args.insert_position  = safe_getattr( args, "insert_position", "uniform" )
     
     args.no_atten_mask = safe_getattr(args, "no_atten_mask", False )
+    args.debug = safe_getattr(args, "debug", False )
     
     
     
