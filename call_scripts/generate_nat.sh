@@ -486,22 +486,6 @@ if [ "$load_exist_bleu" = "False" ]; then
         for ck_ch in "${ck_types[@]}"; do
             for data_type in "${data_subset[@]}" ; do
                 RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/$ck_ch.bleu
-                echo "
-                CRITERION=$CRITERION
-                CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
-                TASK=$TASK
-                DATA_BIN=$dataroot/$dataset/de-en-databin
-                PRETRAINED_MODEL_NAME=$pretrained_model_name
-                RESULT_PATH=$RESULT_PATH
-                CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
-                DATA_TYPE=$data_type
-                PRETRAINED_MODE=$pretrained_model
-                ARCH=$ARCH
-                BATCH_SIZE=$batch_size
-                BPE=$bpe
-
-                "  > $CHECKPOINT/temp.sh
-                
                 if [ "$skip_exist_genfile" = "True" ]
                 then
                     # Check that the file has been generated.
@@ -513,30 +497,46 @@ if [ "$load_exist_bleu" = "False" ]; then
                     fi
                 fi
 
-cat > $CHECKPOINT/temp1.sh << 'endmsg'
+echo "
+CRITERION=$CRITERION
+CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
+TASK=$TASK
+DATA_BIN=$dataroot/$dataset/de-en-databin
+PRETRAINED_MODEL_NAME=$pretrained_model_name
+RESULT_PATH=$RESULT_PATH
+CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
+DATA_TYPE=$data_type
+PRETRAINED_MODE=$pretrained_model
+ARCH=$ARCH
+BATCH_SIZE=$batch_size
+BPE=$bpe
+
+"  > $CHECKPOINT/temp.sh
+                
+                cat > $CHECKPOINT/temp1.sh << 'endmsg'
         
 
-            python generate.py \
-                $DATA_BIN \
-                --gen-subset $DATA_TYPE \
-                --task $TASK \
-                --path $CHECKPOINT/$CHECKPOINTS_DATA \
-                --results-path $RESULT_PATH \
-                --arch $ARCH \
-                --iter-decode-max-iter 0 \
-                --criterion $CRITERION \
-                --beam 1 \
-                --no-repeat-ngram-size 1 \
-                --left-pad-source \
-                --prepend-bos \
-                --pretrained-lm-name $PRETRAINED_MODEL_NAME \
-                --pretrained-model-name $PRETRAINED_MODEL_NAME \
-                --sacrebleu \
-                --bpe $BPE \
-                --pretrained-bpe ${PRETRAINED_MODEL_NAME} --pretrained-bpe-src ${PRETRAINED_MODEL_NAME} \
-                --remove-bpe \
-                --upsample-fill-mask \
-                --batch-size $BATCH_SIZE \
+    python generate.py \
+        $DATA_BIN \
+        --gen-subset $DATA_TYPE \
+        --task $TASK \
+        --path $CHECKPOINT/$CHECKPOINTS_DATA \
+        --results-path $RESULT_PATH \
+        --arch $ARCH \
+        --iter-decode-max-iter 0 \
+        --criterion $CRITERION \
+        --beam 1 \
+        --no-repeat-ngram-size 1 \
+        --left-pad-source \
+        --prepend-bos \
+        --pretrained-lm-name $PRETRAINED_MODEL_NAME \
+        --pretrained-model-name $PRETRAINED_MODEL_NAME \
+        --sacrebleu \
+        --bpe $BPE \
+        --pretrained-bpe ${PRETRAINED_MODEL_NAME} --pretrained-bpe-src ${PRETRAINED_MODEL_NAME} \
+        --remove-bpe \
+        --upsample-fill-mask \
+        --batch-size $BATCH_SIZE \
 endmsg
 
                 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$ck_ch.sh
