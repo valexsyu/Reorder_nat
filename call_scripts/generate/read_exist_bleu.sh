@@ -12,7 +12,6 @@ bash call_scripts/generate_nat.sh -b 200 --data-subset test-valid --load-exist-b
 -e 2-2-4-1-H12-UF20T \
 -e 2-2-1-1-N-UF20T \
 -e 2-2-3-1-N-UF20T \
--e 1-1-1-1-H12-UF20T \
 -e 2-2-1-1-H12-UF20T \
 -e 5-3-1-1-H12-UF20T \
 -e 7-4-1-1-H12-UF20T \
