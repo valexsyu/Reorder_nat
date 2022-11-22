@@ -16,6 +16,7 @@ bash call_scripts/train_nat.sh -e 2-2-1-1-H12-UD40T --fp16 --save-interval-updat
 bash call_scripts/generate_nat.sh -e 2-2-1-1-H12-UD40T --data-subset test-valid
 bash call_scripts/train_nat.sh -e 2-2-4-1-N-UF20T --fp16 --save-interval-updates 70000 --max-tokens 4096
 bash call_scripts/generate_nat.sh -e 2-2-4-1-N-UF20T --data-subset test-valid
+bash generate_file-nonatten.sh
 bash call_scripts/train_nat.sh -e K-2-1-1-H12-UF30M --fp16 --save-interval-updates 70000 --max-tokens 4096
 bash call_scripts/generate_nat.sh -e K-2-1-1-H12-UF30M --data-subset test-valid
  
