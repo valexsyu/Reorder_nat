@@ -40,7 +40,6 @@ conda activate base
 # -e 2-2-1-1-H3-UF20T \
 # -e 2-2-1-1-H2-UF20T \
 # -e 2-2-1-1-H1-UF20T \
-# -e 2-2-1-1-N-UF20M \
 # -e 2-2-1-1-H12-UF20M \
 # -e 2-2-1-1-H11-UF20M \
 # -e 2-2-1-1-H10-UF20M \
@@ -107,7 +106,6 @@ bash call_scripts/generate_nat.sh -b 50 --data-subset test-valid --no-atten-mask
 -e 2-2-1-1-N-UF50M \
 -e 2-2-1-1-N-UF40M \
 -e 2-2-1-1-N-UF30M \
--e 2-2-1-1-N-UF20M \
 -e 2-2-1-1-H12-UD50M \
 -e 2-2-1-1-H12-UD45M \
 -e 2-2-1-1-H12-UD40M \

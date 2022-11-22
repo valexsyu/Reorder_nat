@@ -540,7 +540,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
 endmsg
 
                 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$ck_ch.sh
-                echo "$BOOL_COMMAND" >> $CHECKPOINT/scrip_generate_$ck_types.sh
+                echo "$BOOL_COMMAND" >> $CHECKPOINT/scrip_generate_$ck_ch.sh
 
                 rm $CHECKPOINT/temp*
 
@@ -561,12 +561,16 @@ for i in "${!exp_array[@]}"; do
                 RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/$ck_ch.bleu
                 FILE_PATH=$RESULT_PATH/generate-$data_type.txt
                 # echo "$data_type/$ck_ch:"
-                lastln=$(tail -n1 $FILE_PATH)
-                last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
-                if [ "$last_generate_word" = "Generate" ]
-                then
-                    output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1)
-                else
+                if [ -f "$FILE_PATH" ]; then
+                    lastln=$(tail -n1 $FILE_PATH)
+                    last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
+                    if [ "$last_generate_word" = "Generate" ]
+                    then
+                        output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1)
+                    else
+                        output_bleu="Fail"                
+                    fi
+                else 
                     output_bleu="Fail"                
                 fi
                 # echo $lastln
