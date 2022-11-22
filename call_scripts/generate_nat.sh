@@ -243,6 +243,8 @@ function default_setting() {
     load_exist_bleu=False
     avg_ck_turnoff=False
     no_atten_mask=False
+    skip_exist_genfile=False
+    no_atten_postfix=""
     
 }
 
@@ -256,7 +258,7 @@ function avg_topk_best_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -294,8 +296,13 @@ while [ : ]; do
       ;;       
     --no-atten-mask)
       no_atten_mask=True
+      no_atten_postfix="_NonMask"
       shift 1
-      ;;                         
+      ;;       
+    --skip-exist-genfile)
+      skip_exist_genfile=True
+      shift 1
+      ;;                             
     -b | --batch-size)
       batch_size="$2"
       shift 2
@@ -478,13 +485,14 @@ if [ "$load_exist_bleu" = "False" ]; then
     # ---------------------------------------
         for ck_ch in "${ck_types[@]}"; do
             for data_type in "${data_subset[@]}" ; do
+                RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/$ck_ch.bleu
                 echo "
                 CRITERION=$CRITERION
                 CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
                 TASK=$TASK
                 DATA_BIN=$dataroot/$dataset/de-en-databin
                 PRETRAINED_MODEL_NAME=$pretrained_model_name
-                RESULT_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/
+                RESULT_PATH=$RESULT_PATH
                 CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
                 DATA_TYPE=$data_type
                 PRETRAINED_MODE=$pretrained_model
@@ -494,14 +502,16 @@ if [ "$load_exist_bleu" = "False" ]; then
 
                 "  > $CHECKPOINT/temp.sh
                 
-                # Check that the file has been generated.
-                FILE_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
-                last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
-                if [ "$last_generate_word" = "Generate" ]
+                if [ "$skip_exist_genfile" = "True" ]
                 then
-                    continue
+                    # Check that the file has been generated.
+                    FILE_PATH=$RESULT_PATH/generate-$data_type.txt
+                    last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
+                    if [ "$last_generate_word" = "Generate" ]
+                    then
+                        continue
+                    fi
                 fi
-
 
 cat > $CHECKPOINT/temp1.sh << 'endmsg'
         
@@ -548,7 +558,8 @@ for i in "${!exp_array[@]}"; do
         for data_type in "${data_subset[@]}" ; do
             output_bleu_array=()
             for ck_ch in "${ck_types[@]}"; do
-                FILE_PATH=$CHECKPOINT/$data_type/$ck_ch.bleu/generate-$data_type.txt
+                RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/$ck_ch.bleu
+                FILE_PATH=$RESULT_PATH/generate-$data_type.txt
                 # echo "$data_type/$ck_ch:"
                 lastln=$(tail -n1 $FILE_PATH)
                 last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')

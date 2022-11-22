@@ -154,7 +154,7 @@
 # -e 1-1-1-1-H2-UF20T \
 # -e 1-1-1-1-H1-UF20T \
 
-CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --twcc -b 1 --data-subset valid --avg-ck-turnoff \
+CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --twcc -b 50 --data-subset valid --avg-ck-turnoff --skip-exist-genfile \
 -e 2-2-1-1-H5-UF20T \
 -e 2-2-1-1-H4-UF20T \
 -e 2-2-1-1-H3-UF20T \

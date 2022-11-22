@@ -147,7 +147,7 @@
 # -e 2-2-1-1-H12-UD20M \
 
 
-CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --twcc -b 1 --data-subset test-valid \
+CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --twcc -b 50 --data-subset test-valid --skip-exist-genfile \
 -e 1-1-1-1-H12-UF20T \
 -e 1-1-1-1-N-UF20T \
 -e 1-1-1-1-H3-UF20T \
