@@ -550,7 +550,8 @@ endmsg
     done
 fi
 
-csv_file=call_scripts/generate/output_read$no_atten_postfix.csv
+mkdir -p call_scripts/generate/output_file
+csv_file=call_scripts/generate/output_file/output_read$no_atten_postfix.csv
 if [ -f "$csv_file" ]; then 
     rm $csv_file
 fi
