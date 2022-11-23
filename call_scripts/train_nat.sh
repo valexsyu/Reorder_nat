@@ -242,12 +242,13 @@ function default_setting() {
     save_interval_updates=10000
     dropout=0.1
     lm_start_step=75000
+    no_atten_mask=False
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step: -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -307,7 +308,11 @@ while [ : ]; do
     --lm-start-step)
       lm_start_step="$2"
       shift 2
-      ;;        
+      ;;  
+    --no-atten-mask)
+      no_atten_mask=True
+      shift 1
+      ;;                 
     --) shift; 
         break
   esac
@@ -374,6 +379,10 @@ if [ "$fp16" = "True" ]
 then
     BOOL_COMMAND+=" --fp16"
 fi
+if [ "$no_atten_mask" = "True" ]
+then
+    BOOL_COMMAND+=" --no-atten-mask"
+fi   
 
 
 if [ ! -d "checkpoints" ]; then
