@@ -131,3 +131,4 @@ bash call_scripts/generate_nat.sh -b 200 --data-subset test-valid --load-exist-b
 -e 2-2-1-1-H12-UR15M \
 -e 2-2-1-1-H12-RD20M \
 -e 2-2-1-1-H12-LD20M \
+> call_scripts/generate/read_exist_bleu-nonatten-twcc.txt 

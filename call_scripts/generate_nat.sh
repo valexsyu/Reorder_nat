@@ -550,11 +550,17 @@ endmsg
     done
 fi
 
+csv_file=call_scripts/generate/output_read$no_atten_postfix.csv
+if [ -f "$csv_file" ]; then 
+    rm $csv_file
+fi
+
 for i in "${!exp_array[@]}"; do 
     experiment_id=${exp_array[$i]}
     CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
     if [ -d "$CHECKPOINT" ]; then
         echo "=========No.$((i+1))  ID:$experiment_id:============="    
+        bleu_array=()
         for data_type in "${data_subset[@]}" ; do
             output_bleu_array=()
             for ck_ch in "${ck_types[@]}"; do
@@ -580,7 +586,9 @@ for i in "${!exp_array[@]}"; do
             done
             echo -e "  data-subset: $data_type"
             echo -e "\t${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
+            bleu_array+=$(echo -e "${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'),
         done
+        echo "$experiment_id,${bleu_array[@]}" >> $csv_file
     else
         no_exp_array+=("$experiment_id")
     fi
@@ -588,7 +596,7 @@ done
 
 
 if [ "${#no_exp_array[@]}" -gt 0 ]; then
-    echo "The experiments is NOT in the checkpoings path:"
+    echo "The experiments are NOT in the checkpoings path:"
     for i in "${no_exp_array[@]}"; do
         # Do what you need based on $i
         echo -e "\t$i"
