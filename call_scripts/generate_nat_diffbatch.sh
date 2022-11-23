@@ -593,8 +593,8 @@ for i in "${!exp_array[@]}"; do
                 echo -e "\t${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
                 bleu_array+=$(echo -e "${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'),
             done
+            echo "$experiment_id,$data_type,$ck_ch,${bleu_array[@]}" >> $csv_file
         done
-        echo "$experiment_id,$data_type,$ck_ch,${bleu_array[@]}" >> $csv_file
     else
         no_exp_array+=("$experiment_id")
     fi
