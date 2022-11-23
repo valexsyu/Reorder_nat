@@ -239,7 +239,7 @@ function default_setting() {
     cpu=False
     data_subset=("test")
     TOPK=5
-    ck_types=("45_100000" "90_200000")
+    ck_types=("last" "best" "best_top$TOPK")
     load_exist_bleu=False
     avg_ck_turnoff=False
     no_atten_mask=False
@@ -335,11 +335,24 @@ while [ : ]; do
       ;;   
     --ck-types)
         case $2 in 
+            top)
+                ck_types=("best_top$TOPK")
+                ;;
+            best-top)
+                ck_types=("best")
+                ck_types+=("best_top$TOPK")
+                ;;
             last-best-top)
-                ck_types=("45_100000")
-                ck_types+=("90_200000")
-                # ck_types+=("best_top$TOPK")
-                ;;               
+                ck_types=("last")
+                ck_types+=("best")
+                ck_types+=("best_top$TOPK")
+                ;;
+            best)
+                ck_types=("best")
+                ;;
+            last)
+                ck_types=("last")
+                ;;                                
             *) 
                 echo "checkpoints type id is wrong"
                 exit 1    
@@ -391,9 +404,9 @@ fi
 ARCH=nat_pretrained_model
 CRITERION=nat_ctc_loss
 TASK=translation_align_reorder
-CHECKPOINTS_PATH=checkpoints
+CHECKPOINTS_PATH=checkpoints/batch_test
 
-
+batch_size=("1" "10" "20" "30" "40" "50" "60")
 if [ "$load_exist_bleu" = "False" ]; then 
     for i in "${!exp_array[@]}"; do 
         experiment_id=${exp_array[$i]}
@@ -467,22 +480,24 @@ if [ "$load_exist_bleu" = "False" ]; then
             avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
         fi
         
-
+        
         echo -e "Checkpoint : $CHECKPOINT\t  Batchsize : $batch_size"
     # ---------------------------------------
+        
         for ck_ch in "${ck_types[@]}"; do
             for data_type in "${data_subset[@]}" ; do
-                RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/$ck_ch.bleu
-                if [ "$skip_exist_genfile" = "True" ]
-                then
-                    # Check that the file has been generated.
-                    FILE_PATH=$RESULT_PATH/generate-$data_type.txt
-                    last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
-                    if [ "$last_generate_word" = "Generate" ]
+                for bsz in "${batch_size[@]}" ; do 
+                    RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/${ck_ch}_${bsz}.bleu
+                    if [ "$skip_exist_genfile" = "True" ]
                     then
-                        continue
+                        # Check that the file has been generated.
+                        FILE_PATH=$RESULT_PATH/generate-$data_type.txt
+                        last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
+                        if [ "$last_generate_word" = "Generate" ]
+                        then
+                            continue
+                        fi
                     fi
-                fi
 
 echo "
 CRITERION=$CRITERION
@@ -495,7 +510,7 @@ CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
 DATA_TYPE=$data_type
 PRETRAINED_MODE=$pretrained_model
 ARCH=$ARCH
-BATCH_SIZE=$batch_size
+BATCH_SIZE=$bsz
 BPE=$bpe
 
 "  > $CHECKPOINT/temp.sh
@@ -526,48 +541,60 @@ BPE=$bpe
         --batch-size $BATCH_SIZE \
 endmsg
 
-                cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$ck_ch.sh
-                echo "$BOOL_COMMAND" >> $CHECKPOINT/scrip_generate_$ck_ch.sh
+                    cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$ck_ch.sh
+                    echo "$BOOL_COMMAND" >> $CHECKPOINT/scrip_generate_$ck_ch.sh
 
-                rm $CHECKPOINT/temp*
+                    rm $CHECKPOINT/temp*
 
-                bash $CHECKPOINT/scrip_generate_$ck_ch.sh          
+                    bash $CHECKPOINT/scrip_generate_$ck_ch.sh   
+                done       
             done
         done
     done
 fi
 
+mkdir -p call_scripts/generate/output_file
+csv_file=call_scripts/generate/output_file/output_read$no_atten_postfix.csv
+if [ -f "$csv_file" ]; then 
+    rm $csv_file
+fi
+
+
 for i in "${!exp_array[@]}"; do 
     experiment_id=${exp_array[$i]}
     CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
+    echo "$CHECKPOINT"
     if [ -d "$CHECKPOINT" ]; then
         echo "=========No.$((i+1))  ID:$experiment_id:============="    
+        bleu_array=()
         for data_type in "${data_subset[@]}" ; do
             output_bleu_array=()
             for ck_ch in "${ck_types[@]}"; do
-                RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/$ck_ch.bleu
-                FILE_PATH=$RESULT_PATH/generate-$data_type.txt
-                # echo "$data_type/$ck_ch:"
-                if [ -f "$FILE_PATH" ]; then
-                    lastln=$(tail -n1 $FILE_PATH)
-                    last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
-                    if [ "$last_generate_word" = "Generate" ]
-                    then
-                        output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1)
-                    else
+                for bsz in "${batch_size[@]}" ; do
+                    RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/${ck_ch}_${bsz}.bleu
+                    FILE_PATH=$RESULT_PATH/generate-$data_type.txt
+
+                    # echo "$data_type/$ck_ch:"
+                    if [ -f "$FILE_PATH" ]; then
+                        lastln=$(tail -n1 $FILE_PATH)
+                        last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
+                        if [ "$last_generate_word" = "Generate" ]
+                        then
+                            output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1)
+                        else
+                            output_bleu="Fail"                
+                        fi
+                    else 
                         output_bleu="Fail"                
                     fi
-                else 
-                    output_bleu="Fail"                
-                fi
-                # echo $lastln
-                # output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1) 
-                # echo "$output_bleu"
-                output_bleu_array+=("$output_bleu/")
+                    output_bleu_array+=("$output_bleu/")
+                done
+                echo -e "  data-subset: $data_type checkpoint: $ck_ch "
+                echo -e "\t${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
+                bleu_array+=$(echo -e "${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'),
             done
-            echo -e "  data-subset: $data_type"
-            echo -e "\t${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
         done
+        echo "$experiment_id,$data_type,$ck_ch,${bleu_array[@]}" >> $csv_file
     else
         no_exp_array+=("$experiment_id")
     fi
@@ -575,7 +602,7 @@ done
 
 
 if [ "${#no_exp_array[@]}" -gt 0 ]; then
-    echo "The experiments is NOT in the checkpoings path:"
+    echo "The experiments are NOT in the checkpoings path:"
     for i in "${no_exp_array[@]}"; do
         # Do what you need based on $i
         echo -e "\t$i"
