@@ -570,6 +570,7 @@ for i in "${!exp_array[@]}"; do
         for data_type in "${data_subset[@]}" ; do
             for ck_ch in "${ck_types[@]}"; do
                 output_bleu_array=()
+                bleu_array=()
                 for bsz in "${batch_size[@]}" ; do
                     RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/${ck_ch}_${bsz}.bleu
                     FILE_PATH=$RESULT_PATH/generate-$data_type.txt
