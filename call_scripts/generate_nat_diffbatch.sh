@@ -568,8 +568,8 @@ for i in "${!exp_array[@]}"; do
         echo "=========No.$((i+1))  ID:$experiment_id:============="    
         bleu_array=()
         for data_type in "${data_subset[@]}" ; do
-            output_bleu_array=()
             for ck_ch in "${ck_types[@]}"; do
+                output_bleu_array=()
                 for bsz in "${batch_size[@]}" ; do
                     RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/${ck_ch}_${bsz}.bleu
                     FILE_PATH=$RESULT_PATH/generate-$data_type.txt
@@ -592,8 +592,8 @@ for i in "${!exp_array[@]}"; do
                 echo -e "  data-subset: $data_type checkpoint: $ck_ch "
                 echo -e "\t${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
                 bleu_array+=$(echo -e "${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'),
+                echo "$experiment_id,$data_type,$ck_ch,${bleu_array[@]}" >> $csv_file
             done
-            echo "$experiment_id,$data_type,$ck_ch,$bsz,${bleu_array[@]}" >> $csv_file
         done
     else
         no_exp_array+=("$experiment_id")
