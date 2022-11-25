@@ -574,6 +574,7 @@ for i in "${!exp_array[@]}"; do
     if [ -d "$CHECKPOINT" ]; then
         echo "=========No.$((i+1))  ID:$experiment_id:============="    
         bleu_array=()
+        speed_avg_array=()
         for data_type in "${data_subset[@]}" ; do
             output_bleu_array=()
             output_speed_avg=()
@@ -583,15 +584,15 @@ for i in "${!exp_array[@]}"; do
                     echo "$checkpoint_data_name is not exist"
                     continue
                 fi  
-                speed_sum=0
+                # speed_sum=0
                 speed_array=()
                 for (( speed_i=1; speed_i<=$avg_speed; speed_i++ )); do
                     RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/${ck_ch}_${batch_size}_${speed_i}.bleu
                     FILE_PATH=$RESULT_PATH/generate-$data_type.txt
-                    # echo "$data_type/$ck_ch:"
+                    
                     if [ -f "$FILE_PATH" ]; then
                         lastln=$(tail -n1 $FILE_PATH)
-                        last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
+                        last_generate_word=$(tail -n1 $FILE_PATH | awk '{print $1;}')
                         if [ "$last_generate_word" = "Generate" ]
                         then
                             output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1)
@@ -600,7 +601,6 @@ for i in "${!exp_array[@]}"; do
                         fi
 
                         speedln=$(tail -n2 $FILE_PATH | head -1) 
-                        echo "$speedln"
                         last_generate_word=$(tail -n2 $FILE_PATH | head -1 | awk '{print $1;}')
                         if [ "$last_generate_word" = "Translated" ]
                         then
@@ -615,19 +615,19 @@ for i in "${!exp_array[@]}"; do
                     speed_array+=("$output_speed ")
                     # sum=$(echo "$speed_sum + $output_speed" | bc)
                 done
-                    echo "${speed_array[@]}"
-                    run_avg=$(echo "python call_scripts/tool/avg_speed.sh ${speed_array[@]} ")
-                    avg=$(eval $run_avg | awk '{print $1;}') 
-                    # avg=$(echo 'scale=5; $sum / $N' | bc -l)
-                    output_speed_avg+=("$avg")
-                    output_bleu_array+=("$output_bleu/")    
+                # echo "${speed_array[@]}"
+                run_avg=$(echo "python call_scripts/tool/avg_speed.sh ${speed_array[@]} ")
+                avg=$(eval $run_avg | awk '{print $1;}') 
+                # avg=$(echo 'scale=5; $sum / $N' | bc -l)
+                output_speed_avg+=("$avg")
+                output_bleu_array+=("$output_bleu/")    
             done
             echo -e "  data-subset: $data_type"
             echo -e "\tbleu:\t${output_bleu_array[@]}\t speed:\t${output_speed_avg[@]}" | sed 's/.$//' | sed 's/ //g'
             bleu_array+=$(echo -e "${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'),
-            speed_array+=$(echo -e "${output_speed_avg[@]}" | sed 's/.$//' | sed 's/ //g'),
+            speed_avg_array+=$(echo -e "${output_speed_avg[@]}" | sed 's/.$//' | sed 's/ //g'),
         done
-        echo "$experiment_id,bleu,speed,${bleu_array[@]}${speed_array[@]}" >> $csv_file
+        echo "$experiment_id,bleu,speed_${batch_size},${bleu_array[@]}${speed_avg_array[@]}" >> $csv_file
     else
         no_exp_array+=("$experiment_id")
     fi
