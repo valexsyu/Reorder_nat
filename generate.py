@@ -448,6 +448,16 @@ def _main(cfg: DictConfig, output_file):
                 )
         # use print to be consistent with other main outputs: S-, H-, T-, D- and so on
         print(
+            "Translated {:,} sentences ({:,} tokens) in {:.2f}s ({:.2f} ms/sentences, {:.2f} tokens/s)".format(
+                num_sentences,
+                gen_timer.n,
+                gen_timer.sum,
+                (gen_timer.sum / num_sentences)*1000,
+                1.0 / gen_timer.avg,
+            ),
+            file=output_file,
+        )        
+        print(
             "Generate {} with beam={}: {}".format(
                 cfg.dataset.gen_subset, cfg.generation.beam, scorer.result_string()
             ),
