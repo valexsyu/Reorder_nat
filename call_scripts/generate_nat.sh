@@ -245,6 +245,7 @@ function default_setting() {
     no_atten_mask=False
     skip_exist_genfile=False
     no_atten_postfix=""
+    avg_speed=1
     
 }
 
@@ -258,7 +259,7 @@ function avg_topk_best_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile,avg-speed: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -306,7 +307,11 @@ while [ : ]; do
     -b | --batch-size)
       batch_size="$2"
       shift 2
-      ;;          
+      ;;       
+    --avg-speed)
+      avg_speed="$2"
+      shift 2
+      ;;  
     --data-subset)
         case $2 in 
             test)
@@ -364,6 +369,7 @@ while [ : ]; do
   esac
 done
 
+
 echo "========================================================"
 
 if [ "${#exp_array[@]}" -gt 0 ]; then
@@ -406,7 +412,6 @@ CRITERION=nat_ctc_loss
 TASK=translation_align_reorder
 CHECKPOINTS_PATH=checkpoints
 
-
 if [ "$load_exist_bleu" = "False" ]; then 
     for i in "${!exp_array[@]}"; do 
         experiment_id=${exp_array[$i]}
@@ -428,7 +433,7 @@ if [ "$load_exist_bleu" = "False" ]; then
         # echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss"
         # echo -e "Insert_Position:$insert_position \nDY_upsampling:$dynamic_upsampling \nNum_Upsampling_Rate:$num_upsampling_rate \nInsert_Mask:$insert_mask"
         
-        BOOL_COMMAND="        "
+        BOOL_COMMAND="       "
         # if [ "$fix_lm" = "True" ]
         # then
         #     BOOL_COMMAND+=" --lm-head-frozen"
@@ -473,9 +478,6 @@ if [ "$load_exist_bleu" = "False" ]; then
             BOOL_COMMAND+=" --no-atten-mask"
         fi           
 
-
-        
-
         if [ "$avg_ck_turnoff" = "False" ]; then
             avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
         fi
@@ -484,18 +486,24 @@ if [ "$load_exist_bleu" = "False" ]; then
         echo -e "Checkpoint : $CHECKPOINT\t  Batchsize : $batch_size"
     # ---------------------------------------
         for ck_ch in "${ck_types[@]}"; do
-            for data_type in "${data_subset[@]}" ; do
-                RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/$ck_ch.bleu
-                if [ "$skip_exist_genfile" = "True" ]
-                then
-                    # Check that the file has been generated.
-                    FILE_PATH=$RESULT_PATH/generate-$data_type.txt
-                    last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
-                    if [ "$last_generate_word" = "Generate" ]
+            checkpoint_data_name=checkpoint_$ck_ch.pt
+            if [ ! -f "$CHECKPOINT/$checkpoint_data_name" ]; then
+                echo "$checkpoint_data_name is not exist"
+                continue
+            fi            
+            for data_type in "${data_subset[@]}" ; do         
+                for (( speed_i=1; speed_i<=$avg_speed; speed_i++ )); do
+                    RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/${ck_ch}_${batch_size}_${speed_i}.bleu
+                    if [ "$skip_exist_genfile" = "True" ]
                     then
-                        continue
+                        # Check that the file has been generated.
+                        FILE_PATH=$RESULT_PATH/generate-$data_type.txt
+                        last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
+                        if [ "$last_generate_word" = "Generate" ]
+                        then
+                            continue
+                        fi
                     fi
-                fi
 
 echo "
 CRITERION=$CRITERION
@@ -504,7 +512,7 @@ TASK=$TASK
 DATA_BIN=$dataroot/$dataset/de-en-databin
 PRETRAINED_MODEL_NAME=$pretrained_model_name
 RESULT_PATH=$RESULT_PATH
-CHECKPOINTS_DATA=checkpoint_$ck_ch.pt
+CHECKPOINTS_DATA=$checkpoint_data_name
 DATA_TYPE=$data_type
 PRETRAINED_MODE=$pretrained_model
 ARCH=$ARCH
@@ -541,15 +549,19 @@ endmsg
 
                 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$ck_ch.sh
                 echo "$BOOL_COMMAND" >> $CHECKPOINT/scrip_generate_$ck_ch.sh
-
+                
                 rm $CHECKPOINT/temp*
 
-                bash $CHECKPOINT/scrip_generate_$ck_ch.sh          
+                bash $CHECKPOINT/scrip_generate_$ck_ch.sh 
+
+                done
             done
         done
     done
 fi
 
+
+#======================Load and Save File==============================
 mkdir -p call_scripts/generate/output_file
 csv_file=call_scripts/generate/output_file/output_read$no_atten_postfix.csv
 if [ -f "$csv_file" ]; then 
@@ -564,32 +576,58 @@ for i in "${!exp_array[@]}"; do
         bleu_array=()
         for data_type in "${data_subset[@]}" ; do
             output_bleu_array=()
+            output_speed_avg=()
             for ck_ch in "${ck_types[@]}"; do
-                RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/$ck_ch.bleu
-                FILE_PATH=$RESULT_PATH/generate-$data_type.txt
-                # echo "$data_type/$ck_ch:"
-                if [ -f "$FILE_PATH" ]; then
-                    lastln=$(tail -n1 $FILE_PATH)
-                    last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
-                    if [ "$last_generate_word" = "Generate" ]
-                    then
-                        output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1)
-                    else
-                        output_bleu="Fail"                
+                checkpoint_data_name=checkpoint_$ck_ch.pt
+                if [ ! -f "$CHECKPOINT/$checkpoint_data_name" ]; then
+                    echo "$checkpoint_data_name is not exist"
+                    continue
+                fi  
+                speed_sum=0
+                speed_array=()
+                for (( speed_i=1; speed_i<=$avg_speed; speed_i++ )); do
+                    RESULT_PATH=$CHECKPOINT/${data_type}$no_atten_postfix/${ck_ch}_${batch_size}_${speed_i}.bleu
+                    FILE_PATH=$RESULT_PATH/generate-$data_type.txt
+                    # echo "$data_type/$ck_ch:"
+                    if [ -f "$FILE_PATH" ]; then
+                        lastln=$(tail -n1 $FILE_PATH)
+                        last_generate_word=$((tail -n1 $FILE_PATH) | awk '{print $1;}')
+                        if [ "$last_generate_word" = "Generate" ]
+                        then
+                            output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1)
+                        else
+                            output_bleu="Fail"                
+                        fi
+
+                        speedln=$(tail -n2 $FILE_PATH | head -1) 
+                        echo "$speedln"
+                        last_generate_word=$(tail -n2 $FILE_PATH | head -1 | awk '{print $1;}')
+                        if [ "$last_generate_word" = "Translated" ]
+                        then
+                            output_speed=$(echo $speedln | cut -d " " -f7 | cut -d "s" -f1)                   
+                        else
+                            output_speed="Fail"                
+                        fi                    
+                    else 
+                        output_bleu="Fail"  
+                        output_speed="Fail"               
                     fi
-                else 
-                    output_bleu="Fail"                
-                fi
-                # echo $lastln
-                # output_bleu=$(echo $lastln | cut -d "=" -f3 | cut -d "," -f1) 
-                # echo "$output_bleu"
-                output_bleu_array+=("$output_bleu/")
+                    speed_array+=("$output_speed ")
+                    # sum=$(echo "$speed_sum + $output_speed" | bc)
+                done
+                    echo "${speed_array[@]}"
+                    run_avg=$(echo "python call_scripts/tool/avg_speed.sh ${speed_array[@]} ")
+                    avg=$(eval $run_avg | awk '{print $1;}') 
+                    # avg=$(echo 'scale=5; $sum / $N' | bc -l)
+                    output_speed_avg+=("$avg")
+                    output_bleu_array+=("$output_bleu/")    
             done
             echo -e "  data-subset: $data_type"
-            echo -e "\t${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'
+            echo -e "\tbleu:\t${output_bleu_array[@]}\t speed:\t${output_speed_avg[@]}" | sed 's/.$//' | sed 's/ //g'
             bleu_array+=$(echo -e "${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'),
+            speed_array+=$(echo -e "${output_speed_avg[@]}" | sed 's/.$//' | sed 's/ //g'),
         done
-        echo "$experiment_id,${bleu_array[@]}" >> $csv_file
+        echo "$experiment_id,bleu,speed,${bleu_array[@]}${speed_array[@]}" >> $csv_file
     else
         no_exp_array+=("$experiment_id")
     fi
