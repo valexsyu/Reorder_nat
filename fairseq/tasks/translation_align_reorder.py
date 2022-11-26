@@ -78,7 +78,14 @@ class TranslationAlignReorderConfig(TranslationConfig):
     )
     debug: bool = field(
         default=False, metadata={"help": "debug"},
-    )                      
+    )  
+    twcc: bool = field(
+        default=False, metadata={"help": "work on twcc while watch_test_bleu"},
+    )
+    watch_test_bleu: bool = field(
+        default=False, metadata={"help": "watch test bleu while valid process"},
+    )    
+                              
       
 
 @register_task("translation_align_reorder", dataclass=TranslationAlignReorderConfig)
@@ -111,6 +118,8 @@ class TranslationaAlignReorder(TranslationTask):
             else:
                 self.pretrained_lm = AutoModel.from_pretrained(cfg.pretrained_lm_name) 
         self.lm_loss_layer = cfg.lm_loss_layer
+        self.twcc = cfg.twcc
+        self.watch_test_bleu = cfg.watch_test_bleu
         
 
   
@@ -325,7 +334,6 @@ class TranslationaAlignReorder(TranslationTask):
         self, sample, model, criterion, optimizer, update_num, ignore_grad=False
     ):  
         model.train()
- 
         # if self.iterative_reorder_translator :             
         #     if update_num % self.iter_num_reorder == 0 :                 
         #         self.switch = not self.switch    

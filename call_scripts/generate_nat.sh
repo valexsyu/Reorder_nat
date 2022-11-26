@@ -616,14 +616,15 @@ for i in "${!exp_array[@]}"; do
                     # sum=$(echo "$speed_sum + $output_speed" | bc)
                 done
                 # echo "${speed_array[@]}"
-                run_avg=$(echo "python call_scripts/tool/avg_speed.sh ${speed_array[@]} ")
+                run_avg=$(echo "python call_scripts/tool/avg_speed.py ${speed_array[@]} ")
                 avg=$(eval $run_avg | awk '{print $1;}') 
                 # avg=$(echo 'scale=5; $sum / $N' | bc -l)
                 output_speed_avg+=("$avg/")
-                output_bleu_array+=("$output_bleu/")    
+                output_bleu_array+=("$output_bleu/")     ## the "/" impact tool/reocrd_score.lpy
             done
             echo -e "  data-subset: $data_type"
-            echo -e "\tbleu:\t${output_bleu_array[@]}\t speed:\t${output_speed_avg[@]}" | sed 's/.$//' | sed 's/ //g'
+            
+            echo -e "\tbleu:\t${output_bleu_array[@]}\t speed:\t${output_speed_avg[@]}" | sed 's/.$//' | sed 's/ //g'     ## the first and second "\t" impact tool/reocrd_score.lpy
             bleu_array+=$(echo -e "${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'),
             speed_avg_array+=$(echo -e "${output_speed_avg[@]}" | sed 's/.$//' | sed 's/ //g'),
         done

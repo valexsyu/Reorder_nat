@@ -441,6 +441,44 @@ class Trainer(object):
                 filename,
                 async_write=self.cfg.checkpoint.write_checkpoints_asynchronously,
             )
+        # watch and avg 
+        # ex: --twcc 461
+        #    filename : checkpoints/1-1-1-1-H6-UF20M/checkpoint_188_70000.pt
+        #    checkpoint_dir :checkpoints/1-1-1-1-H6-UF20M
+        #    task_name: 1-1-1-1-H6-UF20M
+        if self.task.watch_test_bleu :
+            if filename.split('/')[-1].startswith('checkpoint.best_bleu_') or filename.split('/')[-1].startswith('checkpoint_best.pt'):
+                checkpoint_dir = '/'.join(filename.split('/')[:-1])
+                task_name = filename.split('/')[1]
+
+                best_top5_num = 0
+                for fname in os.listdir(checkpoint_dir):
+                    if fname.startswith('checkpoint.best_bleu_'):
+                        best_top5_num += 1
+                
+                if self.task.twcc :
+                    twcc=" --twcc "
+                    cuda_command="CUDA_VISIBLE_DEVICES=0 "
+                else:
+                    twcc=""
+                    cuda_command=""
+                
+                if best_top5_num >= 5:
+                    import pdb;pdb.set_trace()
+                    if self.model.no_atten_mask:
+                        command = cuda_command + f'bash call_scripts/generate_nat.sh -e {task_name} ' + \
+                                    twcc + ' --batch-size 1 --ck-types top ' + \
+                                    ' --no-atten-mask ' + \
+                                    f' > tmp_score.{task_name} ;'
+                    else:
+                        command = cuda_command + f'bash call_scripts/generate_nat.sh -e {task_name} ' + \
+                                    twcc + ' --batch-size 1 --ck-types top ' + \
+                                    f' > tmp_score.{task_name} ;'
+
+                    steps = self.get_num_updates()
+                    command += f'python call_scripts/tool/record_score.py {steps} {task_name} >> {checkpoint_dir}/best_top5.test.record ' 
+                    os.system(command)            
+            
         logger.info(f"Finished saving checkpoint to {os.path.abspath(filename)}")
 
     def load_checkpoint(
