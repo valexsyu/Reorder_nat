@@ -243,12 +243,14 @@ function default_setting() {
     dropout=0.1
     lm_start_step=75000
     no_atten_mask=False
+    twcc=False
+    watch_test_bleu=False
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -290,8 +292,13 @@ while [ : ]; do
       ;;          
     --twcc)
       dataroot="../nat_data"
+      twcc=True
       shift 1
       ;;      
+    --watch-test-bleu)
+      watch_test_bleu=True
+      shift 1
+      ;;        
     --fp16)
       fp16=True
       shift 1
@@ -383,6 +390,14 @@ if [ "$no_atten_mask" = "True" ]
 then
     BOOL_COMMAND+=" --no-atten-mask"
 fi   
+if [ "$twcc" = "True" ]
+then
+    BOOL_COMMAND+=" --twcc"
+fi  
+if [ "$watch_test_bleu" = "True" ]
+then
+    BOOL_COMMAND+=" --watch-test-bleu"
+fi  
 
 
 if [ ! -d "checkpoints" ]; then
