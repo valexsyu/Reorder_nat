@@ -619,7 +619,7 @@ for i in "${!exp_array[@]}"; do
                 run_avg=$(echo "python call_scripts/tool/avg_speed.sh ${speed_array[@]} ")
                 avg=$(eval $run_avg | awk '{print $1;}') 
                 # avg=$(echo 'scale=5; $sum / $N' | bc -l)
-                output_speed_avg+=("$avg")
+                output_speed_avg+=("$avg/")
                 output_bleu_array+=("$output_bleu/")    
             done
             echo -e "  data-subset: $data_type"
