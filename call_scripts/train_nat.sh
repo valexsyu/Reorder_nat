@@ -66,8 +66,7 @@ function get_dataset() {
         dataset="iwslt14_de_en_bibert" 
     elif [ "$i" = "K" ]
     then
-        dataset="iwslt14_en_de_bibertDist_bibert"                                                                                    
-    else        
+        dataset="iwslt14_en_de_bibertDist_bibert"                                                                                            
     elif [ "$i" = "L" ]
     then
         dataset="wmt16_ro_en_mbert"                                                                                    
