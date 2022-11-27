@@ -43,10 +43,6 @@ do
       if [ ! -d "$CHECKPOINT" ]; then
          echo "Folder is not exist"
          continue
-      fi 
-      if [ ! -f "$CHECKPOINT/checkpoint_best_top5.pt" ]; then
-         echo "checkpoint_best_top5.pt is not exist"
-         continue
       fi       
       dt=$(date)
       if [ "$twcc" = "True" ]
