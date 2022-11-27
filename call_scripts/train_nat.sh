@@ -72,7 +72,7 @@ function get_dataset() {
         dataset="wmt16_ro_en_mbert"                                                                                        
     elif [ "$i" = "M" ]
     then
-        dataset="wmt16_en_ro_mbertn"                                                                                    
+        dataset="wmt16_en_ro_mbert"                                                                                    
     else       
         echo "error dataset id "
         exit 1
