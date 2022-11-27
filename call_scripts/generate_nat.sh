@@ -347,6 +347,10 @@ while [ : ]; do
                 ck_types=("best")
                 ck_types+=("best_top$TOPK")
                 ;;
+            last-top)
+                ck_types=("last")
+                ck_types+=("best_top$TOPK")
+                ;;                
             last-best-top)
                 ck_types=("last")
                 ck_types+=("best")

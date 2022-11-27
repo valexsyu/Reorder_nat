@@ -48,10 +48,10 @@ do
       if [ "$twcc" = "True" ]
       then
          echo "Wait TWCC Resource"
-         bash call_scripts/generate_nat.sh -e $experiment_id --no-atten-mask -b 1 --ck-types top --cpu --twcc > tmp_file
+         bash call_scripts/generate_nat.sh -e $experiment_id --no-atten-mask -b 1 --ck-types last-top --cpu --twcc > tmp_file
       else
          echo "Wait Battleship Resource"
-         hrun -s -c 20 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id --no-atten-mask -b 1 --ck-types top > tmp_file
+         hrun -s -c 20 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id --no-atten-mask -b 1 --ck-types last-top > tmp_file
       fi
       score=$(tail -1 tmp_file) 
       echo $dt ': ' $'\t' $score >> $CHECKPOINT/best_top5.test.record
