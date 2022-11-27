@@ -27,5 +27,6 @@
 ## fairseq preprocess
 #conda init bash  
 #conda activate bibert
-cd /home/valexsyu/Doc/NMT/Reorder_nat/call_scripts/prepare_data
+cd /home/valexsyu/Doc/NMT/Reorder_nat/call_scripts/wmt16_ro-en/prepare_data
 bash fairseq_preprocess.sh
+
