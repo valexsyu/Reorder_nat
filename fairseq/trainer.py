@@ -464,7 +464,6 @@ class Trainer(object):
                     cuda_command=""
                 
                 if best_top5_num >= 5:
-                    import pdb;pdb.set_trace()
                     if self.model.no_atten_mask:
                         command = cuda_command + f'bash call_scripts/generate_nat.sh -e {task_name} ' + \
                                     twcc + ' --batch-size 1 --ck-types top ' + \
