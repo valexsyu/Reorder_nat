@@ -588,8 +588,24 @@ class NATPretrainedModel(BaseFairseqModel):
             else:
                 import pdb;pdb.set_trace()
                 print("insertion_position is not well define")
-                         
 
+        def integer_rate_mask(source, rate) :
+            b,l = source.size()
+            mask = source.ne(self.pad)  #ex : soruce=[7,7,7,pad] mask=[True True True False]
+            mask_tokens = source.masked_fill(mask,self.mask)
+            if rate == 5 :
+                upsampled = torch.stack((source, mask_tokens, mask_tokens, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))                   
+            elif rate == 4 :
+                upsampled = torch.stack((source, mask_tokens, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))                
+            elif rate == 3 :
+                upsampled = torch.stack((source, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))
+            elif rate == 2:
+                upsampled = torch.stack((source, mask_tokens), dim=2).view(b, int(l*rate))
+            else:
+                print("Not support the rate in this setting")
+                import pdb;pdb.set_trace()            
+            return upsampled
+            
 
         if self.upsample_fill_mask :
             if self.dynamic_upsampling :
@@ -598,38 +614,49 @@ class NATPretrainedModel(BaseFairseqModel):
                     new_length = torch.Tensor([L * rate]).int().item()    
                     if new_length > self.translator.config.max_position_embeddings :
                         rate= float(self.translator.config.max_position_embeddings)/float(L)
-                    
-                insert_mask = True
-                t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate, insertion_position=self.insert_position)  
-                return t_x, rate  
+                
+                if rate ==  int(rate) :
+                    upsampled = integer_rate_mask(source, rate)
+                    return upsampled, rate
+                else :
+                    insert_mask = True
+                    t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate, insertion_position=self.insert_position)  
+                    return t_x, rate  
             else :
-                b,l = source.size()
-                mask = source.ne(self.pad)  #ex : soruce=[7,7,7,pad] mask=[True True True False]
-                mask_tokens = source.masked_fill(mask,self.mask)
-                if rate == 5 :
-                    upsampled = torch.stack((source, mask_tokens, mask_tokens, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))                   
-                elif rate == 4 :
-                    upsampled = torch.stack((source, mask_tokens, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))                
-                elif rate == 3 :
-                    upsampled = torch.stack((source, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))
-                elif rate == 2:
-                    upsampled = torch.stack((source, mask_tokens), dim=2).view(b, int(l*rate))
-                else:
-                    print("Not support the rate in this setting")
-                    import pdb;pdb.set_trace()
+                upsampled = integer_rate_mask(source, rate)
+                return upsampled, rate
+                # b,l = source.size()
+                # mask = source.ne(self.pad)  #ex : soruce=[7,7,7,pad] mask=[True True True False]
+                # mask_tokens = source.masked_fill(mask,self.mask)
+                # if rate == 5 :
+                #     upsampled = torch.stack((source, mask_tokens, mask_tokens, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))                   
+                # elif rate == 4 :
+                #     upsampled = torch.stack((source, mask_tokens, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))                
+                # elif rate == 3 :
+                #     upsampled = torch.stack((source, mask_tokens, mask_tokens), dim=2).view(b, int(l*rate))
+                # elif rate == 2:
+                #     upsampled = torch.stack((source, mask_tokens), dim=2).view(b, int(l*rate))
+                # else:
+                #     print("Not support the rate in this setting")
+                #     import pdb;pdb.set_trace()
         else:    
             if self.dynamic_upsampling :
                 if self.dynamic_rate :
                     B, L = source.size(0), source.size(1)
                     new_length = torch.Tensor([L * rate]).int().item()    
                     if new_length > self.translator.config.max_position_embeddings :
-                        rate= float(self.translator.config.max_position_embeddings)/float(L)                
-                insert_mask = False
-                t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate) 
-                return t_x, rate 
+                        rate= float(self.translator.config.max_position_embeddings)/float(L)  
+                        
+                if rate ==  int(rate) :  
+                    upsampled =  torch.repeat_interleave(source, int(rate), dim=1)
+                    return upsampled, rate   
+                else :                            
+                    insert_mask = False
+                    t_x, t_mask, w, t_w, new_t_w, new_location = dynamic_upsample_token(source, insert_mask , rate) 
+                    return t_x, rate 
             else:                        
                 upsampled =  torch.repeat_interleave(source, int(rate), dim=1)
-        return upsampled, rate
+                return upsampled, rate
 
     def translation(self, src_tokens, src_lengths, **kwargs):
         bos_embeddings = None
