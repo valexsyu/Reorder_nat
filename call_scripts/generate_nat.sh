@@ -67,7 +67,13 @@ function get_dataset() {
         dataset="iwslt14_de_en_bibert" 
     elif [ "$i" = "K" ]
     then
-        dataset="iwslt14_en_de_bibertDist_bibert"                                                                                    
+        dataset="iwslt14_en_de_bibertDist_bibert"    
+    elif [ "$i" = "L" ]
+    then
+        dataset="wmt16_ro_en_mbert"                                                                                        
+    elif [ "$i" = "M" ]
+    then
+        dataset="wmt16_en_ro_mbert"                                                                                    
     else        
         echo "error dataset id "
         exit 1
