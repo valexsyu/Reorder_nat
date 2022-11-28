@@ -251,12 +251,13 @@ function default_setting() {
     no_atten_mask=False
     twcc=False
     watch_test_bleu=False
+    warmup_updates=10000
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -322,6 +323,10 @@ while [ : ]; do
       lm_start_step="$2"
       shift 2
       ;;  
+    --warmup-updates)
+      warmup_updates="$2"
+      shift 2
+      ;;        
     --no-atten-mask)
       no_atten_mask=True
       shift 1
@@ -439,6 +444,7 @@ MAX_UPDATE=$max_update
 SAVE_INTERVAL_UPDATES=$save_interval_updates
 DROPOUT=$dropout
 LM_START_STEP=$lm_start_step
+WARMUP_UPDATES=$warmup_updates
 
 
 "  > $CHECKPOINT/temp.sh
@@ -452,7 +458,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --task translation_align_reorder \
     --optimizer adam --adam-betas '(0.9,0.98)' \
     --lr 0.0002 --lr-scheduler inverse_sqrt \
-    --stop-min-lr '1e-09' --warmup-updates 10000 \
+    --stop-min-lr '1e-09' --warmup-updates $WARMUP_UPDATES \
     --warmup-init-lr '1e-07' \
     --weight-decay 0.01 \
     --dropout $DROPOUT \
