@@ -38,10 +38,6 @@ wait
 echo "==============Run job============================"
 ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "cd $ROOT_PATH; bash $RUN_FILE_PATH/$RUN_FILE_NAME"
 wait
-echo "==============Run job============================"
-ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "cd $ROOT_PATH; bash $RUN_FILE_PATH/$RUN_FILE_NAME"
-wait
-
 
 
 echo "==============Remove CCS========================="
