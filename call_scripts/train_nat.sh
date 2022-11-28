@@ -252,12 +252,13 @@ function default_setting() {
     twcc=False
     watch_test_bleu=False
     warmup_updates=10000
+    reset_dataloader=False
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates: -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -330,7 +331,11 @@ while [ : ]; do
     --no-atten-mask)
       no_atten_mask=True
       shift 1
-      ;;                 
+      ;;          
+    --reset-dataloader)
+      reset_dataloader=True
+      shift 1
+      ;;                    
     --) shift; 
         break
   esac
@@ -409,6 +414,11 @@ if [ "$watch_test_bleu" = "True" ]
 then
     BOOL_COMMAND+=" --watch-test-bleu"
 fi  
+if [ "$reset_dataloader" = "True" ]
+then
+    BOOL_COMMAND+=" --reset-dataloader"
+fi  
+
 
 
 if [ ! -d "checkpoints" ]; then
