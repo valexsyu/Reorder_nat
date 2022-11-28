@@ -257,7 +257,7 @@ function default_setting() {
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
