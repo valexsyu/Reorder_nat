@@ -253,6 +253,7 @@ function default_setting() {
     watch_test_bleu=False
     warmup_updates=10000
     reset_dataloader=False
+    reset_optimizer=False
     
 }
 
@@ -334,6 +335,10 @@ while [ : ]; do
       ;;          
     --reset-dataloader)
       reset_dataloader=True
+      shift 1
+      ;;   
+    --reset-optimizer)
+      reset_optimizer=True
       shift 1
       ;;                    
     --) shift; 
@@ -417,6 +422,10 @@ fi
 if [ "$reset_dataloader" = "True" ]
 then
     BOOL_COMMAND+=" --reset-dataloader"
+fi  
+if [ "$reset_optimizer" = "True" ]
+then
+    BOOL_COMMAND+=" --reset-optimizer"
 fi  
 
 
