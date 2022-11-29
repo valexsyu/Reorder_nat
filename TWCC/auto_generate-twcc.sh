@@ -1,5 +1,5 @@
-CCS_NAME=generate_temp    ##  <-----------------------------------input
-RUN_FILE_NAME=generate_file-twcc-temp.sh  ##  <---------------------
+CCS_NAME=generate_file    ##  <-----------------------------------input
+RUN_FILE_NAME=generate_file-twcc.sh  ##  <---------------------
 GPU_NUM=1    ##  <-----------------------------------------------GPU number
 GIT_PULL=True ##-------------------------------------------------git
 APIKEY=f05a9739-fd95-4478-b7a5-f42a0d0b8257
