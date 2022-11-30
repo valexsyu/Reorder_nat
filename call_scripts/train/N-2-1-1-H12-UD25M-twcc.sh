@@ -3,5 +3,5 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 bash call_scripts/train_nat.sh -e N-2-1-1-H12-UD25M
     --max-tokens 4095 -b 65520 --no-atten-mask
 
 
-bash call_scripts/generate_nat.sh -b 1 --data-subset test --no-atten-mask --twcc --ch-types top \
+bash call_scripts/generate_nat.sh -b 1 --data-subset test --no-atten-mask --twcc --ck-types top \
     -e N-2-1-1-H12-UD25M
