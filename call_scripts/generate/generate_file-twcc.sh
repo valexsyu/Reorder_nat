@@ -8,7 +8,7 @@
 
 #--------iwslt14 deen main table------
 CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 1 \
-    --data-subset test --no-atten-mask \
+    --data-subset test --no-atten-mask --ck-types top \
     --avg-speed 1 --twcc \
     -e F-6-1-1-N-UF30T \
     -e F-2-1-1-N-UF30T \
