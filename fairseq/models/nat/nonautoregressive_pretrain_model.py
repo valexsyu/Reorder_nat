@@ -325,6 +325,9 @@ class NATPretrainedModel(BaseFairseqModel):
             
         logits, output_hidden_states, rate = self.translation(src_tokens, src_lengths, **kwargs)
         src_upsample_tokens, rate = self.upsampling(src_tokens, rate)
+        
+
+        
         result = {
             "word_ins": {
                 "out": logits,
@@ -360,6 +363,14 @@ class NATPretrainedModel(BaseFairseqModel):
                     }  
                 }                            
             )
+        if self.do_lm_loss and self.debug : 
+            
+            del result['word_ins']
+            # import pdb;pdb.set_trace()
+            print(result)
+            print("================")
+        
+        
         
         return result
                                                   
