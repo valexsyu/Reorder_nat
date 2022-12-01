@@ -8,3 +8,7 @@ bash call_scripts/train_nat.sh -e L-5-1-1-N-UF30T-warmup_3k-table_12 -g 1 \
     --dropout 0.1 \
     --warmup-updates 3000 \
     --no-atten-mask \
+
+    
+bash call_scripts/generate_nat.sh -b 50 --data-subset test-valid --avg-ck-turnoff --no-atten-mask \
+-e L-5-1-1-N-UF30T-warmup_3k-table_12 \
