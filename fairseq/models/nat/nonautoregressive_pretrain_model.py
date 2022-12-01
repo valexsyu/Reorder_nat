@@ -308,7 +308,7 @@ class NATPretrainedModel(BaseFairseqModel):
 
         if task.cfg.no_atten_mask:
             vars(args)['no_atten_mask'] = task.cfg.no_atten_mask  
-            vars(args)['debug'] = task.cfg.debug          
+            vars(args)['debug'] = task.cfg.debug   
 
         return cls(args, translator, task.source_dictionary, task.target_dictionary )
 
@@ -323,7 +323,6 @@ class NATPretrainedModel(BaseFairseqModel):
         else:
             self.do_lm_loss = False
             
-
         logits, output_hidden_states, rate = self.translation(src_tokens, src_lengths, **kwargs)
         src_upsample_tokens, rate = self.upsampling(src_tokens, rate)
         result = {

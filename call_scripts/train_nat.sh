@@ -260,12 +260,13 @@ function default_setting() {
     warmup_updates=10000
     reset_dataloader=False
     reset_optimizer=False
+    debug=False
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -346,7 +347,11 @@ while [ : ]; do
     --reset-optimizer)
       reset_optimizer=True
       shift 1
-      ;;                    
+      ;;    
+    --debug)
+      debug=True
+      shift 1
+      ;;                           
     --) shift; 
         break
   esac
@@ -432,6 +437,10 @@ fi
 if [ "$reset_optimizer" = "True" ]
 then
     BOOL_COMMAND+=" --reset-optimizer"
+fi  
+if [ "$debug" = "True" ]
+then
+    BOOL_COMMAND+=" --debug"
 fi  
 
 
