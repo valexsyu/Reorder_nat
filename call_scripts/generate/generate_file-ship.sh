@@ -12,4 +12,4 @@ conda activate base
 #--------wmt14 deen main table------
 # --avg-ck-turnoff 
 bash call_scripts/generate_nat.sh -b 1 --data-subset test-valid --no-atten-mask --avg-speed 1 --avg-ck-turnoff \
--e L-5-1-1-N-UF30T \
+-e O-2-1-1-H12-UD25M \

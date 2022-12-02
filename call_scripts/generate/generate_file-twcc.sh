@@ -12,4 +12,4 @@
 CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 1 \
     --data-subset test --no-atten-mask \
     --avg-speed 1 --twcc \
-    -e F-2-1-1-N-UR40T \
+    -e N-2-1-1-H12-UD25M \
