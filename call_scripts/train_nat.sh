@@ -78,12 +78,20 @@ function get_dataset() {
         dataset="wmt14_en_de_BlDist_bibert"    
     elif [ "$i" = "O" ]
     then
-        dataset="wmt14_de_en_BlDist_bibert"                                                                                            
+        dataset="wmt14_de_en_BlDist_bibert"      
+    elif [ "$i" = "P" ]
+    then
+        dataset="iwslt14_en_de_BlDist_bibert"   
+    elif [ "$i" = "Q" ]
+    then
+        dataset="wmt14_en_de_BigBl_bibert"           
     else       
         echo "error dataset id "
         exit 1
     fi
 }
+
+
 
 function get_pretrain_model() {
     i=$(echo $1 | cut -d - -f 2)
@@ -122,6 +130,8 @@ function get_pretrain_model() {
         exit 1
     fi
 }
+
+
 
 function get_fix_lm_swe() {
     i=$(echo $1 | cut -d - -f 3)
@@ -356,6 +366,8 @@ while [ : ]; do
         break
   esac
 done
+
+
 
 get_dataset "$experiment_id"
 get_pretrain_model "$experiment_id"

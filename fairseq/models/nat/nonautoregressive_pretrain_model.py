@@ -364,13 +364,7 @@ class NATPretrainedModel(BaseFairseqModel):
                 }                            
             )
         if self.do_lm_loss and self.debug : 
-            
             del result['word_ins']
-            # import pdb;pdb.set_trace()
-            print(result)
-            print("================")
-        
-        
         
         return result
                                                   
