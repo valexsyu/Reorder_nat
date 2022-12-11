@@ -65,6 +65,7 @@ class NATPretrainedModel(BaseFairseqModel):
         self.dynamic_upsampling = args.dynamic_upsampling 
         self.dynamic_rate=args.dynamic_rate
         self.debug = args.debug
+        self.has_eos = args.has_eos
         if self.dynamic_rate :
             self.dynamic_upsampling = True
         if len(self.lm_st_layer) != len(self.lm_tr_layer):
@@ -270,7 +271,14 @@ class NATPretrainedModel(BaseFairseqModel):
             type=float,
             default=0.1,
             help="dropout",
-        )              
+        )   
+        parser.add_argument(
+            "--has-eos",        
+            action="store_true",
+            help="upsampling with eos , pervious version eos is padding's value",
+        )            
+        
+                   
                      
        
                     
@@ -306,9 +314,9 @@ class NATPretrainedModel(BaseFairseqModel):
         if OmegaConf.is_config(args):
             OmegaConf.set_struct(args, True)
 
-        if task.cfg.no_atten_mask:
-            vars(args)['no_atten_mask'] = task.cfg.no_atten_mask  
-            vars(args)['debug'] = task.cfg.debug   
+        # if task.cfg.no_atten_mask:
+        vars(args)['no_atten_mask'] = task.cfg.no_atten_mask  
+        vars(args)['debug'] = task.cfg.debug   
 
         return cls(args, translator, task.source_dictionary, task.target_dictionary )
 
@@ -363,8 +371,6 @@ class NATPretrainedModel(BaseFairseqModel):
                     }  
                 }                            
             )
-        if self.do_lm_loss and self.debug : 
-            del result['word_ins']
         
         return result
                                                   
@@ -522,9 +528,17 @@ class NATPretrainedModel(BaseFairseqModel):
             bos = self.src_dict.bos()
             eos = self.src_dict.eos()
             ### the mask is True when padding/bos/eos 
-            mask = ~(
-                x.ne(pad) & x.ne(bos) & x.ne(eos)
-            )            
+            
+            if self.has_eos :            
+                import pdb;pdb.set_trace()
+                mask = ~(
+                    x.ne(pad) & x.ne(bos) # keep the eos and it will upsample by rate
+                )   
+            else :
+                mask = ~(
+                    x.ne(pad) & x.ne(bos) & x.ne(eos) # old version for eos is padding and masked
+                )                     
+                     
             l = (x.new_ones(B, L) * rate).float()
             l = l.masked_fill(mask, 0)
             e = torch.cumsum(l, 1)
@@ -677,6 +691,12 @@ class NATPretrainedModel(BaseFairseqModel):
             src_tokens_upsample, rate = self.upsampling(src_tokens, self.num_upsampling_rate)
             src_tokens_upsample = torch.cat((bos, src_tokens_upsample), dim=1)  
             atttention_mask=src_tokens_upsample.ne(self.pad)
+            
+            if ~self.has_eos and ~self.training and ~self.no_atten_mask :  # if eos is padding in the old version and generate for large batch 
+                new_length = (src_lengths * rate).int() + 1  # +1 is for bos
+                B, L = src_tokens_upsample.shape
+                atttention_mask = (torch.arange(0, L, dtype=torch.float32).unsqueeze(0).repeat(B, 1).to(src_tokens_upsample) < new_length.unsqueeze(-1))                
+            
             if self.no_atten_mask :
                 output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
                                     output_hidden_states=True, return_dict=True, 
@@ -788,6 +808,7 @@ def base_architecture(args):
     
     args.no_atten_mask = safe_getattr(args, "no_atten_mask", False )
     args.debug = safe_getattr(args, "debug", False )
+    args.has_eos = safe_getattr(args, "has_eos", False )
     
     
     

@@ -271,12 +271,13 @@ function default_setting() {
     reset_dataloader=False
     reset_optimizer=False
     debug=False
+    has_eos=False
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -361,7 +362,11 @@ while [ : ]; do
     --debug)
       debug=True
       shift 1
-      ;;                           
+      ;;          
+    --has-eos)
+      has_eos=True
+      shift 1
+      ;;                            
     --) shift; 
         break
   esac
@@ -454,7 +459,10 @@ if [ "$debug" = "True" ]
 then
     BOOL_COMMAND+=" --debug"
 fi  
-
+if [ "$has_eos" = "True" ]
+then
+    BOOL_COMMAND+=" --has-eos"
+fi 
 
 
 if [ ! -d "checkpoints" ]; then
