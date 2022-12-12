@@ -530,7 +530,6 @@ class NATPretrainedModel(BaseFairseqModel):
             ### the mask is True when padding/bos/eos 
             
             if self.has_eos :            
-                import pdb;pdb.set_trace()
                 mask = ~(
                     x.ne(pad) & x.ne(bos) # keep the eos and it will upsample by rate
                 )   
