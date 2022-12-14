@@ -98,6 +98,12 @@ function get_dataset() {
     elif [ "$i" = "U" ]
     then
         dataset="wmt14_clean_en_de_bibertDist_bibert" 
+    elif [ "$i" = "V" ]
+    then
+        dataset="wmt16_en_ro_BigBlDist_mbert"      
+    elif [ "$i" = "W" ]
+    then
+        dataset="wmt16_ro_en_BigBlDist_mbert"          
     else        
         echo "error dataset id "
         exit 1
