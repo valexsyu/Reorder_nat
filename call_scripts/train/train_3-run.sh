@@ -14,7 +14,9 @@ conda activate base
 # -e L-5-1-1-N-UF30T-warmup_3k-table_12 \
 # bash call_scripts/train_nat.sh -e I-2-1-1-H12-UR40M --fp16 -g 1 --save-interval-updates 70000 --max-tokens 2048 --no-atten-mask 
 
-bash ./call_scripts/wmt14_de_en/prepare_data/BiBert/generate-data-wmt.sh
+bash call_scripts/wmt14_en_de/prepare_data/BiBert/generate-data-wmt.sh
+source $HOME/.bashrc 
+conda activate base
+bash call_scripts/train_nat.sh -e  R-6-1-1-N-UF30T --fp16 -g 1 --save-interval-updates 32500 --max-update 200000 --lm-start-step 130000 --max-tokens 2048 -b 65536 --no-atten-mask --has-eos
 
-bash
 

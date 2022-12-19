@@ -1,5 +1,3 @@
-TGT=de
-SRC=en
 cd /home/valexsyu/Doc/NMT/BiBERT
 source $HOME/.bashrc 
 conda activate bibert
@@ -18,11 +16,11 @@ do
         echo "error translation dir "
         exit 1
     fi    
-    DATAPATH=./download_prepare_wmt_clean_deen/data_mixed_ft/
+    DATAPATH=./download_prepare_wmt_clean_{$SRC}{$TGT}/data_mixed_ft/
     STPATH=${DATAPATH}de-en-databin
     # STPATH=${DATAPATH}$SRC-$TGT-databin
     # MODELPATH=./models/dual-wmt-ft-$SRC$TGT/ 
-    MODELPATH=./models/one-way-wmt-clean-de-en-12k/ 
+    MODELPATH=./models/one-way-wmt-clean-{$SRC}-{$TGT}-12k/ 
     # MODELPATH=./models/dual-wmt/ 
     PRE_SRC=jhu-clsp/bibert-ende
     PRE=jhu-clsp/bibert-ende
@@ -30,7 +28,7 @@ do
     for prefix in "train" ; do 
         CUDA_VISIBLE_DEVICES=0 fairseq-generate \
         ${STPATH} --path ${MODELPATH}checkpoint_best.pt --bpe bert --pretrained_bpe ${PRE} --pretrained_bpe_src ${PRE_SRC} \
-        --beam 4 --lenpen 0.6 --remove-bpe --vocab_file=${STPATH}/dict.en.txt \
+        --beam 4 --lenpen 0.6 --remove-bpe --vocab_file=${STPATH}/dict.{$TGT}.txt \
         --gen-subset $prefix |tee ${STPATH}/generate-$prefix.out
     done
     #--batch-size 200 \
@@ -53,7 +51,7 @@ do
     # for prefix in "valid" "test"; do 
     #     CUDA_VISIBLE_DEVICES=0 fairseq-generate \
     #     ${STPATH} --path ${MODELPATH}checkpoint_best.pt --bpe bert --pretrained_bpe ${PRE} --pretrained_bpe_src ${PRE_SRC} \
-    #     --beam 4 --lenpen 0.6 --remove-bpe --vocab_file=${STPATH}/dict.en.txt \
+    #     --beam 4 --lenpen 0.6 --remove-bpe --vocab_file=${STPATH}/dict.{$TGT}.txt \
     #     --gen-subset $prefix |tee ${STPATH}/generate-$prefix.out
     # done
 
