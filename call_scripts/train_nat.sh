@@ -543,7 +543,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
 	--criterion nat_ctc_loss \
 	--arch nat_pretrained_model \
     --tensorboard-logdir $CHECKPOINT/tensorboard \
-    --no-epoch-checkpoints \
+    --keep-last-epochs 5 \
     --noise no_noise \
     --save-interval 1 \
     --left-pad-source \
