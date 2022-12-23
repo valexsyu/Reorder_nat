@@ -147,7 +147,7 @@ function default_setting() {
 
 default_setting
 
-VALID_ARGS=$(getopt -o e: --long experiment:,twcc,sleep:,avg-speed:,no-atten-mask,data-subset:,ck-types:,batch-size:,force,twcc -- "$@")
+VALID_ARGS=$(getopt -o e: --long experiment:,twcc,sleep:,avg-speed:,no-atten-mask,data-subset:,batch-size:,force,twcc -- "$@")
 if [[ $? -ne 0 ]]; then
     echo "20"
     exit 1;
@@ -217,37 +217,7 @@ while [ : ]; do
                 exit 1    
         esac
       shift 2
-      ;;        
-    --ck-types)
-        case $2 in 
-            top)
-                ck_types=("best_top$TOPK")
-                ;;
-            best-top)
-                ck_types=("best")
-                ck_types+=("best_top$TOPK")
-                ;;
-            last-top)
-                ck_types=("last")
-                ck_types+=("best_top$TOPK")
-                ;;                
-            last-best-top)
-                ck_types=("last")
-                ck_types+=("best")
-                ck_types+=("best_top$TOPK")
-                ;;
-            best)
-                ck_types=("best")
-                ;;
-            last)
-                ck_types=("last")
-                ;;                                
-            *) 
-                echo "checkpoints type id is wrong"
-                exit 1    
-        esac
-      shift 2
-      ;;                       
+      ;;                             
     --) shift; 
         break
   esac
@@ -294,14 +264,14 @@ for i in "${!exp_array[@]}"; do
                         if [ ! -f "$FILE_PATH" ] || [ "$force" = "True" ]; then
                             echo "File Path is not exist, the checkpoint is $experiment_id"
                             bash call_scripts/generate_nat.sh -e $experiment_id $BOOL_COMMAND \
-                                             --batch-size $batch_size --ck-types top --data-subset $data_type --avg-ck-turnoff --no-atten-mask
+                                             --batch-size $batch_size --ck-types top --data-subset $data_type --avg-ck-turnoff 
                         else
                             lastln=$(tail -n1 $FILE_PATH)
                             last_generate_word=$(tail -n1 $FILE_PATH | awk '{print $1;}')
                             if [ "$last_generate_word" != "Generate" ]; then
                                 echo "File Path is not exist, the checkpoint is $experiment_id"
                                 bash call_scripts/generate_nat.sh -e $experiment_id $BOOL_COMMAND \
-                                                --batch-size $batch_size --ck-types top --data-subset $data_type --avg-ck-turnoff --no-atten-mask
+                                                --batch-size $batch_size --ck-types top --data-subset $data_type --avg-ck-turnoff 
                             fi
                         fi
                         

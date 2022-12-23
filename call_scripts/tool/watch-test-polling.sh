@@ -11,6 +11,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 eval set -- "$VALID_ARGS"
+default_setting
 
 while [ : ]; do
   case "$1" in 
@@ -33,8 +34,6 @@ while [ : ]; do
   esac
 done
 
-default_setting
-
 while :
 do
 
@@ -49,10 +48,10 @@ do
       if [ "$twcc" = "True" ]
       then
          echo "Wait TWCC Resource"
-         bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top --no-atten-mask --has-eos > tmp_file
+         bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top --has-eos > tmp_file
       else
          echo "Wait Battleship Resource"
-         hrun -s -N s04 -c 20 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top --no-atten-mask > tmp_file
+         hrun -s -N s04 -c 20 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top > tmp_file
       fi
       score=$(tail -1 tmp_file) 
       echo $dt ': ' $'\t' $score >> $CHECKPOINT/best_top5.test.record
