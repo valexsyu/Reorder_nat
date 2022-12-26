@@ -12,6 +12,6 @@ conda activate base
 # -e 2-2-1-1-H12-UR20M \
 # -e 2-2-1-1-H12-UR15M \
 
-hrun -s -N s01 -G -c 20 -m 20 -t 3-0 bash call_scripts/tool/line-by-line.sh --data-subset train --b 30 \
+hrun -s -N s05 -c 4 -m 20 -t 3-0 bash call_scripts/tool/line-by-line.sh --data-subset train --b 30 \
 -e 2-2-1-1-H12-UR25M \
-e 2-2-1-1-H12-UR22M \
+-e 2-2-1-1-H12-UR22M \
