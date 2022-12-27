@@ -111,7 +111,13 @@ function get_dataset() {
         dataset="wmt14_clean_de_en_6kval_bibertDist_bibert"        
     elif [ "$i" = "Z" ]
     then
-        dataset="wmt14_clean_en_de_6kval_bibertDist_bibert"                        
+        dataset="wmt14_clean_en_de_6kval_bibertDist_bibert"    
+    elif [ "$i" = "a" ]
+    then
+        dataset="wmt14_clean_de_en_6kval_bibert"        
+    elif [ "$i" = "b" ]
+    then
+        dataset="wmt14_clean_en_de_6kval_bibert"                              
     else       
         echo "error dataset id "
         exit 1
