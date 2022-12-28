@@ -290,7 +290,7 @@ function default_setting() {
     cpu=False
     data_subset=("test")
     TOPK=5
-    ck_types=("last" "best" "best_top$TOPK")
+    ck_types=("last" "best" "best_top$TOPK" "last$TOPK")
     load_exist_bleu=False
     avg_ck_turnoff=False
     no_atten_mask=False
@@ -305,6 +305,12 @@ function avg_topk_best_checkpoints(){
 	            --inputs $1 \
 				--num-epoch-checkpoints $2 --output $3 \
 				--ckpref checkpoints.best_bleu	
+}
+
+function avg_lastk_checkpoints(){
+	python scripts/average_checkpoints.py \
+	            --inputs $1 \
+				--num-epoch-checkpoints $2 --output $3
 }
 
 
@@ -394,6 +400,10 @@ while [ : ]; do
             top)
                 ck_types=("best_top$TOPK")
                 ;;
+            top-lastk)
+                ck_types=("best_top$TOPK")
+                ck_types+=("last$TOPK")
+                ;;                
             best-top)
                 ck_types=("best")
                 ck_types+=("best_top$TOPK")
@@ -401,18 +411,32 @@ while [ : ]; do
             last-top)
                 ck_types=("last")
                 ck_types+=("best_top$TOPK")
-                ;;                
+                ;; 
+            last-top-lastk)
+                ck_types=("last")
+                ck_types+=("best_top$TOPK")
+                ck_types+=("last$TOPK")
+                ;;                                 
             last-best-top)
                 ck_types=("last")
                 ck_types+=("best")
                 ck_types+=("best_top$TOPK")
                 ;;
+            last-best-top-lastk)
+                ck_types=("last")
+                ck_types+=("best")
+                ck_types+=("best_top$TOPK")
+                ck_types+=("last$TOPK")
+                ;;                
             best)
                 ck_types=("best")
                 ;;
             last)
                 ck_types=("last")
-                ;;                                
+                ;;      
+            lastk)
+                ck_types=("last$TOPK")
+                ;;                                          
             *) 
                 echo "checkpoints type id is wrong"
                 exit 1    
@@ -535,6 +559,7 @@ if [ "$load_exist_bleu" = "False" ]; then
 
         if [ "$avg_ck_turnoff" = "False" ]; then
             avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
+            avg_lastk_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_last$TOPK.pt
         fi
         
 
@@ -618,7 +643,7 @@ fi
 
 #======================Load and Save File==============================
 mkdir -p call_scripts/generate/output_file
-csv_file=call_scripts/generate/output_file/output_read$no_atten_postfix.csv
+
 if [ -f "$csv_file" ]; then 
     rm $csv_file
 fi
@@ -630,6 +655,9 @@ for i in "${!exp_array[@]}"; do
         echo "=========No.$((i+1))  ID:$experiment_id:============="    
         bleu_array=()
         speed_avg_array=()
+        csv_file=call_scripts/generate/output_file/output_read_${experiment_id}_${no_atten_postfix}.csv
+        # python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT
+        checkpoint_bestk_step=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT)
         for data_type in "${data_subset[@]}" ; do
             output_bleu_array=()
             output_speed_avg=()
@@ -675,11 +703,11 @@ for i in "${!exp_array[@]}"; do
                 avg=$(eval $run_avg | awk '{print $1;}') 
                 # avg=$(echo 'scale=5; $sum / $N' | bc -l)
                 output_speed_avg+=("$avg/")
-                output_bleu_array+=("$output_bleu/")     ## the "/" impact tool/reocrd_score.lpy
+                output_bleu_array+=("$output_bleu/")     ## the "/" impact tool/reocrd_score.py
             done
             echo -e "  data-subset: $data_type"
             
-            echo -e "\tbleu:\t${output_bleu_array[@]}\t speed:\t${output_speed_avg[@]}" | sed 's/.$//' | sed 's/ //g'     ## the first and second "\t" impact tool/reocrd_score.lpy
+            echo -e "\tbleu:\t${output_bleu_array[@]}\t speed:\t${output_speed_avg[@]}\t bestk:\t${checkpoint_bestk_step}" | sed 's/.$//' | sed 's/ //g'     ## the first and second "\t" impact tool/reocrd_score.py
             bleu_array+=$(echo -e "${output_bleu_array[@]}" | sed 's/.$//' | sed 's/ //g'),
             speed_avg_array+=$(echo -e "${output_speed_avg[@]}" | sed 's/.$//' | sed 's/ //g'),
         done
@@ -697,14 +725,3 @@ if [ "${#no_exp_array[@]}" -gt 0 ]; then
         echo -e "\t$i"
     done
 fi
-
-
-
-
-
-
-
-
-
-
-
