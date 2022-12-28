@@ -656,8 +656,8 @@ for i in "${!exp_array[@]}"; do
         bleu_array=()
         speed_avg_array=()
         csv_file=call_scripts/generate/output_file/output_read_${experiment_id}_${no_atten_postfix}.csv
-        # python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT
-        checkpoint_bestk_step=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT)
+        # python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT 'checkpoint.best_bleu'
+        checkpoint_bestk_step=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT 'checkpoint.best_bleu')
         for data_type in "${data_subset[@]}" ; do
             output_bleu_array=()
             output_speed_avg=()
