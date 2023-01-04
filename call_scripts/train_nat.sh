@@ -310,7 +310,7 @@ function default_setting() {
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -355,6 +355,11 @@ while [ : ]; do
       twcc=True
       shift 1
       ;;      
+    --local)
+      dataroot="../../nat_data"
+      twcc=True
+      shift 1
+      ;;         
     --watch-test-bleu)
       watch_test_bleu=True
       shift 1
