@@ -356,8 +356,7 @@ while [ : ]; do
       shift 1
       ;;      
     --local)
-      dataroot="../../nat_data"
-      twcc=True
+      dataroot="../../dataset/nat"
       shift 1
       ;;         
     --watch-test-bleu)

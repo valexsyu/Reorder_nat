@@ -23,3 +23,8 @@ conda activate base
 #                                                     --lm-start-step 75000 --max-tokens 2048 -b 65536 --no-atten-mask --has-eos
 bash call_scripts/train_nat.sh -e  b-2-1-1-H12-UR40M --fp16 -g 2 --save-interval-updates 10000 --max-update 100000 \
                                                     --lm-start-step 75000 --max-tokens 2048 -b 65536 --no-atten-mask --has-eos
+bash call_scripts/train_nat.sh -e  K-6-4-1-N-UF30T --fp16 -g 2 --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 --max-tokens 3072 -b 12288 --no-atten-mask 
+bash call_scripts/train_nat.sh -e  I-6-4-1-N-UF30T --fp16 -g 2 --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 --max-tokens 3072 -b 12288 --no-atten-mask
+
+
+

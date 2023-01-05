@@ -16,12 +16,6 @@ conda activate base
 # -e Z-2-1-1-N-UF30T
 
 #========Old======== --avg-ck-turnoff
-hrun -s -N s05 -c 18 -m 40 bash call_scripts/generate_nat.sh -b 50 --data-subset test-valid --ck-types top --avg-speed 1 --no-atten-mask \
--e 2-2-3-1-N-UF20M 
-# -e 2-2-2-1-H12-UF20T \
-# -e 2-2-3-1-H12-UF20T \
-# -e 2-2-4-1-H12-UF20T \
+# hrun -s -N s03 -c 20 -m 40 bash call_scripts/generate_nat.sh -b 1 --data-subset test --ck-types top --avg-speed 1 --no-atten-mask \
 # -e 2-2-1-1-N-UF20T \
-# -e 2-2-2-1-N-UF20T \
-# -e 2-2-3-1-N-UF20T \
-# -e 2-2-4-1-N-UF20T \
+

@@ -316,7 +316,7 @@ function avg_lastk_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile,avg-speed: -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile,avg-speed: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -336,6 +336,10 @@ while [ : ]; do
       dataroot="../nat_data"
       shift 1
       ;;     
+    --local)
+      dataroot="../../dataset/nat"
+      shift 1
+      ;;       
     --cpu)
       cpu=True
       shift 1
