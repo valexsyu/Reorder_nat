@@ -297,6 +297,7 @@ function default_setting() {
     skip_exist_genfile=False
     no_atten_postfix=""
     avg_speed=1
+    local=False
     
 }
 
@@ -338,6 +339,7 @@ while [ : ]; do
       ;;     
     --local)
       dataroot="../../dataset/nat"
+      local=True
       shift 1
       ;;       
     --cpu)
@@ -646,8 +648,9 @@ fi
 
 
 #======================Load and Save File==============================
-mkdir -p call_scripts/generate/output_file
+mkdir -p call_scripts/generate/output_file/all_${no_atten_postfix}
 
+csv_file=call_scripts/generate/output_file/output_read.csv
 if [ -f "$csv_file" ]; then 
     rm $csv_file
 fi
@@ -659,9 +662,11 @@ for i in "${!exp_array[@]}"; do
         echo "=========No.$((i+1))  ID:$experiment_id:============="    
         bleu_array=()
         speed_avg_array=()
-        csv_file=call_scripts/generate/output_file/output_read_${experiment_id}_${no_atten_postfix}.csv
+        # csv_file=call_scripts/generate/output_file/output_read_${experiment_id}_${no_atten_postfix}.csv
         # python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT 'checkpoint.best_bleu'
-        checkpoint_bestk_step=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT 'checkpoint.best_bleu')
+        if [ "$local" = "False" ]; then
+            checkpoint_bestk_step=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT 'checkpoint.best_bleu')
+        fi
         for data_type in "${data_subset[@]}" ; do
             output_bleu_array=()
             output_speed_avg=()
