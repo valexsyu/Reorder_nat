@@ -1,6 +1,6 @@
 from transformers import AutoTokenizer, AutoModel, BertTokenizer
 from transformers import PreTrainedTokenizerFast
-
+from tqdm import tqdm
 
 import argparse
 
@@ -15,7 +15,7 @@ def main():
     fw = open(args.output, "w", encoding="utf-8")
     lines =  [line[:-1].strip() for line in fo.readlines()]
     tokenized_ids = tokenizer.batch_encode_plus(lines, add_special_tokens=False)['input_ids']
-    for i in range(len(tokenized_ids)):
+    for i in tqdm(range(len(tokenized_ids))):
         res = ' '.join(tokenizer.convert_ids_to_tokens(tokenized_ids[i]))
         # if '[UNK]' in res:
         #     import pdb; pdb.set_trace()

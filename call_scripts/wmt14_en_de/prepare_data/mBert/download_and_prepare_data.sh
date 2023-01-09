@@ -1,5 +1,5 @@
-DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_en_de_6kval_cased_detoken
-TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_en_de_6kval_cased
+DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_en_de_6kval_BlDist_cased_detoken
+TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_en_de_6kval_BlDist_cased
 MODEL_NAME=bert-base-multilingual-cased
 ## tokenize translation data
 mkdir $TOKEN_PATH
