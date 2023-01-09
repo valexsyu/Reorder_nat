@@ -13,5 +13,5 @@ do
 done
 
 ## get src and tgt vocabulary
-wget -O $TOKEN_PATH/src_vocab.txt https://huggingface.co/bert-base-multilingual-cased/resolve/main/vocab.txt
+wget -O $TOKEN_PATH/src_vocab.txt https://huggingface.co/$MODEL_NAME/resolve/main/vocab.txt
 cp $TOKEN_PATH/src_vocab.txt $TOKEN_PATH/tgt_vocab.txt

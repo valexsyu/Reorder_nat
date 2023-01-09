@@ -16,8 +16,8 @@
 # wget -O $TOKEN_PATH/src_vocab.txt https://huggingface.co/bert-base-multilingual-uncased/resolve/main/vocab.txt
 
 
-DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_de_en_6kval_BlDist_cased_detoken
-TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_de_en_6kval_BlDist_cased_mbert
+DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_de_en_6kval_BigBlDist_cased_detoken
+TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_de_en_6kval_BigBlDist_cased_mbert
 MODEL_NAME=bert-base-multilingual-cased
 ## tokenize translation data
 mkdir $TOKEN_PATH
@@ -32,5 +32,5 @@ do
 done
 
 ## get src and tgt vocabulary
-wget -O $TOKEN_PATH/src_vocab.txt https://huggingface.co/bert-base-multilingual-cased/resolve/main/vocab.txt
+wget -O $TOKEN_PATH/src_vocab.txt https://huggingface.co/$MODEL_NAME/resolve/main/vocab.txt
 cp $TOKEN_PATH/src_vocab.txt $TOKEN_PATH/tgt_vocab.txt
