@@ -165,7 +165,12 @@ function get_pretrain_model() {
     then
         pretrained_model="bibert"
         pretrained_model_name="jhu-clsp/bibert-ende"
-        bpe="bibert"            
+        bpe="bibert"    
+    elif [ "$i" = "7" ]
+    then
+        pretrained_model="mbert-cased"
+        pretrained_model_name="bert-base-multilingual-cased"
+        bpe="bibert"                 
     else
         echo "error pretrained model id "
         exit 1

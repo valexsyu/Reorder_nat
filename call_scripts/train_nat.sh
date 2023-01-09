@@ -169,7 +169,7 @@ function get_pretrain_model() {
         init_translator=True     
     elif [ "$i" = "7" ]
     then
-        pretrained_model="mbert"
+        pretrained_model="mbert-cased"
         pretrained_model_name="bert-base-multilingual-cased"
         init_translator=False          
     else
