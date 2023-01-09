@@ -27,7 +27,29 @@ conda activate base
 # bash call_scripts/train_nat.sh -e  I-6-4-1-N-UF30T --fp16 -g 2 --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 --max-tokens 3072 -b 12288 --no-atten-mask
 # bash call_scripts/train_nat.sh -e  I-2-1-1-H12-UR40M --fp16 -g 2 --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 --max-tokens 2048 -b 12288 --no-atten-mask
 # bash call_scripts/train_nat.sh -e  P-2-1-1-H12-UD25M --fp16 -g 2 --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 --max-tokens 3072 -b 12288 --no-atten-mask
-bash call_scripts/train_nat.sh -e  1-5-4-1-H12-UF20T --fp16 -g 1 --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 --max-tokens 2048 -b 12288 --no-atten-mask 
+# bash call_scripts/train_nat.sh -e  1-5-4-1-H12-UF20T --fp16 -g 1 --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 --max-tokens 2048 -b 12288 --no-atten-mask 
+
+function pair_experiment() {
+    experiment_1=$1
+    experiment_2=$2
+    bash call_scripts/train_nat.sh \
+            -e  $experiment_1 --fp16 -g 2 --save-interval-updates 70000 --max-update 70000 \
+            --lm-start-step 75000 --max-tokens 2048 -b 12288 --no-atten-mask
+    mkdir checkpoints/$experiment_1/top5_70000steps    
+    cp checkpoints/$experiment_1/checkpoint.best_bleu_*  checkpoints/$experiment_1/top5_70000steps
+    mkdir checkpoints/$experiment_2/
+    cp checkpoints/$experiment_1/top5_70000steps/* checkpoints/$experiment_2/
+    cp checkpoints/$experiment_1/checkpoint_last.pt checkpoints/$experiment_2/
+    bash call_scripts/train_nat.sh \
+            -e  $experiment_1 --fp16 -g 2 --save-interval-updates 70000 --max-update 100000 \
+            --lm-start-step 75000 --max-tokens 1024 -b 12288 --no-atten-mask
+}
+
+pair_experiment 3-1-1-1-H12-UR40M 3-1-1-1-N-UR40M
+
+
+bash call_scripts/generate_nat.sh -b 1 --data-subset test --ck-types top --avg-speed 1 --no-atten-mask \
+-e 3-1-1-1-H12-UR40M \
 
 
 

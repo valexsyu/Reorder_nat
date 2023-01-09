@@ -57,6 +57,8 @@ do
       echo $dt ': ' $'\t' $score >> $CHECKPOINT/best_top5.test.record
       rm tmp_file
    done
+   currentDate='date'
+   echo $currentDate
    echo "Sleeping Now : $sleep_time s"
    sleep $sleep_time
 
