@@ -9,6 +9,5 @@ CHECKPOINT=$1
 TOPK=5
 sleep $2
 avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
-currentDate='date'
-echo $currentDate
+date
 echo "Sleep $2 Now"
