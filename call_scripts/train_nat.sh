@@ -117,8 +117,17 @@ function get_dataset() {
         dataset="wmt14_clean_de_en_6kval_bibert"        
     elif [ "$i" = "b" ]
     then
-        dataset="wmt14_clean_en_de_6kval_bibert"                              
-    else       
+        dataset="wmt14_clean_en_de_6kval_bibert"                                     
+    elif [ "$i" = "c" ]
+    then
+        dataset="wmt20_ja_en_BlDist_mbert"       
+    elif [ "$i" = "d" ]
+    then
+        dataset="wmt20_ja_en_mbert"    
+    elif [ "$i" = "e" ]
+    then
+        dataset="wmt14_clean_en_de_6kval_BigBlDist_cased_mbert"                                           
+    else      
         echo "error dataset id "
         exit 1
     fi
@@ -157,7 +166,12 @@ function get_pretrain_model() {
     then
         pretrained_model="bibert"
         pretrained_model_name="jhu-clsp/bibert-ende"
-        init_translator=True        
+        init_translator=True     
+    elif [ "$i" = "7" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-cased"
+        init_translator=False          
     else
         echo "error pretrained model id "
         exit 1

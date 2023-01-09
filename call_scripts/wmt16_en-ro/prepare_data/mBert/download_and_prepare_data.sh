@@ -144,3 +144,4 @@ done
 ## get src and tgt vocabulary 
 wget -O $OUTPUT_TOKEN_PATH/src_vocab.txt https://huggingface.co/bert-base-multilingual-uncased/resolve/main/vocab.txt
 cp $OUTPUT_TOKEN_PATH/src_vocab.txt $OUTPUT_TOKEN_PATH/tgt_vocab.txt
+

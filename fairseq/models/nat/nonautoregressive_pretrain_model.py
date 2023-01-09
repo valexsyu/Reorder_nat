@@ -101,7 +101,7 @@ class NATPretrainedModel(BaseFairseqModel):
         if self.lm_head_frozen :
             if self.pretrained_model_name  == "distilbert-base-multilingual-cased" :
                 lm_head = [self.translator.vocab_transform, self.translator.vocab_projector, self.translator.vocab_layer_norm]
-            elif self.pretrained_model_name  == "bert-base-multilingual-uncased" :
+            elif self.pretrained_model_name  == "bert-base-multilingual-uncased" or self.pretrained_model_name  == "bert-base-multilingual-cased" :
                 lm_head = [self.translator.cls]
             elif self.pretrained_model_name  == "jhu-clsp/bibert-ende" :
                 lm_head = [self.translator.lm_head]
@@ -117,7 +117,7 @@ class NATPretrainedModel(BaseFairseqModel):
         if self.embedding_frozen:
             if self.pretrained_model_name  == "distilbert-base-multilingual-cased" :
                 model_embeddings = self.translator.distilbert.embeddings
-            elif self.pretrained_model_name  == "bert-base-multilingual-uncased" :
+            elif self.pretrained_model_name  == "bert-base-multilingual-uncased" or self.pretrained_model_name  == "bert-base-multilingual-cased" :
                 model_embeddings = self.translator.bert.embeddings
             elif self.pretrained_model_name  == "jhu-clsp/bibert-ende" :
                 model_embeddings = self.translator.roberta.embeddings       

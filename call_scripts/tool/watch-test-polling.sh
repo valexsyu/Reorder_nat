@@ -51,7 +51,7 @@ do
          bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top --has-eos > tmp_file
       else
          echo "Wait Battleship Resource"
-         hrun -s -N s04 -c 25 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-best-top-lastk > tmp_file
+         hrun -s -N s04 -c 24 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-best-top-lastk > tmp_file
       fi
       score=$(tail -1 tmp_file) 
       echo $dt ': ' $'\t' $score >> $CHECKPOINT/best_top5.test.record

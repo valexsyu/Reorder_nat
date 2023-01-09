@@ -70,7 +70,7 @@ class NATEncoderGenerator(object):
             tgt_dict.add_symbol(self.blank_symbol)             
             src_dict.add_symbol(self.blank_symbol)     
 
-        self.symbols_to_strip_from_output = [10160]  
+        # self.symbols_to_strip_from_output = [10160]  
 
         self.blank_idx = (
             tgt_dict.index(task.blank_symbol)
