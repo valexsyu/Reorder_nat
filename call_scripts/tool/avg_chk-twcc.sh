@@ -5,9 +5,14 @@ function avg_topk_best_checkpoints(){
 				--ckpref checkpoints.best_bleu	
 }
 
-CHECKPOINT=$1
+CHECKPOINT=checkpoints/$1
 TOPK=5
-sleep $2
-avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
-date
-echo "Sleep $2 Now"
+
+while :
+do
+    avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
+
+    date
+    echo "Sleep $2 Now"
+    sleep $2
+done
