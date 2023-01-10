@@ -1,0 +1,20 @@
+L-1-1-1-H12-UR40M
+========================================================
+List of experiments:
+	L-1-1-1-H12-UR40M
+=========================No.1  ID:L-1-1-1-H12-UR40M==============================
+Namespace(checkpoint_upper_bound=None, ckpref='checkpoints.best_bleu', inputs=['checkpoints/L-1-1-1-H12-UR40M'], num_epoch_checkpoints=5, num_update_checkpoints=None, output='checkpoints/L-1-1-1-H12-UR40M/checkpoint_best_top5.pt')
+averaging checkpoints:  ['checkpoints/L-1-1-1-H12-UR40M/checkpoint.best_bleu_40.4700.pt', 'checkpoints/L-1-1-1-H12-UR40M/checkpoint.best_bleu_40.1700.pt', 'checkpoints/L-1-1-1-H12-UR40M/checkpoint.best_bleu_40.1101.pt', 'checkpoints/L-1-1-1-H12-UR40M/checkpoint.best_bleu_39.8103.pt', 'checkpoints/L-1-1-1-H12-UR40M/checkpoint.best_bleu_39.6404.pt']
+Finished writing averaged checkpoint to checkpoints/L-1-1-1-H12-UR40M/checkpoint_best_top5.pt
+Namespace(checkpoint_upper_bound=None, ckpref=None, inputs=['checkpoints/L-1-1-1-H12-UR40M'], num_epoch_checkpoints=5, num_update_checkpoints=None, output='checkpoints/L-1-1-1-H12-UR40M/checkpoint_last5.pt')
+averaging checkpoints:  ['checkpoints/L-1-1-1-H12-UR40M/checkpoint40.pt', 'checkpoints/L-1-1-1-H12-UR40M/checkpoint39.pt', 'checkpoints/L-1-1-1-H12-UR40M/checkpoint38.pt', 'checkpoints/L-1-1-1-H12-UR40M/checkpoint37.pt', 'checkpoints/L-1-1-1-H12-UR40M/checkpoint36.pt']
+Finished writing averaged checkpoint to checkpoints/L-1-1-1-H12-UR40M/checkpoint_last5.pt
+Checkpoint : checkpoints/L-1-1-1-H12-UR40M	  Batchsize : 50
+Loading an exist vocab file /livingrooms/valexsyu/dataset/nat/wmt16_ro_en_mbert/de-en-databin/dict.ro.txt to confirm the ids of speical tokens.
+[CLS] 101 [SEP] 102 [PAD] 0 [UNK] 100
+Loading an exist vocab file /livingrooms/valexsyu/dataset/nat/wmt16_ro_en_mbert/de-en-databin/dict.en.txt to confirm the ids of speical tokens.
+[CLS] 101 [SEP] 102 [PAD] 0 [UNK] 100
+Loading an exist vocab file /livingrooms/valexsyu/dataset/nat/wmt16_ro_en_mbert/de-en-databin/dict.ro.txt to confirm the ids of speical tokens.
+[CLS] 101 [SEP] 102 [PAD] 0 [UNK] 100
+Loading an exist vocab file /livingrooms/valexsyu/dataset/nat/wmt16_ro_en_mbert/de-en-databin/dict.en.txt to confirm the ids of speical tokens.
+[CLS] 101 [SEP] 102 [PAD] 0 [UNK] 100

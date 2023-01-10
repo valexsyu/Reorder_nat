@@ -44,6 +44,7 @@ while [ : ]; do
   esac
 done
 
+num_sleep=1
 while :
 do
 
@@ -65,14 +66,15 @@ do
          echo "top5.pt transmission finish"
          hrun -s -c 4 -m 12 scp -P $port -r valex1377@$ip:/work/valex1377/CTC_PLM/Reorder_nat/checkpoints/$experiment_id/checkpoint_last.pt checkpoints/$experiment_id/
          echo "last.pt transmission finish"
-         hrun -s -N s05 -c 8 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types top > tmp_file
+         random_num=$RANDOM
+         hrun -s -N s05 -c 8 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types top > tmp_twcc_file_$random_num
       fi
       score=$(tail -1 tmp_file) 
       echo $dt ': ' $'\t' $score >> $CHECKPOINT/best_top5.test.record
-      rm tmp_file
+      rm tmp_twcc_file_$random_num
    done
    date
-   echo "Sleeping Now : $sleep_time s"
+   echo "Sleeping Now : $sleep_time s "
    sleep $sleep_time
 
 done

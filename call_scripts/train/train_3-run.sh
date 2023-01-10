@@ -47,9 +47,13 @@ function pair_experiment() {
 
 pair_experiment 3-1-1-1-H12-UR40M 3-1-1-1-N-UR40M
 
+pair_experiment i-1-1-1-H12-UR40M i-1-1-1-N-UR40M
 
 bash call_scripts/generate_nat.sh -b 1 --data-subset test --ck-types top --avg-speed 1 --no-atten-mask \
 -e 3-1-1-1-H12-UR40M \
+-e i-1-1-1-H12-UR40M
+
+
 
 
 
