@@ -52,14 +52,13 @@ do
       else
          echo "Wait Battleship Resource"
          random_num=$RANDOM
-         hrun -s -N s04 -c 24 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-best-top-lastk > tmp_twcc_file_$random_num
+         hrun -s -N s04 -c 24 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-best-top-lastk > tmp_file_$random_num
       fi
-      score=$(tail -1 tmp_file) 
+      score=$(tail -1 tmp_file_$random_num) 
       echo $dt ': ' $'\t' $score >> $CHECKPOINT/best_top5.test.record
-      rm tmp_twcc_file_$random_num
+      rm tmp_file_$random_num
    done
-   currentDate='date'
-   echo $currentDate
+   date
    echo "Sleeping Now : $sleep_time s"
    sleep $sleep_time
 

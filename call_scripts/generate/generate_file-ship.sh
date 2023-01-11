@@ -21,10 +21,6 @@ conda activate base
 
 
 
-bash call_scripts/generate_nat.sh -b 1 --data-subset test --ck-types top --avg-speed 1 --no-atten-mask \
--e 2-6-4-1-N-UF30T \
--e J-6-4-1-N-UF30T \
--e 4-2-1-1-H12-UD25M \
--e a-2-1-1-H12-UR40M \
--e K-6-4-1-N-UF30T \
--e I-6-4-1-N-UF30T 
+hrun -s -N -c 20 -m 40  bash call_scripts/generate_nat.sh -b 1 --data-subset test --ck-types top-lastk --avg-speed 1 --no-atten-mask \
+-e 3-1-1-1-H12-UR40M
+

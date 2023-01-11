@@ -14,6 +14,7 @@
 
 destination_root=/work/valex1377/CTC_PLM/Reorder_nat/checkpoints
 destination_file=test_folder
-echo "get -r $destination_file ./ " | hrun -s -c 4 -m 20 sftp valex1377@xdata1.twcc.ai:$destination_root
+
+echo "get -r $destination_file ./ " | sftp valex1377@xdata1.twcc.ai:$destination_root
 
  

@@ -34,7 +34,7 @@ function pair_experiment() {
     experiment_2=$2
     bash call_scripts/train_nat.sh \
             -e  $experiment_1 --fp16 -g 2 --save-interval-updates 70000 --max-update 70000 \
-            --lm-start-step 75000 --max-tokens 2048 -b 12288 --no-atten-mask
+            --lm-start-step 75000 --max-tokens 1024 -b 12288 --no-atten-mask
     mkdir checkpoints/$experiment_1/top5_70000steps    
     cp checkpoints/$experiment_1/checkpoint.best_bleu_*  checkpoints/$experiment_1/top5_70000steps
     mkdir checkpoints/$experiment_2/
@@ -45,14 +45,13 @@ function pair_experiment() {
             --lm-start-step 75000 --max-tokens 1024 -b 12288 --no-atten-mask
 }
 
-pair_experiment 3-1-1-1-H12-UR40M 3-1-1-1-N-UR40M
+# pair_experiment 3-1-1-1-H12-UR40M 3-1-1-1-N-UR40M
 
-pair_experiment i-1-1-1-H12-UR40M i-1-1-1-N-UR40M
+pair_experiment i-7-1-1-H12-UR40M i-7-1-1-N-UR40M
 
-bash call_scripts/generate_nat.sh -b 1 --data-subset test --ck-types top --avg-speed 1 --no-atten-mask \
--e 3-1-1-1-H12-UR40M \
--e i-1-1-1-H12-UR40M
-
+# bash call_scripts/generate_nat.sh -b 1 --data-subset test --ck-types top --avg-speed 1 --no-atten-mask \
+# -e 3-1-1-1-H12-UR40M \
+# -e i-1-1-1-H12-UR40M
 
 
 
