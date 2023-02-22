@@ -61,6 +61,7 @@ else:
         "BertModel",
         "BertPreTrainedModel",
         "load_tf_weights_in_bert",
+        "BertOnlyMLMHead",
     ]
 
 try:
@@ -136,6 +137,7 @@ if TYPE_CHECKING:
             BertModel,
             BertPreTrainedModel,
             load_tf_weights_in_bert,
+            BertOnlyMLMHead,
         )
 
     try:

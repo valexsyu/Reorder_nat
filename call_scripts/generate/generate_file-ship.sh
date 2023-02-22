@@ -21,6 +21,16 @@ conda activate base
 
 
 
-hrun -s -c 20 -m 40  bash call_scripts/generate_nat.sh -b 1 --data-subset test --ck-types top-lastk --avg-speed 1 --no-atten-mask \
--e h-7-1-1-H12-UR40M
+# hrun -c 20 -m 40  bash call_scripts/generate_nat.sh -b 1 --data-subset test --ck-types top-lastk --avg-speed 1 --no-atten-mask \
+# -e L-1-1-1-H12-UR40M
+
+# bash call_scripts/generate_nat.sh -b 50 --data-subset test --avg-speed 1 --ck-types top  \
+#                                         --avg-ck-turnoff \
+#                                         -e m-8-1-1-K12-UF20M-AutoModelForMaskedLM \
+#                                         -e m-8-3-1-K12-UF20M-AutoModelForMaskedLM
+
+bash call_scripts/generate_nat.sh -b 50 --data-subset test --avg-speed 1 --ck-types top  \
+                                        --avg-ck-turnoff \
+                                        -e m-8-1-1-K12-UF20M-AutoModelForMaskedLM-randPos \
+                                        -e m-8-3-1-K12-UF20M-AutoModelForMaskedLM-randPos
 

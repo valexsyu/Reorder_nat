@@ -118,7 +118,6 @@ class Scorer(object):
 
         rref = rref.contiguous().view(-1)
         pred = pred.contiguous().view(-1)
-
         self.C.bleu_add(
             ctypes.byref(self.stat),
             ctypes.c_size_t(rref.size(0)),

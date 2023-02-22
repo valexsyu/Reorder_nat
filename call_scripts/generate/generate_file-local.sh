@@ -234,12 +234,22 @@ conda activate base
 # -e 1-1-1-1-H1-UF20M  
 # mv call_scripts/generate/output_file/output_read.csv call_scripts/generate/output_file/output_read__test_layer.csv
 
-CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 1 --local --data-subset test --ck-types top --avg-speed 1 --no-atten-mask \
--e a-6-1-1-N-UF30T \
--e 2-6-4-1-N-UF30T \
--e J-6-4-1-N-UF30T \
--e 4-2-1-1-H12-UD25M \
--e a-2-1-1-H12-UR40M \
--e b-2-1-1-H12-UR40M \
--e K-6-4-1-N-UF30T \
--e I-6-4-1-N-UF30T \
+# CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 1 --local --data-subset test --ck-types top --avg-speed 1 --no-atten-mask \
+# -e a-6-1-1-N-UF30T \
+# -e 2-6-4-1-N-UF30T \
+# -e J-6-4-1-N-UF30T \
+# -e 4-2-1-1-H12-UD25M \
+# -e a-2-1-1-H12-UR40M \
+# -e b-2-1-1-H12-UR40M \
+# -e K-6-4-1-N-UF30T \
+# -e I-6-4-1-N-UF30T \
+
+CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 50 --local --data-subset test --ck-types top --avg-speed 1 \
+-e m-8-1-1-K12-UF20M-AutoModelForMaskedLM \
+-e m-8-2-1-K12-UF20M-AutoModelForMaskedLM \
+-e m-8-3-1-K12-UF20M-AutoModelForMaskedLM \
+-e m-8-4-1-K12-UF20M-AutoModelForMaskedLM \
+-e m-8-1-1-K12-UF20M-AutoModelForMaskedLM-randPos \
+-e m-8-2-1-K12-UF20M-AutoModelForMaskedLM-randPos \
+-e m-8-3-1-K12-UF20M-AutoModelForMaskedLM-randPos \
+-e m-8-4-1-K12-UF20M-AutoModelForMaskedLM-randPos 

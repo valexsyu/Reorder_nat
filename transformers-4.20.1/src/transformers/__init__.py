@@ -827,6 +827,7 @@ else:
             "BertModel",
             "BertPreTrainedModel",
             "load_tf_weights_in_bert",
+            "BertOnlyMLMHead",
         ]
     )
     _import_structure["models.bert_generation"].extend(
@@ -3372,6 +3373,7 @@ if TYPE_CHECKING:
             BertModel,
             BertPreTrainedModel,
             load_tf_weights_in_bert,
+            BertOnlyMLMHead,
         )
         from .models.bert_generation import (
             BertGenerationDecoder,

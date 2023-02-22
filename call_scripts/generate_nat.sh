@@ -145,7 +145,16 @@ function get_dataset() {
         dataset="wmt14_en_de_BigBlDist_xlmr"       
     elif [ "$i" = "k" ]
     then
-        dataset="iwslt14_de_en_BlDist_mbertcased"                                                             
+        dataset="iwslt14_de_en_BlDist_mbertcased"     
+    elif [ "$i" = "m" ]
+    then
+        dataset="iwslt14_de_en_bibertDist_mbert_pruned26458"            
+    elif [ "$i" = "n" ]
+    then
+        dataset="iwslt14_de_en_bibertDist_mbert_pruned26458_8k"    
+    elif [ "$i" = "z" ]
+    then
+        dataset="iwslt14_de_en_bibertDist_mbert_pruned26458-test"                                                                          
     else        
         echo "error dataset id "
         exit 1
@@ -188,7 +197,28 @@ function get_pretrain_model() {
     then
         pretrained_model="mbert-cased"
         pretrained_model_name="bert-base-multilingual-cased"
-        bpe="bibert"                 
+        bpe="bibert"          
+    elif [ "$i" = "8" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/
+        pretrained_model_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458  
+    elif [ "$i" = "9" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/
+        pretrained_model_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/      
+    elif [ "$i" = "B" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/ 
+        pretrained_model_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/                       
     else
         echo "error pretrained model id "
         exit 1
@@ -242,23 +272,27 @@ function get_kd_model() {
     then
         lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
         lm_loss_dis=False
-        lm_loss=True        
+        lm_loss=True     
+        lmk_loss=False   
     else
         if [ "$i" = "T" ]
         then
             lm_loss_dis=True
             lm_loss_layer=-1
             lm_loss=True
-        elif [ "$i" = "H" ]
-        then
-            lm_loss_dis=False
-            lm_loss_layer=-1
-            lm_loss=True
+            lmk_loss=False 
         elif [ "$i" = "N" ]
         then
             lm_loss_dis=False
             lm_loss_layer=-1
             lm_loss=False
+            lmk_loss=False 
+        elif [ $(echo $i | cut -c 1) = "K" ]
+        then
+            lm_loss_dis=False
+            lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
+            lm_loss=True     
+            lmk_loss=True                     
         else
             echo "error kd model id "
             exit 1
@@ -319,6 +353,9 @@ function default_setting() {
     max_epoch=400
     update_freq=6
     dataroot=/livingrooms/valexsyu/dataset/nat
+    modelroot=/livingrooms/valexsyu/dataset/model
+    pretrained_model_path=None
+    pretrained_lm_path=None    
     cpu=False
     data_subset=("test")
     TOPK=5
@@ -330,6 +367,8 @@ function default_setting() {
     no_atten_postfix=""
     avg_speed=1
     local=False
+    skip_load_step_num=False
+    sacrebleu=False
     
 }
 
@@ -349,7 +388,7 @@ function avg_lastk_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile,avg-speed: -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile,avg-speed:,skip-load-step-num,sacrebleu -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -386,6 +425,10 @@ while [ : ]; do
       debug=True
       shift 1
       ;;  
+    --sacrebleu)
+      sacrebleu=True
+      shift 1
+      ;;        
     --load-exist-bleu)
       load_exist_bleu=True
       shift 1
@@ -398,7 +441,11 @@ while [ : ]; do
     --skip-exist-genfile)
       skip_exist_genfile=True
       shift 1
-      ;;                             
+      ;;     
+    --skip-load-step-num)
+      skip_load_step_num=True
+      shift 1
+      ;;                                
     -b | --batch-size)
       batch_size="$2"
       shift 2
@@ -589,7 +636,12 @@ if [ "$load_exist_bleu" = "False" ]; then
         if [ "$debug" = "True" ]
         then
             BOOL_COMMAND+=" --debug"
-        fi    
+        fi  
+        if [ "$sacrebleu" = "True" ]
+        then
+            BOOL_COMMAND+=" --scoring sacrebleu"
+        fi  
+          
         if [ "$no_atten_mask" = "True" ]
         then
             BOOL_COMMAND+=" --no-atten-mask"
@@ -628,7 +680,6 @@ CRITERION=$CRITERION
 CHECKPOINT=$CHECKPOINTS_PATH/$experiment_id
 TASK=$TASK
 DATA_BIN=$dataroot/$dataset/de-en-databin
-PRETRAINED_MODEL_NAME=$pretrained_model_name
 RESULT_PATH=$RESULT_PATH
 CHECKPOINTS_DATA=$checkpoint_data_name
 DATA_TYPE=$data_type
@@ -636,6 +687,10 @@ PRETRAINED_MODE=$pretrained_model
 ARCH=$ARCH
 BATCH_SIZE=$batch_size
 BPE=$bpe
+PRETRAINED_MODEL_NAME=$pretrained_model_name
+PRETRAINED_LM_NAME=$pretrained_model_name
+PRETRAINED_LM_PATH=$pretrained_lm_path
+PRETRAINED_MODEL_PATH=$pretrained_model_path
 
 "  > $CHECKPOINT/temp.sh
                 
@@ -663,6 +718,7 @@ BPE=$bpe
         --remove-bpe \
         --upsample-fill-mask \
         --batch-size $BATCH_SIZE \
+        --pretrained-lm-path $PRETRAINED_LM_PATH --pretrained-model-path $PRETRAINED_MODEL_PATH \
 endmsg
 
                 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip_generate_$ck_ch.sh
@@ -696,7 +752,8 @@ for i in "${!exp_array[@]}"; do
         speed_avg_array=()
         # csv_file=call_scripts/generate/output_file/output_read_${experiment_id}_${no_atten_postfix}.csv
         # python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT 'checkpoint.best_bleu'
-        if [ "$local" = "False" ]; then
+        
+        if [ "$skip_load_step_num" = "False" ]; then
             checkpoint_bestk_step=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT 'checkpoint.best_bleu')
         fi
         for data_type in "${data_subset[@]}" ; do

@@ -144,7 +144,13 @@ function get_dataset() {
         dataset="wmt14_en_de_BigBlDist_xlmr"       
     elif [ "$i" = "k" ]
     then
-        dataset="iwslt14_de_en_BlDist_mbertcased"                                                                          
+        dataset="iwslt14_de_en_BlDist_mbertcased"            
+    elif [ "$i" = "m" ]
+    then
+        dataset="iwslt14_de_en_bibertDist_mbert_pruned26458"            
+    elif [ "$i" = "n" ]
+    then
+        dataset="iwslt14_de_en_bibertDist_mbert_pruned26458_8k"
     else      
         echo "error dataset id "
         exit 1
@@ -189,7 +195,28 @@ function get_pretrain_model() {
     then
         pretrained_model="mbert-cased"
         pretrained_model_name="bert-base-multilingual-cased"
-        init_translator=False          
+        init_translator=False      
+    elif [ "$i" = "8" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        init_translator=False   
+        pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/
+        pretrained_model_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458  
+    elif [ "$i" = "A" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/
+        pretrained_model_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/      
+    elif [ "$i" = "B" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/ 
+        pretrained_model_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/                    
     else
         echo "error pretrained model id "
         exit 1
@@ -245,23 +272,27 @@ function get_kd_model() {
     then
         lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
         lm_loss_dis=False
-        lm_loss=True        
+        lm_loss=True     
+        lmk_loss=False   
     else
         if [ "$i" = "T" ]
         then
             lm_loss_dis=True
             lm_loss_layer=-1
             lm_loss=True
-        elif [ "$i" = "H" ]
-        then
-            lm_loss_dis=False
-            lm_loss_layer=-1
-            lm_loss=True
+            lmk_loss=False 
         elif [ "$i" = "N" ]
         then
             lm_loss_dis=False
             lm_loss_layer=-1
             lm_loss=False
+            lmk_loss=False 
+        elif [ $(echo $i | cut -c 1) = "K" ]
+        then
+            lm_loss_dis=False
+            lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
+            lm_loss=True     
+            lmk_loss=True                     
         else
             echo "error kd model id "
             exit 1
@@ -325,6 +356,9 @@ function default_setting() {
     train_subset=train
     max_update=100000
     dataroot=/livingrooms/valexsyu/dataset/nat  
+    modelroot=/livingrooms/valexsyu/dataset/model
+    pretrained_model_path=None
+    pretrained_lm_path=None
     fp16=False  
     save_interval_updates=10000
     dropout=0.1
@@ -452,7 +486,7 @@ get_ctc "$experiment_id"
 update_freq=$(((batch_size/max_tokens)/gpu))
 echo -e "Experiment:$experiment_id \nGPU_Number:$gpu \nBatch_Size:$batch_size \nMax_Tokens:$max_tokens \nMax_Epoch:$max_epoch \nUpdate_Freq:$update_freq"
 echo -e "Dataset:$dataset  \nPretrained_Model:$pretrained_model \nFix_LM:$fix_lm \nFix_SWE:$fix_swe"
-echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss"
+echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss \nLM_K_Loss:$lmk_loss"
 echo -e "Insert_Position:$insert_position \nDY_upsampling:$dynamic_upsampling \nNum_Upsampling_Rate:$num_upsampling_rate \nInsert_Mask:$insert_mask"
 echo -e "Init_Translator:$init_translator "
 
@@ -473,6 +507,12 @@ if [ "$lm_loss" = "True" ]
 then
     BOOL_COMMAND+=" --lm-loss"
 fi
+
+if [ "$lmk_loss" = "True" ]
+then
+    BOOL_COMMAND+=" --lmk-loss"
+fi
+
 if [ "$dynamic_upsampling" = "True" ]
 then
     BOOL_COMMAND+=" --dynamic-upsampling"
@@ -553,10 +593,13 @@ MAX_TOKENS=$max_tokens
 MAX_EPOCH=$max_epoch
 PRETRAINED_MODEL_NAME=$pretrained_model_name
 PRETRAINED_LM_NAME=$pretrained_model_name
+PRETRAINED_LM_PATH=$pretrained_lm_path
+PRETRAINED_MODEL_PATH=$pretrained_model_path
 UPDATE_FREQ=$update_freq
 FIX_LM=$fix_lm
 FIX_SWE=$fix_swe
 LM_LOSS=$lm_loss
+LM_K_LOSS=$lmk_loss
 LM_LOSS_LAYER=$lm_loss_layer
 LM_LOSS_DIS=$lm_loss_dis
 INSERT_MASK=$insert_mask
@@ -568,6 +611,7 @@ SAVE_INTERVAL_UPDATES=$save_interval_updates
 DROPOUT=$dropout
 LM_START_STEP=$lm_start_step
 WARMUP_UPDATES=$warmup_updates
+VOC_CHOOSEN=$voc
 
 
 "  > $CHECKPOINT/temp.sh
@@ -591,8 +635,8 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
 	--criterion nat_ctc_loss \
 	--arch nat_pretrained_model \
     --tensorboard-logdir $CHECKPOINT/tensorboard \
-    --keep-last-epochs 5 \
     --noise no_noise \
+    --no-epoch-checkpoints \
     --save-interval 1 \
     --left-pad-source \
     --prepend-bos \
@@ -610,6 +654,8 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --num-upsampling-rate $NUM_UPSAMPLING_RATE \
     --insert-position $INSERT_POSITION \
     --train-subset $TRAIN_SUBSET \
+    --voc-choosen $VOC_CHOOSEN \
+    --pretrained-lm-path $PRETRAINED_LM_PATH --pretrained-model-path $PRETRAINED_MODEL_PATH \
 endmsg
 
 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip.sh
@@ -627,3 +673,5 @@ bash $CHECKPOINT/scrip.sh
     # --lm-loss-dis $LM_LOSS_DIS \
     # --upsample-fill-mask $INSERT_MASK \
     # --max-epoch $MAX_EPOCH \
+    # --keep-last-epochs 5 \
+    # --save-interval 1 \

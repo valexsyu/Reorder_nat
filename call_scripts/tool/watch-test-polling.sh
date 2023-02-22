@@ -52,7 +52,8 @@ do
       else
          echo "Wait Battleship Resource"
          random_num=$RANDOM
-         hrun -s -N s04 -c 24 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-best-top-lastk > tmp_file_$random_num
+         # hrun -s -N s05 -c 24 -m 40 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-best-top-lastk > tmp_file_$random_num
+         hrun -s -N s02 -c 8 -m 50 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top > tmp_file_$random_num
       fi
       score=$(tail -1 tmp_file_$random_num) 
       echo $dt ': ' $'\t' $score >> $CHECKPOINT/best_top5.test.record

@@ -222,7 +222,9 @@ class BertEmbeddings(nn.Module):
             
             # valex
             if seq_length > (self.position_embeddings.weight.shape[0]) :
-                expad_position_ids = torch.zeros(seq_length-(self.position_embeddings.weight.shape[0])).to(position_ids).unsqueeze(0)
+                # expad_position_ids = torch.zeros(seq_length-(self.position_embeddings.weight.shape[0])).to(position_ids).unsqueeze(0)
+                max_postition = self.position_embeddings.weight.shape[0]
+                expad_position_ids = torch.full((1,seq_length-max_postition), max_postition-1).to(position_ids).unsqueeze(0)
                 position_ids = torch.cat((position_ids,expad_position_ids), axis=1)
             # valex               
 
@@ -965,7 +967,6 @@ class BertModel(BertPreTrainedModel):
             use_cache = use_cache if use_cache is not None else self.config.use_cache
         else:
             use_cache = False
-
         if input_ids is not None and inputs_embeds is not None:
             raise ValueError("You cannot specify both input_ids and inputs_embeds at the same time")
         elif input_ids is not None:
@@ -1018,7 +1019,6 @@ class BertModel(BertPreTrainedModel):
         # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
         # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x seq_length x seq_length]
         head_mask = self.get_head_mask(head_mask, self.config.num_hidden_layers)
-
         embedding_output = self.embeddings(
             input_ids=input_ids,
             position_ids=position_ids,

@@ -107,6 +107,7 @@ class BiBertBPE(object):
         return " ".join(get_sentence(x.split(" ")))
 
     def is_beginning_of_word(self, x: str) -> bool:
+        import pdb;pdb.set_trace()
         return not x.startswith("##")
 
 

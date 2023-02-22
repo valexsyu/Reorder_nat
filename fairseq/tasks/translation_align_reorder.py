@@ -86,7 +86,28 @@ class TranslationAlignReorderConfig(TranslationConfig):
         default=False, metadata={"help": "watch test bleu while valid process"},
     )    
                               
-      
+    # ctc_beam_decoding
+    ctc_beam_decoding: bool = field(
+        default=False, metadata={"help": "use ctc beam decoding"},
+    ) 
+    beam_size: int = field(
+        default=1, metadata={"help": "beam size for ctc beam decoding"},
+    )
+    kenlm_path: str = field(
+        default="None", metadata={"help": "path to the kenlm model for ctc beam decoding"},
+    ) 
+    alpha: float = field(
+        default=0.0, metadata={"help": "alpha for ctc beam decoding"},
+    )
+    beta: float = field(
+        default=0.0, metadata={"help": "beta for ctc beam decoding"},
+    )   
+    pretrained_lm_path: str = field(
+        default="None", metadata={"help": "path for the exist pretrained lm model, like pruned model "},
+    )     
+    pretrained_model_path: str = field(
+        default="None", metadata={"help": "path for the exist pretrained model, like pruned model "},
+    )            
 
 @register_task("translation_align_reorder", dataclass=TranslationAlignReorderConfig)
 class TranslationaAlignReorder(TranslationTask):
@@ -110,17 +131,35 @@ class TranslationaAlignReorder(TranslationTask):
         self.iterative_reorder_translator = cfg.iterative_reorder_translator
         self.switch = True
         self.align_position_pad_index = cfg.align_position_pad_index
+
         if cfg.pretrained_lm_name == "None" :
             self.pretrained_lm = None
         else:
-            if cfg.lm_loss_dis :
-                self.pretrained_lm = AutoModelForMaskedLM.from_pretrained(cfg.pretrained_lm_name)
+            if cfg.pretrained_lm_path != "None" :
+                from transformers import AutoConfig
+                import os        
+                lm_config = AutoConfig.from_pretrained(os.path.join(cfg.pretrained_lm_path,"config.json"))
+                # self.pretrained_lm = AutoModel.from_pretrained(os.path.join(cfg.pretrained_lm_path,"pytorch_model.bin"), config=lm_config)
+                self.pretrained_lm = AutoModelForMaskedLM.from_pretrained(os.path.join(cfg.pretrained_lm_path,"pytorch_model.bin"), config=lm_config)
             else:
-                self.pretrained_lm = AutoModel.from_pretrained(cfg.pretrained_lm_name) 
+                if cfg.lm_loss_dis :
+                    self.pretrained_lm = AutoModelForMaskedLM.from_pretrained(cfg.pretrained_lm_name)
+                else:
+                    self.pretrained_lm = AutoModel.from_pretrained(cfg.pretrained_lm_name)             
+        
+        
+        
+        
         self.lm_loss_layer = cfg.lm_loss_layer
         self.twcc = cfg.twcc
         self.watch_test_bleu = cfg.watch_test_bleu
-        
+
+    # class Identity(torch.nn.Module):
+    #     def __init__(self):
+    #         super(torch.nn.Identity, self).__init__()
+            
+    #     def forward(self, x):
+    #         return x
 
   
     @classmethod
