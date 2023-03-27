@@ -9,7 +9,7 @@ Then we can train a nonautoregressive model using the train_nat.sh script.
   * m: dataset
   * 8: model
   * 1: Frezze parameter
-  * 1: Functional
+  * 1: Functions 
   * H12: Distill method
   * UF20M: Upsample rate is 2 and use MASK insertion
 * --g : GPU number.
