@@ -151,6 +151,9 @@ function get_dataset() {
     elif [ "$i" = "n" ]
     then
         dataset="iwslt14_de_en_bibertDist_mbert_pruned26458_8k"
+    elif [ "$i" = "o" ]
+    then
+        dataset="iwslt14_de_en_bibertDist_xlmr_pruned21785"        
     else      
         echo "error dataset id "
         exit 1
@@ -215,8 +218,15 @@ function get_pretrain_model() {
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
         bpe="bibert"    
-        pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/ 
-        pretrained_model_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/                    
+        pretrained_lm_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458/ 
+        pretrained_model_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458/           
+    elif [ "$i" = "C" ]
+    then
+        pretrained_model="xlmr"
+        pretrained_model_name="xlm-roberta-base"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/ 
+        pretrained_model_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/                        
     else
         echo "error pretrained model id "
         exit 1
@@ -260,6 +270,12 @@ function get_voc() {
     elif [ "$i" = "3" ]
     then
         voc="3"
+    elif [ "$i" = "4" ]
+    then
+        voc="4"      
+    elif [ "$i" = "5" ]
+    then
+        voc="5"           
     else
         echo "error voc id "
         exit 1
@@ -292,13 +308,29 @@ function get_kd_model() {
             lm_loss_dis=False
             lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
             lm_loss=True     
-            lmk_loss=True                     
+            lmk_loss=True     
+        elif [ $(echo $i | cut -c 1) = "A" ]
+        then
+            lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
+            lm_loss_dis=False
+            lm_loss=True     
+            lmk_loss=False 
+            lm_random_mask=True   
+        elif [ $(echo $i | cut -c 1) = "B" ]
+        then
+            lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
+            lm_loss_dis=False
+            lm_loss=True     
+            lmk_loss=True 
+            lm_random_mask=True                                    
         else
             echo "error kd model id "
             exit 1
         fi
     fi
 }
+
+--lm-random-mask
 
 function get_ctc() {
     i=$(echo $1 | cut -d - -f 6)
@@ -339,6 +371,10 @@ function get_ctc() {
         T)
             insert_mask=False
             ;;
+        B)
+            insert_mask=True
+            blank_use_mask=True
+            ;;        
         *) 
             echo "insert_mask is wrong id"
             exit 1    
@@ -371,12 +407,15 @@ function default_setting() {
     reset_optimizer=False
     debug=False
     has_eos=False
+    blank_use_mask=False
+    lm_random_mask=False
+    wandb_team_id=valex-jcx
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos,--wandb-team-id: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -423,6 +462,7 @@ while [ : ]; do
       ;;      
     --local)
       dataroot="../../dataset/nat"
+      modelroot="../../dataset/model"      
       shift 1
       ;;         
     --watch-test-bleu)
@@ -450,6 +490,10 @@ while [ : ]; do
       warmup_updates="$2"
       shift 2
       ;;        
+    --wandb-team-id)
+      wandb_team_id="$2"
+      shift 2
+      ;;           
     --no-atten-mask)
       no_atten_mask=True
       shift 1
@@ -537,7 +581,7 @@ then
     BOOL_COMMAND+="  --wandb-project"
     BOOL_COMMAND+=" NAT-Pretrained-Model"
     BOOL_COMMAND+="  --wandb-entity"
-    BOOL_COMMAND+=" valex-jcx"
+    BOOL_COMMAND+=" $wandb_team_id"
 fi
 
 if [ "$fp16" = "True" ]
@@ -573,6 +617,16 @@ then
     BOOL_COMMAND+=" --has-eos"
 fi 
 
+if [ "$blank_use_mask" = "True" ]
+then
+    BOOL_COMMAND+=" --blank-use-mask"
+fi 
+
+if [ "$lm_random_mask" = "True" ]
+then
+    BOOL_COMMAND+=" --lm-random-mask"
+fi 
+
 
 if [ ! -d "checkpoints" ]; then
     mkdir checkpoints
@@ -581,7 +635,6 @@ fi
 CHECKPOINT=checkpoints/$experiment_id
 # DATA_BIN=/livingrooms/valexsyu/dataset/nat/$dataset/de-en-databin
 DATA_BIN=$dataroot/$dataset/de-en-databin
-
 
 ##----------RUN  Bash-----------------------------
 mkdir $CHECKPOINT
