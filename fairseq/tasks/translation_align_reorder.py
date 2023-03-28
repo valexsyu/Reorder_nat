@@ -107,7 +107,13 @@ class TranslationAlignReorderConfig(TranslationConfig):
     )     
     pretrained_model_path: str = field(
         default="None", metadata={"help": "path for the exist pretrained model, like pruned model "},
-    )            
+    )     
+    blank_use_mask: bool = field(
+        default=False, metadata={"help": "use the MASK token to be the blank for CTC"},
+    )        
+    visualization: bool = field(
+        default=False, metadata={"help": "visualize the hidden representation"},
+    )           
 
 @register_task("translation_align_reorder", dataclass=TranslationAlignReorderConfig)
 class TranslationaAlignReorder(TranslationTask):
@@ -131,7 +137,15 @@ class TranslationaAlignReorder(TranslationTask):
         self.iterative_reorder_translator = cfg.iterative_reorder_translator
         self.switch = True
         self.align_position_pad_index = cfg.align_position_pad_index
-
+        if cfg.blank_use_mask :
+            try :
+                self.mask = tgt_dict.indices["[MASK]"]
+            except:
+                self.mask = tgt_dict.indices["<mask>"]
+            self.blank_idx = self.mask
+            self.extra_symbols_to_ignore = self.blank_idx
+        else:
+            self.extra_symbols_to_ignore = None
         if cfg.pretrained_lm_name == "None" :
             self.pretrained_lm = None
         else:
@@ -407,7 +421,6 @@ class TranslationaAlignReorder(TranslationTask):
         with torch.no_grad():
             loss, sample_size, logging_output = criterion(model, sample, update_num)
         # return loss, sample_size, logging_output
-
         if self.cfg.eval_bleu:
             bleu = self._inference_with_bleu(self.nat_generator, sample, model)
             logging_output["_bleu_sys_len"] = bleu.sys_len
@@ -485,6 +498,7 @@ class TranslationaAlignReorder(TranslationTask):
             s = self.tgt_dict.string(
                 toks.int().cpu(),
                 self.cfg.eval_bleu_remove_bpe,
+                extra_symbols_to_ignore={self.extra_symbols_to_ignore},
                 # The default unknown string in fairseq is `<unk>`, but
                 # this is tokenized by sacrebleu as `< unk >`, inflating
                 # BLEU scores. Instead, we use a somewhat more verbose
@@ -502,7 +516,7 @@ class TranslationaAlignReorder(TranslationTask):
                 remove_duplicate_tokens = torch.unique_consecutive(gen_out[i][0]["tokens"])
             else:
                 remove_duplicate_tokens = gen_out[i][0]["tokens"]
-
+            
             hyps.append(decode(remove_duplicate_tokens))
             refs.append(
                 decode(

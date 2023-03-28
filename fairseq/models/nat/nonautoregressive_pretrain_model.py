@@ -38,6 +38,9 @@ from scipy.optimize import linear_sum_assignment as lsa
 from fairseq.utils import new_arange
 
 from ctcdecode import CTCBeamDecoder
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt   
 
 @register_model("nat_pretrained_model") 
 class NATPretrainedModel(BaseFairseqModel):
@@ -60,7 +63,7 @@ class NATPretrainedModel(BaseFairseqModel):
         self.use_drop_embedding = 1    
         self.lm_loss = args.lm_loss 
         self.lmk_loss = args.lmk_loss 
-        # self.lm_loss_dis = args.lm_loss_dis
+        self.lm_loss_dis = args.lm_loss_dis
         self.pretrained_model_name = args.pretrained_model_name 
         self.pretrained_embedding_name = args.pretrained_embedding_name
         # self.pretrained_lm_name = args.pretrained_lm_name
@@ -163,8 +166,16 @@ class NATPretrainedModel(BaseFairseqModel):
             )       
         
         self.voc_choosen = args.voc_choosen
+        self.source_random_mask = False
+        self.uniform_position_ids = False
+        self.target_random_mask = False
+        self.lm_random_mask = args.lm_random_mask
+        self.lm_iter_num = args.lm_iter_num
+        self.watch_lm_loss = args.watch_lm_loss
+        self.lmk_loss_factor = 1
         if args.voc_choosen == 1:
             print("The target voc size is the loading form config")
+            self.uniform_position_ids = False
         elif args.voc_choosen == 2:
             from transformers import PretrainedConfig, BertOnlyMLMHead
             output_projection_config = PretrainedConfig(hidden_size=args.encoder_embed_dim, hidden_act=args.activation_fn,
@@ -173,13 +184,30 @@ class NATPretrainedModel(BaseFairseqModel):
             self.output_projection_layer.apply(init_bert_params)
             
             print("The target voc size is use lenght of target.dict ")
+            self.uniform_position_ids = False
+            self.output_projection_warmup = args.output_projection_warmup
+        elif args.voc_choosen == 3:
+            self.uniform_position_ids = True   
+        elif args.voc_choosen == 4:
+            self.uniform_position_ids = True
+            self.source_random_mask = True
+            self.random_mask_rate = 0.15
+        elif args.voc_choosen == 5:
+            self.uniform_position_ids = True
+            self.target_random_mask = True
+            self.random_mask_rate = 0.15                          
         else:
             import pdb;pdb.set_trace()
             print("Error voc_choosen id")
+            
         
-        self.output_projection_warmup = args.output_projection_warmup
+        self.visualization = args.visualization
+        if self.visualization :
+            self.tgt_hidden_all=torch.tensor([])
+            self.src_hidden_all=torch.tensor([])
+
+
         self.max_source_positions = args.max_source_positions
-        self.uniform_position_ids = True
             
             
 
@@ -234,11 +262,11 @@ class NATPretrainedModel(BaseFairseqModel):
             help="compute LM loss ",
         )            
         
-        # parser.add_argument(
-        #     "--lm-loss-dis",
-        #     action="store_true",
-        #     help="compute LM loss using distribution ",
-        # )            
+        parser.add_argument(
+            "--lm-loss-dis",
+            action="store_true",
+            help="compute LM loss using distribution ",
+        )            
         
         parser.add_argument(
             "--reorder-arch-small",
@@ -342,12 +370,26 @@ class NATPretrainedModel(BaseFairseqModel):
             type=int,
             default=1,
             help="1:use pretrain voc 2:use target dict size",
-        )            
+        )             
                    
-                     
+        parser.add_argument(
+            "--lm-random-mask",
+            action="store_true",
+            help="the input is masked before into lm model",
+        )                          
        
-                    
+        parser.add_argument(
+            "--lm-iter-num",
+            type=int,
+            default=1,
+            help="nunber of translation update",
+        )                      
         
+        parser.add_argument(
+            "--watch-lm-loss",
+            action="store_true",
+            help="Watch lm and lmk losses with or without backpropagation",
+        )           
 
 
     @classmethod
@@ -376,21 +418,21 @@ class NATPretrainedModel(BaseFairseqModel):
         else:
             translator_config.hidden_dropout_prob = args.dropout
         
+        if not safe_hasattr(translator_config, "hidden_dropout_prob"):
+            translator_config.dropout = args.dropout
+        else:
+            translator_config.attention_probs_dropout_prob = args.dropout        
         
         if task.cfg.pretrained_model_path != "None" :
             translator = AutoModelForMaskedLM.from_pretrained(os.path.join(task.cfg.pretrained_model_path,"pytorch_model.bin"), config=translator_config)
-            # translator = AutoModel.from_pretrained(os.path.join(task.cfg.pretrained_model_path,"pytorch_model.bin"), config=translator_config)
         else:
             translator = AutoModelForMaskedLM.from_pretrained(args.pretrained_model_name, config=translator_config)
         
         if args.init_translator :
             translator.apply(init_bert_params)  
         
-        
-        if not safe_hasattr(translator_config, "hidden_dropout_prob"):
-            translator_config.dropout = args.dropout
-        else:
-            translator_config.hidden_dropout_prob = args.dropout        
+   
+
 
         if OmegaConf.is_config(args):
             OmegaConf.set_struct(args, True)
@@ -398,6 +440,7 @@ class NATPretrainedModel(BaseFairseqModel):
         # if task.cfg.no_atten_mask:
         vars(args)['no_atten_mask'] = task.cfg.no_atten_mask  
         vars(args)['debug'] = task.cfg.debug   
+        vars(args)['visualization'] = task.cfg.visualization
 
         if task.cfg.ctc_beam_decoding:
             vars(args)['ctc_beam_decoding'] = task.cfg.ctc_beam_decoding
@@ -427,6 +470,10 @@ class NATPretrainedModel(BaseFairseqModel):
         else:
             self.do_lmk_loss = False
         
+        if self.source_random_mask :
+            src_tokens = self._random_mask(src_tokens, self.random_mask_rate)
+    
+        
         
         if self.voc_choosen == 2 and self.output_projection_warmup > update_num :
             with torch.no_grad(): 
@@ -452,28 +499,59 @@ class NATPretrainedModel(BaseFairseqModel):
                 "loss_type": "CTC",
             }
         }
+        
+        if self.target_random_mask :
+            tgt_tokens = self._random_mask(tgt_tokens, self.random_mask_rate) 
+                   
         if pretrained_lm is not None :
-            with torch.no_grad():              
-                target_token_embeddings, target_bos_embeddings = \
-                                  self.get_pretrained_embedding(tgt_tokens, pretrained_lm, lm_loss_layer) 
-                                             
+            lm_loss_output_total=torch.zeros([1], device=logits.device)
+            lmk_loss_output_total=torch.zeros([1], device=logits.device)
+            lm_iter_num=self.lm_iter_num
+            lm_loss_iter=0
+            lmk_loss_iter=0
+            watch_once_lmloss =  self.watch_lm_loss                                          
+            for iter_i in range(lm_iter_num) : 
+                if iter_i > 0 :
+                    watch_once_lmloss = False  # do not watch lm_iter_num times to reduce training time
+                    
+                if watch_once_lmloss or self.do_lm_loss or self.do_lmk_loss :            
+                    with torch.no_grad():   
+                        if self.lm_random_mask :
+                            tgt_tokens_mask = self._random_mask(tgt_tokens, 0) 
+                        else :
+                            tgt_tokens_mask = tgt_tokens
+                        
+                        target_token_embeddings, target_bos_embeddings = \
+                                        self.get_pretrained_embedding(tgt_tokens_mask, pretrained_lm, lm_loss_layer) 
+                else :
+                    break                                   
             
-            if self.do_lm_loss :        
-                lm_loss_output = self.compute_lm_rep_loss(output_rep=output_hidden_states, logits=logits, src_tokens=src_upsample_tokens, \
-                                        tgt_tokens=tgt_tokens, tgt_output_rep=target_token_embeddings, \
-                                        reduce=True)  
-            else :
-                with torch.no_grad():
+                if self.do_lm_loss :        
                     lm_loss_output = self.compute_lm_rep_loss(output_rep=output_hidden_states, logits=logits, src_tokens=src_upsample_tokens, \
                                             tgt_tokens=tgt_tokens, tgt_output_rep=target_token_embeddings, \
-                                            reduce=True) 
+                                            reduce=True)  
+                    lm_loss_iter = iter_i
+                elif watch_once_lmloss :
+                    with torch.no_grad():
+                        lm_loss_output = self.compute_lm_rep_loss(output_rep=output_hidden_states, logits=logits, src_tokens=src_upsample_tokens, \
+                                                tgt_tokens=tgt_tokens, tgt_output_rep=target_token_embeddings, \
+                                                reduce=True) 
+                else:
+                    lm_loss_output = 0
+                lm_loss_output_total += lm_loss_output
+                
+                if self.do_lmk_loss :
+                    lmk_loss_output = self.compute_lmk_rep_loss(tgt_tokens, target_token_embeddings, target_bos_embeddings)  
+                    lmk_loss_iter = iter_i
+                elif watch_once_lmloss :
+                    with torch.no_grad():  
+                        lmk_loss_output = self.compute_lmk_rep_loss(tgt_tokens, target_token_embeddings, target_bos_embeddings)  
+                else:
+                    lmk_loss_output = 0
+                lmk_loss_output_total+=lmk_loss_output
             
-            if self.do_lmk_loss :
-                lmk_loss_output, lmk_loss_factor = self.compute_lmk_rep_loss(tgt_tokens, target_token_embeddings, target_bos_embeddings)  
-            else :
-                with torch.no_grad():  
-                    lmk_loss_output, lmk_loss_factor = self.compute_lmk_rep_loss(tgt_tokens, target_token_embeddings, target_bos_embeddings)  
-                                              
+            lm_loss_output = lm_loss_output_total/(lm_loss_iter + 1)
+            lmk_loss_output = lmk_loss_output_total/(lmk_loss_iter + 1)                                 
             
             result.update(
                 {
@@ -488,7 +566,7 @@ class NATPretrainedModel(BaseFairseqModel):
                 {
                     "lmk": {
                         "loss": lmk_loss_output,
-                        "factor": lmk_loss_factor,
+                        "factor": self.lmk_loss_factor,
                         "loss_type": "LOSS",
                     }  
                 }                            
@@ -521,10 +599,9 @@ class NATPretrainedModel(BaseFairseqModel):
         return output    ### representation
          
     def forward_inference(self, src_tokens, tgt_tokens,src_lengths, alignments=None, update_num=None, **kwargs):
-        ###befor ctc_beam_decoding was adding###  
-        # logits, output_hidden_states, _= self.translation(src_tokens, src_lengths, **kwargs) 
-        # _scores, _tokens = F.log_softmax(logits, dim=-1).max(-1)
-        ###befor ctc_beam_decoding was adding###    
+        
+        if self.visualization :
+            self.visualize(src_tokens,tgt_tokens,src_lengths)
         
         if self.ctc_beam_decoding:
             # logits, output_hidden_states, rate, src_tokens_upsample = self.translation(src_tokens, src_lengths, **kwargs) 
@@ -616,30 +693,30 @@ class NATPretrainedModel(BaseFairseqModel):
         else:
             return F.softmax(logits, dim=-1)      
 
-        def compute_lm_loss(output_rep, logits, src_tokens, tgt_tokens, tgt_output_rep, reduce=True):
-            bs, rep_seq_len ,_= output_rep.size()
-            _, tgt_seq_len = tgt_tokens.size()
-            target = tgt_tokens.repeat(1, rep_seq_len).view(bs, rep_seq_len, tgt_seq_len)
-            bipart_no_pad = target.ne(self.pad)
-            src_no_pad = src_tokens.ne(self.pad)
-            bipart_lprobs = F.log_softmax(logits, dim=-1)
-            nll_loss = -bipart_lprobs.gather(dim=-1, index=target)#bs rep_seq_len tgt_seq_len
-            nll_loss = nll_loss * bipart_no_pad
+    def compute_lm_loss(self, output_rep, logits, src_tokens, tgt_tokens, tgt_output_rep, reduce=True):
+        bs, rep_seq_len ,_= output_rep.size()
+        _, tgt_seq_len = tgt_tokens.size()
+        target = tgt_tokens.repeat(1, rep_seq_len).view(bs, rep_seq_len, tgt_seq_len)
+        bipart_no_pad = target.ne(self.pad)
+        src_no_pad = src_tokens.ne(self.pad)
+        bipart_lprobs = F.log_softmax(logits, dim=-1)
+        nll_loss = -bipart_lprobs.gather(dim=-1, index=target)#bs rep_seq_len tgt_seq_len
+        nll_loss = nll_loss * bipart_no_pad
 
-            nll_loss_numpy = nll_loss.detach()
-            tgt_output_rep = tgt_output_rep.detach()
-            lm_loss = torch.zeros(1).to(src_tokens.device)
-            for batch_id in range(bs):
-                no_pad_num = bipart_no_pad[batch_id, 0].sum()
-                src_no_pad_num = src_no_pad[batch_id].sum()
-                output_tokens = logits[batch_id].argmax(-1)
-                output_tokens_blank_mask = output_tokens.eq(self.src_dict.bos()).view(-1,1).repeat(1,tgt_seq_len)
-                nll_loss_numpy_line = nll_loss_numpy[batch_id]
-                nll_loss_numpy_line = nll_loss_numpy_line.masked_fill_(output_tokens_blank_mask, float(10^8))
-                raw_index, col_index = lsa(nll_loss_numpy_line[:src_no_pad_num, :no_pad_num].cpu().numpy())
-                lm_loss = ((1 - F.cosine_similarity(output_rep[batch_id][raw_index], tgt_output_rep[batch_id][col_index])).mean())+ lm_loss
-                
-            return lm_loss/bs
+        nll_loss_numpy = nll_loss.detach()
+        tgt_output_rep = tgt_output_rep.detach()
+        lm_loss = torch.zeros(1).to(src_tokens.device)
+        for batch_id in range(bs):
+            no_pad_num = bipart_no_pad[batch_id, 0].sum()
+            src_no_pad_num = src_no_pad[batch_id].sum()
+            output_tokens = logits[batch_id].argmax(-1)
+            output_tokens_blank_mask = output_tokens.eq(self.src_dict.bos()).view(-1,1).repeat(1,tgt_seq_len)
+            nll_loss_numpy_line = nll_loss_numpy[batch_id]
+            nll_loss_numpy_line = nll_loss_numpy_line.masked_fill_(output_tokens_blank_mask, float(10^8))
+            raw_index, col_index = lsa(nll_loss_numpy_line[:src_no_pad_num, :no_pad_num].cpu().numpy())
+            lm_loss = ((1 - F.cosine_similarity(output_rep[batch_id][raw_index], tgt_output_rep[batch_id][col_index])).mean())+ lm_loss
+            
+        return lm_loss/bs
     
     def compute_lmk_rep_loss(self, tgt_tokens, target_token_embeddings, target_bos_embeddings):
         with torch.no_grad():
@@ -658,11 +735,11 @@ class NATPretrainedModel(BaseFairseqModel):
                             output_hidden_states=True, return_dict=True, 
                                 inputs_embeds=None)      
         hidden_states = output_translator['hidden_states'][-1]    
-        factor = 1
-            
-        output_lmk_loss = 1 - F.cosine_similarity(hidden_states, target_embeddings, dim=2).mean()*factor
+        
+          
+        output_lmk_loss = 1 - F.cosine_similarity(hidden_states, target_embeddings, dim=2).mean()*self.lmk_loss_factor
         # output_lmk_loss = F.mse_loss(hidden_states,target_embeddings,reduction='mean').type(self.translator.dtype)*factor
-        return output_lmk_loss, factor
+        return output_lmk_loss
         
         
         
@@ -892,7 +969,7 @@ class NATPretrainedModel(BaseFairseqModel):
                 upsampled =  torch.repeat_interleave(source, int(rate), dim=1)
                 return upsampled, rate
 
-    def translation(self, src_tokens, src_lengths, **kwargs):
+    def translation(self, src_tokens, src_lengths, upsampling_flag=True , **kwargs):
         bos_embeddings = None
         if self.use_pretrained_embedding :
             with torch.no_grad():
@@ -904,15 +981,19 @@ class NATPretrainedModel(BaseFairseqModel):
         else:       
         # forget to use bos to training
             bos = self.src_dict.bos() * torch.ones(src_tokens.shape[0], 1, dtype=torch.long, device=src_tokens.device)
-            src_tokens_upsample, rate = self.upsampling(src_tokens, self.num_upsampling_rate)
+            if upsampling_flag : 
+                src_tokens_upsample, rate = self.upsampling(src_tokens, self.num_upsampling_rate)
+            else :
+                src_tokens_upsample = src_tokens
+                rate = 1
             src_tokens_upsample = torch.cat((bos, src_tokens_upsample), dim=1)  
             attention_mask=src_tokens_upsample.ne(self.pad)
-            
-            if ~self.has_eos and ~self.training and ~self.no_atten_mask :  # if eos is padding in the old version and generate for large batch 
-                new_length = (src_lengths * rate).int() + 1  # +1 is for bos
-                B, L = src_tokens_upsample.shape
-                attention_mask = (torch.arange(0, L, dtype=torch.float32).unsqueeze(0).repeat(B, 1).to(src_tokens_upsample) < new_length.unsqueeze(-1))                
-
+            ###################
+            # if ~self.has_eos and ~self.training and ~self.no_atten_mask :  # if eos is padding in the old version and generate for large batch 
+            #     new_length = (src_lengths * rate).int() + 1  # +1 is for bos
+            #     B, L = src_tokens_upsample.shape
+            #     attention_mask = (torch.arange(0, L, dtype=torch.float32).unsqueeze(0).repeat(B, 1).to(src_tokens_upsample) < new_length.unsqueeze(-1))                
+            ###################
         
             position_ids = self.calculate_position_ids(src_tokens_upsample)
             
@@ -931,36 +1012,25 @@ class NATPretrainedModel(BaseFairseqModel):
         else:
             logits = output_translator['logits'][:,1:,:]    
         hidden_states = output_translator['hidden_states'][-1][:,1:,:]
-
-        #     if self.pretrained_model_name is not None:
-        #         if self.pretrained_model_name  == "distilbert-base-multilingual-cased" :
-        #            token_embeddings = self.translator.distilbert.embeddings.word_embeddings(src_tokens)
-        #         elif self.pretrained_model_name  == "bert-base-multilingual-uncased" :
-        #             token_embeddings = self.translator.bert.embeddings.word_embeddings(src_tokens)
-        #         elif self.pretrained_model_name  == "jhu-clsp/bibert-ende" :
-        #             token_embeddings = self.translator.roberta.embeddings.word_embeddings(src_tokens)
-        #         else:
-        #             import pdb;pdb.set_trace()
-        #             print ("Model Error")
-                
-        #     else:
-        #         token_embeddings = self.translator.sentence_encoder.embed_tokens(src_tokens) 
-        #         import pdb;pdb.set_trace()
-            
-        # translator_token_embedding = self.upsampling(token_embeddings, self.num_upsampling_rate)
-        # if bos_embeddings is not None:
-        #     translator_token_embedding = torch.cat((bos_embeddings, translator_token_embedding), dim=1)
-        # output_translator = self.translator.forward(input_ids = None, output_hidden_states=True, return_dict=True, 
-        #                             inputs_embeds=translator_token_embedding)
-        # logits = output_translator['logits']
-        # hidden_states = output_translator['hidden_states'][-1]
-        
-        # if bos_embeddings is not None :
-        #     logits = logits[:,1:,:]
-        #     hidden_states = hidden_states[:,1:,:]
         
         if self.ctc_beam_decoding:
             return logits, hidden_states, rate, src_tokens_upsample, attention_mask[:, 1:]        
+
+
+        # ###################
+        # import pdb;pdb.set_trace()
+        # path='/livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458'
+        # translator_config = AutoConfig.from_pretrained(os.path.join(path,"config.json"))
+        # translator = AutoModelForMaskedLM.from_pretrained(os.path.join(path,"pytorch_model.bin"), config=translator_config)
+        # output_ini = translator.forward(input_ids = src_tokens_upsample, 
+        #                         attention_mask=attention_mask,  #encoder_attention_mask=attention_mask,
+        #                         output_hidden_states=True, return_dict=True,position_ids=position_ids,
+        #                             inputs_embeds=None)
+        # logits_ini = output_ini['logits'][:,1:,:]    
+        # hidden_states_ini = output_ini['hidden_states'][-1][:,1:,:]         
+        
+        # return logits, hidden_states, logits_ini, hidden_states_ini
+        # ###################
 
         return logits, hidden_states , rate
     
@@ -1012,6 +1082,94 @@ class NATPretrainedModel(BaseFairseqModel):
             #     position_ids = torch.cat((position_ids,expad_position_ids), axis=1)
             # # valex              
         return position_ids
+    
+    def _random_mask(self, target_tokens, rate):
+        pad = self.tgt_dict.pad()
+        bos = self.tgt_dict.bos()
+        eos = self.tgt_dict.eos()
+        mask = self.mask
+        target_masks = (
+            target_tokens.ne(pad) & target_tokens.ne(bos) & target_tokens.ne(eos)
+        )
+        target_score = target_tokens.clone().float().uniform_()
+        target_score.masked_fill_(~target_masks, 2.0)
+        target_length = target_masks.sum(1).float()
+        target_length = target_length * target_length.clone().uniform_()*rate
+        target_length = target_length + 1  # make sure to mask at least one token.
+
+        _, target_rank = target_score.sort(1)
+        target_cutoff = new_arange(target_rank) < target_length[:, None].long()
+        prev_target_tokens = target_tokens.masked_fill(
+            target_cutoff.scatter(1, target_rank, target_cutoff), mask
+        )
+        return prev_target_tokens    
+    
+    def visualize(self, src_tokens, tgt_tokens, src_lengths):
+        # device = tgt_tokens.device
+        # bos = self.tgt_dict.bos() * torch.ones(tgt_tokens.shape[0], 1, dtype=torch.long, device=device)
+        # tgt_bos_tokens = torch.cat((bos, tgt_tokens), dim=1)      
+        # attention_mask=tgt_bos_tokens.ne(self.pad)  
+        # if self.no_atten_mask :
+        #     output_translator = self.translator.forward(input_ids = tgt_bos_tokens, 
+        #                         output_hidden_states=True, return_dict=True, 
+        #                             inputs_embeds=None)                 
+        # else:
+        #     output_translator = self.translator.forward(input_ids = tgt_bos_tokens, 
+        #                     attention_mask=attention_mask,  #encoder_attention_mask=attention_mask,
+        #                     output_hidden_states=True, return_dict=True, 
+        #                         inputs_embeds=None)     
+             
+        # tgt_hidden_states = output_translator['hidden_states'][-1]  
+        
+        pad_mask = (tgt_tokens != self.tgt_dict.pad()) & (
+                    tgt_tokens != self.tgt_dict.eos()) & (
+                    tgt_tokens != self.tgt_dict.bos())    
+        target_lengths = pad_mask.sum(-1)    
+        import pdb;pdb.set_trace() ##
+        tgt_logits, tgt_hidden_states, tgt_logits_ini, tgt_hidden_states_ini= self.translation(tgt_tokens, target_lengths, upsampling_flag=False) 
+        src_logits, src_hidden_states, src_logits_ini, src_hidden_states_ini= self.translation(src_tokens, src_lengths) 
+        tgt_translate_token = F.softmax(tgt_logits, dim=-1).argmax(-1)
+        src_translate_token = F.softmax(src_logits, dim=-1).argmax(-1)
+        tgt_translate_token_ini = F.softmax(tgt_logits_ini, dim=-1).argmax(-1)
+        src_translate_token_ini = F.softmax(src_logits_ini, dim=-1).argmax(-1)        
+        self.tgt_hidden_all=torch.cat((self.tgt_hidden_all,tgt_hidden_states.reshape(-1,768).cpu()),0)
+        self.src_hidden_all=torch.cat((self.src_hidden_all,src_hidden_states.reshape(-1,768).cpu()),0)
+        tgt_len=self.tgt_hidden_all.size(0)
+        import numpy as np
+        
+
+        
+        
+        all_hidden=torch.cat((self.tgt_hidden_all,self.src_hidden_all),0).cpu()
+        normalized_tensor = torch.nn.functional.normalize(all_hidden, dim=1)
+        print(normalized_tensor.size())
+        # Convert embeddings to numpy array
+        normalized_tensor_np = normalized_tensor.numpy()        
+        tsne = TSNE(n_components=3, perplexity=30, random_state=42)
+        tsne_embeddings = tsne.fit_transform(normalized_tensor_np)
+        
+        tsne = TSNE(n_components=3, perplexity=50, random_state=42)
+        tsne_embeddings_1 = tsne.fit_transform(normalized_tensor_np)        
+
+        # pca = PCA(n_components=2)
+        # pca_embeddings = pca.fit_transform(normalized_tensor_np)
+        
+        print("TSEN translation done")
+        tgt_len=self.tgt_hidden_all.size(0)
+        fig1, (ax1, ax2) = plt.subplots(nrows=2, ncols=1) # two axes on figure
+        # plt.figure(figsize=(10, 8))
+        ax1.scatter(tsne_embeddings[:tgt_len, 0], tsne_embeddings[:tgt_len, 1], tsne_embeddings[:tgt_len, 2], c='whitesmoke')
+        ax1.scatter(tsne_embeddings[tgt_len:, 0], tsne_embeddings[tgt_len:, 1], tsne_embeddings[tgt_len:, 2], c='oldlace')        
+        ax1.scatter(tsne_embeddings[:20, 0], tsne_embeddings[:20, 1], tsne_embeddings[:20, 2], c='red', marker='x')
+        ax1.scatter(tsne_embeddings[tgt_len:tgt_len+20, 0], tsne_embeddings[tgt_len:tgt_len+20, 1], tsne_embeddings[tgt_len:tgt_len+20, 2], c='blue', marker='x')
+        
+        ax2.scatter(tsne_embeddings_1[:tgt_len, 0], tsne_embeddings_1[:tgt_len, 1], tsne_embeddings_1[:tgt_len, 2], c='whitesmoke')
+        ax2.scatter(tsne_embeddings_1[tgt_len:, 0], tsne_embeddings_1[tgt_len:, 1], tsne_embeddings_1[tgt_len:, 2], c='oldlace')        
+        ax2.scatter(tsne_embeddings_1[:20, 0], tsne_embeddings_1[:20, 1], tsne_embeddings_1[:20, 2], c='red', marker='x')
+        ax2.scatter(tsne_embeddings_1[tgt_len:tgt_len+20, 0], tsne_embeddings_1[tgt_len:tgt_len+20, 1], tsne_embeddings_1[tgt_len:tgt_len+20, 2], c='blue', marker='x')            
+        plt.savefig('checkpoints/m-8-3-3-K12-UF20M-test/plot_tsne' + str(tgt_len) + '.png', dpi=300, bbox_inches='tight')
+        
+                
              
 
 @register_model_architecture(
@@ -1067,7 +1225,7 @@ def base_architecture(args):
     args.init_reorder  = safe_getattr( args, "init_reorder", False )
     args.lm_loss  = safe_getattr( args, "lm_loss", False )
     args.lmk_loss  = safe_getattr( args, "lmk_loss", False )
-    # args.lm_loss_dis  = safe_getattr( args, "lm_loss_dis", False )
+    args.lm_loss_dis  = safe_getattr( args, "lm_loss_dis", False )
     args.lm_head_frozen  = safe_getattr( args, "lm_head_frozen", False )
     args.embedding_frozen  = safe_getattr( args, "embedding_frozen", False )
     args.lm_loss_self  = safe_getattr( args, "lm_loss_self", False )
@@ -1087,8 +1245,10 @@ def base_architecture(args):
     args.no_atten_mask = safe_getattr(args, "no_atten_mask", False )
     args.debug = safe_getattr(args, "debug", False )
     args.has_eos = safe_getattr(args, "has_eos", False )
-    
-    
+    args.visualization = safe_getattr(args, "visualization", False )
+    args.lm_random_mask = safe_getattr(args, "lm_random_mask", False )
+    args.lm_iter_num = safe_getattr(args, "lm_iter_num", 1 )
+    args.watch_lm_loss = safe_getattr(args, "watch_lm_loss", False)
     
 
 

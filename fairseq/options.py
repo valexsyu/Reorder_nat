@@ -55,6 +55,16 @@ def get_generation_parser(interactive=False, default_task="translation"):
         add_interactive_args(parser)
     return parser
 
+def get_visualization_parser(interactive=False, default_task="translation"):
+    parser = get_parser("Visualization", default_task)
+    add_dataset_args(parser, gen=True)
+    add_distributed_training_args(parser, default_world_size=1)
+    add_generation_args(parser)
+    add_checkpoint_args(parser)
+    if interactive:
+        add_interactive_args(parser)
+    return parser
+
 
 def get_speech_generation_parser(default_task="text_to_speech"):
     parser = get_parser("Speech Generation", default_task)

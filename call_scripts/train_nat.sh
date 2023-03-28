@@ -415,7 +415,7 @@ function default_setting() {
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos,wandb-team-id:,lm-iter-num: -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos,wandb-team-id:,lm-iter-num:,watch-lm-loss -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -517,7 +517,11 @@ while [ : ]; do
     --has-eos)
       has_eos=True
       shift 1
-      ;;                            
+      ;;    
+    --watch-lm-loss)
+      watch_lm_loss=True
+      shift 1
+      ;;                                      
     --) shift; 
         break
   esac
@@ -630,6 +634,13 @@ if [ "$lm_random_mask" = "True" ]
 then
     BOOL_COMMAND+=" --lm-random-mask"
 fi 
+
+
+if [ "$watch_lm_loss" = "True" ]
+then
+    BOOL_COMMAND+=" --watch-lm-loss"
+fi 
+
 
 
 if [ ! -d "checkpoints" ]; then

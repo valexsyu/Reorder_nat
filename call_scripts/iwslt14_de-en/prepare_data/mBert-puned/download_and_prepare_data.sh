@@ -42,3 +42,7 @@ done
 cp /home/valexsyu/Doc/NMT/Reorder_nat/data/mbert/pruned_models_BertModel/pruned_V26458/vocab.txt $TOKEN_PATH/src_vocab.txt
 cp $VOC_8k_MODEL/vocab.txt  $TOKEN_PATH/tgt_vocab.txt
 
+
+
+
+

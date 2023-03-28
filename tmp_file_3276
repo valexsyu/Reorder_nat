@@ -1,0 +1,17 @@
+o-C-1-3-K12-UF20M
+========================================================
+List of experiments:
+	o-C-1-3-K12-UF20M
+=========================No.1  ID:o-C-1-3-K12-UF20M==============================
+Namespace(checkpoint_upper_bound=None, ckpref='checkpoints.best_bleu', inputs=['checkpoints/o-C-1-3-K12-UF20M'], num_epoch_checkpoints=5, num_update_checkpoints=None, output='checkpoints/o-C-1-3-K12-UF20M/checkpoint_best_top5.pt')
+averaging checkpoints:  ['checkpoints/o-C-1-3-K12-UF20M/checkpoint.best_bleu_44.6304.pt', 'checkpoints/o-C-1-3-K12-UF20M/checkpoint.best_bleu_44.5604.pt', 'checkpoints/o-C-1-3-K12-UF20M/checkpoint.best_bleu_44.5100.pt', 'checkpoints/o-C-1-3-K12-UF20M/checkpoint.best_bleu_44.4901.pt', 'checkpoints/o-C-1-3-K12-UF20M/checkpoint.best_bleu_44.4400.pt']
+Finished writing averaged checkpoint to checkpoints/o-C-1-3-K12-UF20M/checkpoint_best_top5.pt
+Checkpoint : checkpoints/o-C-1-3-K12-UF20M	  Batchsize : 50
+Loading an exist vocab file /livingrooms/valexsyu/dataset/nat/iwslt14_de_en_bibertDist_xlmr_pruned21785/de-en-databin/dict.de.txt to confirm the ids of speical tokens.
+<s> 0 </s> 2 <pad> 1 <unk> 3
+Loading an exist vocab file /livingrooms/valexsyu/dataset/nat/iwslt14_de_en_bibertDist_xlmr_pruned21785/de-en-databin/dict.en.txt to confirm the ids of speical tokens.
+<s> 0 </s> 2 <pad> 1 <unk> 3
+Loading an exist vocab file /livingrooms/valexsyu/dataset/nat/iwslt14_de_en_bibertDist_xlmr_pruned21785/de-en-databin/dict.de.txt to confirm the ids of speical tokens.
+<s> 0 </s> 2 <pad> 1 <unk> 3
+Loading an exist vocab file /livingrooms/valexsyu/dataset/nat/iwslt14_de_en_bibertDist_xlmr_pruned21785/de-en-databin/dict.en.txt to confirm the ids of speical tokens.
+<s> 0 </s> 2 <pad> 1 <unk> 3

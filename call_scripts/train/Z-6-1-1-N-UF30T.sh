@@ -1,1 +1,0 @@
-hrun -s -c 8 -m 30 -N s02 -GG -t 10-0 bash call_scripts/train_nat.sh -e  Z-6-1-1-N-UF30T --fp16 -g 2 --save-interval-updates 10000 --max-update 100000 --lm-start-step 75000 --max-tokens 2048 -b 65536 --no-atten-mask --has-eos

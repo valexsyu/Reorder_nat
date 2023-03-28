@@ -70,7 +70,14 @@ class NATEncoderGenerator(object):
             tgt_dict.add_symbol(self.blank_symbol)             
             src_dict.add_symbol(self.blank_symbol)     
 
-        # self.symbols_to_strip_from_output = [10160]  
+        try :
+            self.mask = src_dict.indices["[MASK]"]
+        except:
+            self.mask = src_dict.indices["<mask>"]
+        
+        ## valex : Remove the mask token to avoid predicting the mask while 
+        ##         using the mask token to be the blank token.        
+        self.symbols_to_strip_from_output = [self.mask]  
 
         self.blank_idx = (
             tgt_dict.index(task.blank_symbol)

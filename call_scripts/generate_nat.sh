@@ -152,9 +152,9 @@ function get_dataset() {
     elif [ "$i" = "n" ]
     then
         dataset="iwslt14_de_en_bibertDist_mbert_pruned26458_8k"    
-    elif [ "$i" = "z" ]
+    elif [ "$i" = "o" ]
     then
-        dataset="iwslt14_de_en_bibertDist_mbert_pruned26458-test"                                                                          
+        dataset="iwslt14_de_en_bibertDist_xlmr_pruned21785"                                                                       
     else        
         echo "error dataset id "
         exit 1
@@ -218,7 +218,14 @@ function get_pretrain_model() {
         pretrained_model_name="bert-base-multilingual-uncased"
         bpe="bibert"    
         pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/ 
-        pretrained_model_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/                       
+        pretrained_model_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/    
+    elif [ "$i" = "C" ]
+    then
+        pretrained_model="xlmr"
+        pretrained_model_name="xlm-roberta-base"
+        bpe="xlmr"    
+        pretrained_lm_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/ 
+        pretrained_model_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/                             
     else
         echo "error pretrained model id "
         exit 1
@@ -260,6 +267,13 @@ function get_voc() {
     elif [ "$i" = "3" ]
     then
         voc="3"
+    elif [ "$i" = "4" ]
+    then
+        voc="4"       
+
+    elif [ "$i" = "5" ]
+    then
+        voc="5"             
     else
         echo "error voc id "
         exit 1
@@ -292,7 +306,21 @@ function get_kd_model() {
             lm_loss_dis=False
             lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
             lm_loss=True     
-            lmk_loss=True                     
+            lmk_loss=True    
+        elif [ $(echo $i | cut -c 1) = "A" ]
+        then
+            lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
+            lm_loss_dis=False
+            lm_loss=True     
+            lmk_loss=False 
+            lm_random_mask=True   
+        elif [ $(echo $i | cut -c 1) = "B" ]
+        then
+            lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
+            lm_loss_dis=False
+            lm_loss=True     
+            lmk_loss=True 
+            lm_random_mask=True                               
         else
             echo "error kd model id "
             exit 1
@@ -339,6 +367,10 @@ function get_ctc() {
         T)
             insert_mask=False
             ;;
+        B)
+            insert_mask=True
+            blank_use_mask=True
+            ;;               
         *) 
             echo "insert_mask is wrong id"
             exit 1    
@@ -369,6 +401,9 @@ function default_setting() {
     local=False
     skip_load_step_num=False
     sacrebleu=False
+    blank_use_mask=False
+    visualization=False
+    lm_random_mask=False
     
 }
 
@@ -388,7 +423,7 @@ function avg_lastk_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile,avg-speed:,skip-load-step-num,sacrebleu -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile,avg-speed:,skip-load-step-num,sacrebleu,visualization -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -410,6 +445,7 @@ while [ : ]; do
       ;;     
     --local)
       dataroot="../../dataset/nat"
+      modelroot="../../dataset/model"
       local=True
       shift 1
       ;;       
@@ -453,7 +489,11 @@ while [ : ]; do
     --avg-speed)
       avg_speed="$2"
       shift 2
-      ;;  
+      ;; 
+    --visualization)
+      visualization=True
+      shift 1
+      ;;         
     --data-subset)
         case $2 in 
             test)
@@ -573,9 +613,8 @@ fi
 # CHECK_TYPES=("last" "best" "best_top$TOPK")
 ARCH=nat_pretrained_model
 CRITERION=nat_ctc_loss
-TASK=translation_align_reorder
 CHECKPOINTS_PATH=checkpoints
-
+TASK=translation_align_reorder
 if [ "$load_exist_bleu" = "False" ]; then 
     for i in "${!exp_array[@]}"; do 
         experiment_id=${exp_array[$i]}
@@ -646,10 +685,23 @@ if [ "$load_exist_bleu" = "False" ]; then
         then
             BOOL_COMMAND+=" --no-atten-mask"
         fi           
+        if [ "$blank_use_mask" = "True" ]
+        then
+            BOOL_COMMAND+=" --blank-use-mask"
+        fi 
+        if [ "$visualization" = "True" ]
+        then
+            BOOL_COMMAND+=" --visualization"
+        fi
+
+        if [ "$lm_random_mask" = "True" ]
+        then
+            BOOL_COMMAND+=" --lm-random-mask"
+        fi 
 
         if [ "$avg_ck_turnoff" = "False" ]; then
             avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
-            avg_lastk_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_last$TOPK.pt
+            # avg_lastk_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_last$TOPK.pt
         fi
         
 

@@ -64,14 +64,157 @@ conda activate base
 #                                --g 1 --fp16
 
 
-bash call_scripts/train_nat.sh -e m-8-1-1-K12-UR40M-AutoModelForMaskedLM-randPos  \
-                               --save-interval-updates 70000 --max-tokens 3072 \
-                               --has-eos --max-update 100000 --lm-start-step 75000 \
-                               --g 1 --fp16
+# bash call_scripts/train_nat.sh -e m-8-1-1-K12-UR40M-AutoModelForMaskedLM-randPos  \
+#                                --save-interval-updates 70000 --max-tokens 3072 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 1 --fp16
+
+
+# bash call_scripts/train_nat.sh -e m-8-4-1-K12-UR40M-AutoModelForMaskedLM-randPos  \
+#                                --save-interval-updates 70000 --max-tokens 3072 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16
+
+
+# bash call_scripts/train_nat.sh -e m-8-3-3-K12-UF20B \
+#                                --save-interval-updates 70000 --max-tokens 4096 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16
+
+# bash call_scripts/train_nat.sh -e m-8-4-3-K12-UF20B \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16
+
+# bash call_scripts/train_nat.sh -e m-8-3-4-K12-UR40B \
+#                                --save-interval-updates 70000 --max-tokens 3072 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16
+
+# bash call_scripts/train_nat.sh -e m-8-2-4-K12-UR40B \
+#                                --save-interval-updates 70000 --max-tokens 3072 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16
+
+
+# bash call_scripts/train_nat.sh -e m-8-4-4-K12-UR40B \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 1 --fp16
+
+
+# bash call_scripts/train_nat.sh -e m-8-3-5-K12-UR40B \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 1 --fp16
+
+# bash call_scripts/train_nat.sh -e m-8-1-5-K12-UR40B \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 1 --fp16
+
+
+# bash call_scripts/train_nat.sh -e m-8-2-5-K12-UR40B \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 1 --fp16
+
+# bash call_scripts/train_nat.sh -e m-8-4-5-K12-UR40B \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 1 --fp16                               
+
+
+# bash call_scripts/train_nat.sh -e m-8-3-5-K12-UR40B-dp001  \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 1 --fp16 --dropout 0.01
+
+
+# #7
+# bash call_scripts/train_nat.sh -e m-8-3-5-K12-UR40B-dp02 \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 1 --fp16 --dropout 0.2
+
+
+
+# #8
+# bash call_scripts/train_nat.sh -e m-8-1-5-K12-UR40B-dp02 \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 1 --fp16 --dropout 0.2
+
+
+
+# #9
+# bash call_scripts/train_nat.sh -e m-8-1-5-K12-UR40B-dp001 \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+                               --g 1 --fp16 --dropout 0.01
+
+
+# #1
+# bash call_scripts/train_nat.sh -e o-C-2-1-H12-UF20M \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16
+
+
+# #2
+# bash call_scripts/train_nat.sh -e o-C-2-1-K12-UF20M \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16
+
+# #3
+# bash call_scripts/train_nat.sh -e o-C-2-3-K12-UF20M \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16
+
+# #4
+# bash call_scripts/train_nat.sh -e o-C-2-4-K12-UF20M \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16  
+
+
+# #5
+# bash call_scripts/train_nat.sh -e o-C-4-3-K12-UF20M \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16
+
+# #6
+# bash call_scripts/train_nat.sh -e o-C-4-4-K12-UF20M \
+#                                --save-interval-updates 70000 --max-tokens 6144 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 2 --fp16  
+
+
+
+#1
+bash call_scripts/train_nat.sh -e m-8-1-1-A12-UF20M-lm5 \
+                            --save-interval-updates 70000 --max-tokens 6144 \
+                            --has-eos --max-update 100000 --lm-start-step 75000 \
+                            --lm-iter-num 5 \
+                            -g 1 --fp16  
+
+
+#2
+bash call_scripts/train_nat.sh -e m-B-3-1-A12-UF20M-lm5 \
+                            --save-interval-updates 70000 --max-tokens 6144 \
+                            --has-eos --max-update 100000 --lm-start-step 75000 \
+                            --lm-iter-num 5 \
+                            -g 1 --fp16  
+
+
+
+
 
 
 echo done
-
 
 
 

@@ -1,8 +1,8 @@
-MODEL_NAME=bert-base-multilingual-uncased
-INPUT_PATH=../../data/nat_position_reorder/awesome/Bibert_detoken_distill_iwslt14_de_en
+# MODEL_NAME=bert-base-multilingual-uncased
+INPUT_PATH=data/nat_position_reorder/awesome/iwslt14_de_en_detoken
 # echo 'Cloning Moses github repository (for tokenization scripts)...'
 # git clone https://github.com/moses-smt/mosesdecoder.gits
-SCRIPTS=mosesdecoder/scripts
+SCRIPTS=call_scripts/tool/mosesdecoder/scripts
 
 
 ## de-mose data

@@ -29,8 +29,69 @@ conda activate base
 #                                         -e m-8-1-1-K12-UF20M-AutoModelForMaskedLM \
 #                                         -e m-8-3-1-K12-UF20M-AutoModelForMaskedLM
 
-bash call_scripts/generate_nat.sh -b 50 --data-subset test --avg-speed 1 --ck-types top  \
-                                        --avg-ck-turnoff \
-                                        -e m-8-1-1-K12-UF20M-AutoModelForMaskedLM-randPos \
-                                        -e m-8-3-1-K12-UF20M-AutoModelForMaskedLM-randPos
+#  --avg-ck-turnoff \
+# bash call_scripts/generate_nat.sh -b 100 --data-subset test --avg-speed 1 --ck-types top  \
+#                                         -e m-8-1-1-K12-UF20M-AutoModelForMaskedLM \
+#                                         -e m-8-1-1-K12-UF20M-AutoModelForMaskedLM-randPos \
+#                                         -e m-8-1-1-K12-UR40M-AutoModelForMaskedLM-randPos \
+#                                         -e m-8-1-3-K12-UF20B \
+#                                         -e m-8-1-4-K12-UF20B \
+#                                         -e m-8-1-4-K12-UF20B \
+#                                         -e m-8-1-4-K12-UR40B \
+#                                         -e m-8-2-1-K12-UF20M-AutoModelForMaskedLM-randPos \
+#                                         -e m-8-2-1-K12-UR40M-AutoModelForMaskedLM-randPos \
+#                                         -e m-8-2-3-K12-UF20B \
+#                                         -e m-8-2-4-K12-UF20B \
+#                                         -e m-8-2-4-K12-UR40B \
+#                                         -e m-8-3-1-K12-UF20M-AutoModelForMaskedLM \
+#                                         -e m-8-3-1-K12-UF20M-AutoModelForMaskedLM-randPos \
+#                                         -e m-8-3-1-K12-UR40M-AutoModelForMaskedLM-randPos \
+#                                         -e m-8-3-3-K12-UF20B \
+#                                         -e m-8-3-4-K12-UF20B \
+#                                         -e m-8-3-4-K12-UR40B \
+#                                         -e m-8-4-1-K12-UF20M-AutoModelForMaskedLM-randPos \
+#                                         -e m-8-4-1-K12-UR40M-AutoModelForMaskedLM-randPos \
+#                                         -e m-8-4-3-K12-UF20B \
+#                                         -e m-B-1-1-K12-UF20M-AutoModelForMaskedLM-randPos 
+
+# bash call_scripts/generate_nat.sh -b 100 --data-subset test --avg-speed 1 --ck-types top  \
+#                                         -e m-8-2-5-K12-UF20M \
+#                                         -e m-8-2-5-K12-UF20B \
+#                                         -e m-8-1-4-K12-UF20M \
+#                                         -e m-8-2-4-K12-UF20M \
+#                                         -e m-8-3-4-K12-UF20M \
+#                                         -e m-8-2-1-H12-UF20M \
+#                                         -e m-8-4-1-H12-UF20M \
+#                                         -e m-8-3-1-H12-UF20M-dp001 \
+#                                         -e m-8-3-1-K12-UF20M-dp001 \
+#                                         -e m-8-3-3-K12-UF20M-dp001 \
+#                                         -e m-8-1-5-K12-UR40B \
+#                                         -e m-8-2-5-K12-UR40B \
+#                                         -e m-8-4-5-K12-UF20B \
+#                                         -e m-8-4-5-K12-UF20M
+
+
+
+# bash call_scripts/generate_nat.sh -b 100 --data-subset test  --avg-ck-turnoff \
+#                        --ck-types top --avg-speed 1 \
+#                         -e m-8-1-3-K12-UF20M-test --visualization                                        
+                                    
+
+
+bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+                        -b 100 \
+                        -e m-8-1-1-A12-UF20M \
+                        -e m-8-1-1-B12-UF20M \
+                        -e m-8-1-3-B12-UF20M \
+                        -e m-8-1-3-A12-UF20M
+
+
+
+
+
+
+
+
+
+
 
