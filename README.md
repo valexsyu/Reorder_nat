@@ -27,7 +27,7 @@ bash call_scripts/train_nat.sh -e m-8-1-1-H12-UF20M-YOUR-TEST-ID \
                                --save-interval-updates 70000 --max-tokens 2048 \
                                --has-eos --max-update 100000 --lm-start-step 75000 \
                                --wandb-team-id sp-111-2 \
-                               --g 1 --fp16
+                               -g 1 --fp16
 ```
 
 

@@ -330,7 +330,6 @@ function get_kd_model() {
     fi
 }
 
---lm-random-mask
 
 function get_ctc() {
     i=$(echo $1 | cut -d - -f 6)
@@ -410,12 +409,13 @@ function default_setting() {
     blank_use_mask=False
     lm_random_mask=False
     wandb_team_id=valex-jcx
+    lm_iter_num=1
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos,--wandb-team-id: -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos,wandb-team-id:,lm-iter-num: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -493,7 +493,11 @@ while [ : ]; do
     --wandb-team-id)
       wandb_team_id="$2"
       shift 2
-      ;;           
+      ;;    
+    --lm-iter-num)
+      lm_iter_num="$2"
+      shift 2
+      ;;                         
     --no-atten-mask)
       no_atten_mask=True
       shift 1
@@ -665,6 +669,7 @@ DROPOUT=$dropout
 LM_START_STEP=$lm_start_step
 WARMUP_UPDATES=$warmup_updates
 VOC_CHOOSEN=$voc
+LM_ITER_NUM=$lm_iter_num
 
 
 "  > $CHECKPOINT/temp.sh
@@ -708,6 +713,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --insert-position $INSERT_POSITION \
     --train-subset $TRAIN_SUBSET \
     --voc-choosen $VOC_CHOOSEN \
+    --lm-iter-num $LM_ITER_NUM \
     --pretrained-lm-path $PRETRAINED_LM_PATH --pretrained-model-path $PRETRAINED_MODEL_PATH \
 endmsg
 
