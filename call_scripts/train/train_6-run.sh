@@ -194,50 +194,186 @@ conda activate base
 #                                --g 2 --fp16                                
 
 
-#1
-bash call_scripts/train_nat.sh -e m-8-1-3-A12-UF20M \
-                                --save-interval-updates 70000 --max-tokens 6144 \
-                                --has-eos --max-update 100000 --lm-start-step 75000 \
-                                -g 2 --fp16                                
+# #1
+# bash call_scripts/train_nat.sh -e m-8-1-3-A12-UF20M \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 -g 2 --fp16                                
 
 
-#2
-bash call_scripts/train_nat.sh -e m-8-3-3-A12-UF20M \
-                                --save-interval-updates 70000 --max-tokens 6144 \
-                                --has-eos --max-update 100000 --lm-start-step 75000 \
-                                -g 2 --fp16                                
-
-
-#3
-bash call_scripts/train_nat.sh -e m-B-3-1-B12-UF20M-lm5 \
-                            --save-interval-updates 70000 --max-tokens 4096 \
-                            --has-eos --max-update 100000 --lm-start-step 75000 \
-                            --lm-iter-num 5 --watch-lm-loss \
-                            -g 2 --fp16 
-
-
-#4
-bash call_scripts/train_nat.sh -e m-B-1-3-B12-UF20B \
-                            --save-interval-updates 70000 --max-tokens 6144 \
-                            --has-eos --max-update 100000 --lm-start-step 75000 \
-                            --lm-iter-num 1 \
-                            -g 2 --fp16 
+# #2
+# bash call_scripts/train_nat.sh -e m-8-3-3-A12-UF20M \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 -g 2 --fp16                                
 
 
 
+# #3
+# bash call_scripts/train_nat.sh -e m-B-3-1-B12-UF20M-lm5 \
+#                             --save-interval-updates 70000 --max-tokens 3072 \
+#                             --has-eos --max-update 100000 --lm-start-step 75000 \
+#                             --lm-iter-num 5 --watch-lm-loss \
+#                             -g 2 --fp16 
+
+# #4
+# bash call_scripts/train_nat.sh -e m-B-1-3-B12-UF20B \
+#                             --save-interval-updates 70000 --max-tokens 6144 \
+#                             --has-eos --max-update 100000 --lm-start-step 75000 \
+#                             --lm-iter-num 1 \
+#                             -g 2 --fp16 
+
+
+# #5
+# bash call_scripts/train_nat.sh -e m-B-3-1-C12-UF20M-lm5x015 \
+#                                 --save-interval-updates 70000 --max-tokens 3072 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --lm-iter-num 5 --lm-mask-rate 0.15 \
+#                                 -g 2 --fp16 
+
+# #6
+# bash call_scripts/train_nat.sh -e m-B-3-1-A12-UF20M-lmx015 \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --lm-mask-rate 0.15 \
+#                                 -g 2 --fp16                                 
+
+# #  #7
+# bash call_scripts/train_nat.sh -e m-B-3-1-A12-UF20M-lm5x015 \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --lm-iter-num 5 --lm-mask-rate 0.15 \
+#                                 -g 2 --fp16 
+
+# #8
+# bash call_scripts/train_nat.sh -e m-B-3-3-B12-UF20M-lmx015 \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --lm-mask-rate 0.15 \
+#                                 -g 2 --fp16                                 
+
+# #9
+# bash call_scripts/train_nat.sh -e m-B-3-3-B12-UF20B-lmx015 \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --lm-mask-rate 0.15 \
+#                                 -g 2 --fp16          
+
+
+
+# function recoder_7k_best5() {
+#     experiment_1=$1
+#     batch_size=$2
+#     max_token=$3
+#     gpu=$4
+#     bash call_scripts/train_nat.sh \
+#             -e $experiment_1 --fp16 -g 2 \
+#             --save-interval-updates 70000 --max-update 70000 --lm-start-step 75000 \
+#             --lm-mask-rate 0.15 \
+#             --max-tokens $max_token -b $batch_size -g $gpu
+#     mkdir checkpoints/$experiment_1/top5_70000steps    
+#     cp checkpoints/$experiment_1/checkpoint.best_bleu_*  checkpoints/$experiment_1/top5_70000steps
+
+#     bash call_scripts/train_nat.sh \
+#             -e $experiment_1 --fp16 -g 2 \
+#             --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 \
+#             --lm-mask-rate 0.15 \
+#             --max-tokens $max_token -b $batch_size -g $gpu
+# }
+
+
+
+
+# #iwslt en-de
+# recoder_7k_best5 2-2-1-3-B12-UD25B-lmx015 12288 3072 2
+
+# #iwslt en-de
+# recoder_7k_best5 2-2-2-3-B12-UD25B-lmx015 12288 3072 2
+
+
+# #iwslt en-de
+# recoder_7k_best5 2-2-3-3-B12-UR40B-lmx015 12288 2048 2
 
 
 
 
 
-bash
+# #4
+# bash call_scripts/train_nat.sh -e m-B-1-3-C12-UF20M-lm5 \
+#                            --save-interval-updates 70000 --max-tokens 4096 \
+#                            --has-eos --max-update 100000 --lm-start-step 75000 \
+#                            --lm-iter-num 5 \
+#                            -g 2 --fp16  
 
 
 
 
+function recoder_7k_best5() {
+    experiment_1=$1
+    batch_size=$2
+    max_token=$3
+    gpu=$4
+    bash call_scripts/train_nat.sh \
+            -e $experiment_1 --fp16 -g 2 \
+            --save-interval-updates 70000 --max-update 70000 --lm-start-step 75000 \
+            --lm-mask-rate 0.15 \
+            --max-tokens $max_token -b $batch_size -g $gpu
+    mkdir checkpoints/$experiment_1/top5_70000steps    
+    cp checkpoints/$experiment_1/checkpoint.best_bleu_*  checkpoints/$experiment_1/top5_70000steps
+
+    bash call_scripts/train_nat.sh \
+            -e $experiment_1 --fp16 -g 2 \
+            --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 \
+            --lm-mask-rate 0.15 \
+            --max-tokens $max_token -b $batch_size -g $gpu
+}
+
+
+# #5
+# #iwslt en-de
+# recoder_7k_best5 2-2-1-3-B12-UD25M-lmx015 12288 3072 2
+
+# #6
+# recoder_7k_best5 m-B-1-3-C12-UF20M-lmx015 12288 6144 2
+
+
+# #7
+# recoder_7k_best5 m-B-3-3-C12-UF20M-lmx015 12288 6144 2
+
+
+# #8
+# bash call_scripts/train_nat.sh -e 2-2-1-3-B12-UD25M-eos \
+#                                 --save-interval-updates 70000 --max-tokens 3072 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 -g 2 --fp16  
 
 
 
 
+# bash call_scripts/train_nat.sh -e m-B-3-3-N-UF60M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 1 --fp16   
 
+# bash call_scripts/train_nat.sh -e m-B-3-3-N-UF70M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 1 --fp16                                   
+
+
+# bash call_scripts/train_nat.sh -e 2-2-1-1-H12-UF20M-lmx015-rate-pred \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --lm-mask-rate 0.15 \
+#                                 --arch ctcpmlm_rate_pred \
+#                                 -g 1 --fp16   
+
+
+
+bash call_scripts/train_nat.sh -e m-B-3-1-N-UF60M-Ltest \
+                                --save-interval-updates 70000 --max-tokens 2048 \
+                                --has-eos --max-update 100000 \
+                                -g 1 --fp16   
                                                      
+
+

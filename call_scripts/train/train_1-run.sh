@@ -234,36 +234,180 @@ conda activate base
 #                                --g 2 --fp16  
 
 
- #1
- bash call_scripts/train_nat.sh -e m-8-1-1-A12-UF20M \
-                                --save-interval-updates 70000 --max-tokens 6144 \
-                                --has-eos --max-update 100000 --lm-start-step 75000 \
-                                -g 2 --fp16 
+#  #1
+#  bash call_scripts/train_nat.sh -e m-8-1-1-A12-UF20M \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 -g 2 --fp16 
 
 
 
- #2
- bash call_scripts/train_nat.sh -e m-8-3-1-A12-UF20M \
-                                --save-interval-updates 70000 --max-tokens 6144 \
-                                --has-eos --max-update 100000 --lm-start-step 75000 \
-                                -g 2 --fp16 
+#  #2
+#  bash call_scripts/train_nat.sh -e m-8-3-1-A12-UF20M \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 -g 2 --fp16 
 
 
-#3
-bash call_scripts/train_nat.sh -e m-B-1-1-B12-UF20M-lm5 \
-                            --save-interval-updates 70000 --max-tokens 4096 \
-                            --has-eos --max-update 100000 --lm-start-step 75000 \
-                            --lm-iter-num 5 --watch-lm-loss \
-                            -g 2 --fp16 
+
+# #3
+# bash call_scripts/train_nat.sh -e m-B-1-1-B12-UF20M-lm5 \
+#                             --save-interval-updates 70000 --max-tokens 3072 \
+#                             --has-eos --max-update 100000 --lm-start-step 75000 \
+#                             --lm-iter-num 5 --watch-lm-loss \
+#                             -g 2 --fp16 
+
+
+# #4
+# bash call_scripts/train_nat.sh -e m-B-1-3-B12-UF20M-lm5 \
+#                             --save-interval-updates 70000 --max-tokens 3072 \
+#                             --has-eos --max-update 100000 --lm-start-step 75000 \
+#                             --lm-iter-num 5 \
+#                             -g 2 --fp16 
+
+
+
+# #5
+# bash call_scripts/train_nat.sh -e m-B-1-1-C12-UF20M-lm5x015 \
+#                                 --save-interval-updates 70000 --max-tokens 3072 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --lm-iter-num 5 --lm-mask-rate 0.15 \
+#                                 -g 2 --fp16 
+
+
+
+# #  #6
+# bash call_scripts/train_nat.sh -e m-B-1-1-A12-UF20M-lmx015 \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --lm-mask-rate 0.15 \
+#                                 -g 2 --fp16 
+
+# #  #7
+# bash call_scripts/train_nat.sh -e m-B-1-1-A12-UF20M-lm5x015 \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --lm-iter-num 5 --lm-mask-rate 0.15 \
+#                                 -g 2 --fp16 
+
+
+
+
+
+# function recoder_7k_best5() {
+#     experiment_1=$1
+#     batch_size=$2
+#     max_token=$3
+#     gpu=$4
+#     bash call_scripts/train_nat.sh \
+#             -e $experiment_1 --fp16 -g 2 \
+#             --save-interval-updates 70000 --max-update 70000 --lm-start-step 75000 \
+#             --lm-mask-rate 0.15 \
+#             --max-tokens $max_token -b $batch_size -g $gpu
+#     mkdir checkpoints/$experiment_1/top5_70000steps    
+#     cp checkpoints/$experiment_1/checkpoint.best_bleu_*  checkpoints/$experiment_1/top5_70000steps
+
+#     bash call_scripts/train_nat.sh \
+#             -e $experiment_1 --fp16 -g 2 \
+#             --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 \
+#             --lm-mask-rate 0.15 \
+#             --max-tokens $max_token -b $batch_size -g $gpu
+# }
+
+
+
+# #1
+# #iwslt en-de 
+# recoder_7k_best5 K-2-3-3-B12-UD25B-lmx015 12288 3072 2
+# #2
+# #wmt14 en-de
+# recoder_7k_best5 Z-2-3-3-B12-UD25B-lmx015 65536 3072 2
+
+# #3
+# #iwslt en-de 
+# recoder_7k_best5 K-2-3-3-B12-UD25M-lmx015 12288 3072 2
 
 #4
-bash call_scripts/train_nat.sh -e m-B-1-3-B12-UF20M-lm5 \
-                            --save-interval-updates 70000 --max-tokens 4096 \
-                            --has-eos --max-update 100000 --lm-start-step 75000 \
-                            --lm-iter-num 5 \
-                            -g 2 --fp16 
+#iwslt en-de
+# recoder_7k_best5 2-2-3-3-B12-UR40M-lmx015 12288 3072 1
 
 
+# #5
+# bash call_scripts/train_nat.sh -e p-B-3-3-B12-UF20M-lmx015-optini \
+#                                 --save-interval-updates 70000 --max-tokens 6144 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --lm-mask-rate 0.15 \
+#                                 -g 2 --fp16    
+# --reset-dataloader --reset-lr-scheduler --reset-meters --reset-optimizer \
 
-bash
+
+# bash call_scripts/train_nat.sh -e m-B-3-3-N-UF20M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 2 --fp16    
+
+# bash call_scripts/train_nat.sh -e m-B-3-3-N-UF30M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 1 --fp16    
+
+
+# bash call_scripts/train_nat.sh -e 1-1-1-1-H12-UF20M-eos \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 2 --fp16  
+
+
+# function pair_experiment() {
+#     experiment_1=$1
+#     experiment_2=$2
+#     gpu=$3
+#     bash call_scripts/train_nat.sh \
+#             -e $experiment_1  \
+#             --save-interval-updates 70000 --max-update 70000 --lm-start-step 75000 \
+#             --max-tokens 2048 \
+#             --arch ctcpmlm_rate_pred \
+#             --fp16 -g $gpu
+#     mkdir checkpoints/$experiment_1/top5_70000steps    
+#     cp checkpoints/$experiment_1/checkpoint.best_bleu_*  checkpoints/$experiment_1/top5_70000steps
+#     mkdir checkpoints/$experiment_2/
+#     cp checkpoints/$experiment_1/top5_70000steps/* checkpoints/$experiment_2/
+#     cp checkpoints/$experiment_1/checkpoint_last.pt checkpoints/$experiment_2/
+#     bash call_scripts/train_nat.sh \
+#             -e $experiment_1  \
+#             --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 \
+#             --max-tokens 2048 \
+#             --arch ctcpmlm_rate_pred \
+#             --fp16 -g $gpu
+#     bash call_scripts/train_nat.sh \
+#             -e $experiment_2  \
+#             --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 \
+#             --max-tokens 2048 \
+#             --arch ctcpmlm_rate_pred \
+#             --fp16 -g $gpu           
+# }
+
+# pair_experiment m-B-1-1-H12-UR20M-rate-pred m-B-1-1-N-UR20M-rate-pred 2
+# pair_experiment m-B-3-1-H12-UR20M-rate-pred m-B-3-1-N-UR20M-rate-pred 2
+
+ 
+
+
+# bash call_scripts/train_nat.sh -e m-B-3-1-N-UF20M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 2 --fp16    
+
+bash call_scripts/train_nat.sh -e m-B-3-1-N-UF30M-Ltest \
+                                --save-interval-updates 70000 --max-tokens 2048 \
+                                --has-eos --max-update 100000 \
+                                -g 2 --fp16  
+
+
+                                
+
+bash call_scripts/train_nat.sh -e m-B-3-1-N-UF20M-Ltest-amp \
+                                --save-interval-updates 70000 --max-tokens 2048 \
+                                --has-eos --max-update 100000 \
+                                -g 2 --amp
 

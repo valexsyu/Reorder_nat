@@ -1,11 +1,12 @@
 function default_setting() {
     twcc=False
     sleep_time=3600
+    arch=nat_pretrained_model
     
 }
 
 
-VALID_ARGS=$(getopt -o e: --long experiment:,twcc,sleep: -- "$@")
+VALID_ARGS=$(getopt -o e: --long experiment:,twcc,sleep:,arch: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -21,6 +22,10 @@ while [ : ]; do
         exp_array+=("$experiment_ids")
         shift 2
         ;;
+    --arch)
+      arch="$2"
+      shift 2
+      ;;          
     --twcc)
       twcc=True
       shift 1
@@ -49,12 +54,11 @@ do
       if [ "$twcc" = "True" ]
       then
          echo "Wait TWCC Resource"
-         bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top --has-eos > tmp_file
+         bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top --has-eos --arch $arch > tmp_file
       else
          echo "Wait Battleship Resource"
          random_num=$RANDOM
-         # hrun -s -N s05 -c 24 -m 50 bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top > tmp_file_$random_num
-         bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top > tmp_file_$random_num
+         bash call_scripts/generate_nat.sh -e $experiment_id -b 50 --ck-types last-top --arch $arch > tmp_file_$random_num
       fi
       score=$(tail -1 tmp_file_$random_num) 
       echo $dt ': ' $'\t' $score >> $CHECKPOINT/best_top5.test.record

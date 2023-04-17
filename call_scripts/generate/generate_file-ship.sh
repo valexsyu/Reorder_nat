@@ -77,21 +77,42 @@ conda activate base
 #                         -e m-8-1-3-K12-UF20M-test --visualization                                        
                                     
 
+#1-4 1-5 2-6-7-8 3-4 6-6-7-8
+#1-6 #2-9
+#1-7 #2-10-11-12 #3-5 6-8-9
+#1-1 #3-1 # 6-1-2-3
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 100 \
+#                         -e m-B-1-1-A12-UF20M-lm5x015 \ˊ
+#                         -e m-B-1-3-B12-UF20B-lmx015 \
+#                         -e m-B-1-3-C12-UF20M-lm5 \
+#                         -e m-B-1-3-B12-UF20B \
+#                         -e m-B-1-3-B12-UF20M-lmx015 \
+#                         -e m-B-3-3-B12-UF20M-lmx015 \
+#                         -e m-B-3-3-B12-UF20B-lmx015 
+
+
+
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 100 \
+#                         -e K-2-3-3-B12-UD25B-lmx015 \
+#                         -e Y-2-3-3-B12-UD25B-lmx015 \
+#                         -e 2-2-1-3-B12-UD25B-lmx015 \
+#                         -e 2-2-2-3-B12-UD25B-lmx015 \
+#                         -e 2-2-3-3-B12-UR40B-lmx015
+
+
+# # --avg-ck-turnoff
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 50 \
+#                         -e m-B-3-3-N-UF60M-Ltest \
 
 bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        -b 100 \
-                        -e m-8-1-1-A12-UF20M \
-                        -e m-8-1-1-B12-UF20M \
-                        -e m-8-1-3-B12-UF20M \
-                        -e m-8-1-3-A12-UF20M
-
-
-
-
-
-
-
-
-
+                        -b 50 \
+                        -e m-B-1-1-N-UR20M-rate-pred \
+                        --debug \
+                        --arch ctcpmlm_rate_pred 
+#                         # --avg-ck-turnoff \
+#                         # --debug \                        
 
 

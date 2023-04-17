@@ -159,7 +159,8 @@ class TranslationaAlignReorder(TranslationTask):
                 if cfg.lm_loss_dis :
                     self.pretrained_lm = AutoModelForMaskedLM.from_pretrained(cfg.pretrained_lm_name)
                 else:
-                    self.pretrained_lm = AutoModel.from_pretrained(cfg.pretrained_lm_name)             
+                    # self.pretrained_lm = AutoModel.from_pretrained(cfg.pretrained_lm_name)  
+                    self.pretrained_lm = AutoModelForMaskedLM.from_pretrained(cfg.pretrained_lm_name)           
         
         
         
@@ -387,19 +388,6 @@ class TranslationaAlignReorder(TranslationTask):
         self, sample, model, criterion, optimizer, update_num, ignore_grad=False
     ):  
         model.train()
-        # if self.iterative_reorder_translator :             
-        #     if update_num % self.iter_num_reorder == 0 :                 
-        #         self.switch = not self.switch    
-        #         if self.switch :
-        #             print("Freeze module : reorder")
-        #         else:
-        #             print("Freeze module : translator")
-                              
-        #     if self.switch :                 
-        #         self.freeze_module =  'reorder'             
-        #     else :                 
-        #         self.freeze_module = 'translator'        
-            
         """ for merge only use
         cuda0 = torch.device('cuda:0')
         loss=torch.Tensor(0)
@@ -437,58 +425,60 @@ class TranslationaAlignReorder(TranslationTask):
         upsampled =  torch.repeat_interleave(source, rate, dim=1)
         return upsampled
 
-    def reduce_metrics(self, logging_outputs, criterion):
-        super().reduce_metrics(logging_outputs, criterion)
-        if self.cfg.eval_bleu:
+    # def reduce_metrics(self, logging_outputs, criterion):
+    #     super().reduce_metrics(logging_outputs, criterion)
+    #     if self.cfg.eval_bleu:
 
-            def sum_logs(key):
-                import torch
+    #         def sum_logs(key):
+    #             import torch
 
-                result = sum(log.get(key, 0) for log in logging_outputs)
-                if torch.is_tensor(result):
-                    result = result.cpu()
-                return result
+    #             result = sum(log.get(key, 0) for log in logging_outputs)
+    #             if torch.is_tensor(result):
+    #                 result = result.cpu()
+    #             return result
 
-            counts, totals = [], []
-            for i in range(EVAL_BLEU_ORDER):
-                counts.append(sum_logs("_bleu_counts_" + str(i)))
-                totals.append(sum_logs("_bleu_totals_" + str(i)))
+    #         counts, totals = [], []
+    #         for i in range(EVAL_BLEU_ORDER):
+    #             counts.append(sum_logs("_bleu_counts_" + str(i)))
+    #             totals.append(sum_logs("_bleu_totals_" + str(i)))
 
-            if max(totals) > 0:
-                # log counts as numpy arrays -- log_scalar will sum them correctly
-                metrics.log_scalar("_bleu_counts", np.array(counts))
-                metrics.log_scalar("_bleu_totals", np.array(totals))
-                metrics.log_scalar("_bleu_sys_len", sum_logs("_bleu_sys_len"))
-                metrics.log_scalar("_bleu_ref_len", sum_logs("_bleu_ref_len"))
+    #         if max(totals) > 0:
+    #             # log counts as numpy arrays -- log_scalar will sum them correctly
+    #             metrics.log_scalar("_bleu_counts", np.array(counts))
+    #             metrics.log_scalar("_bleu_totals", np.array(totals))
+    #             metrics.log_scalar("_bleu_sys_len", sum_logs("_bleu_sys_len"))
+    #             metrics.log_scalar("_bleu_ref_len", sum_logs("_bleu_ref_len"))
 
-                def compute_bleu(meters):
-                    import inspect
+    #             def compute_bleu(meters):
+    #                 import inspect
 
-                    try:
-                        from sacrebleu.metrics import BLEU
+    #                 try:
+    #                     from sacrebleu.metrics import BLEU
 
-                        comp_bleu = BLEU.compute_bleu
-                    except ImportError:
-                        # compatibility API for sacrebleu 1.x
-                        import sacrebleu
+    #                     comp_bleu = BLEU.compute_bleu
+    #                 except ImportError:
+    #                     # compatibility API for sacrebleu 1.x
+    #                     import sacrebleu
 
-                        comp_bleu = sacrebleu.compute_bleu
+    #                     comp_bleu = sacrebleu.compute_bleu
 
-                    fn_sig = inspect.getfullargspec(comp_bleu)[0]
-                    if "smooth_method" in fn_sig:
-                        smooth = {"smooth_method": "exp"}
-                    else:
-                        smooth = {"smooth": "exp"}
-                    bleu = comp_bleu(
-                        correct=meters["_bleu_counts"].sum,
-                        total=meters["_bleu_totals"].sum,
-                        sys_len=int(meters["_bleu_sys_len"].sum),
-                        ref_len=int(meters["_bleu_ref_len"].sum),
-                        **smooth,
-                    )
-                    return round(bleu.score, 2)
+    #                 fn_sig = inspect.getfullargspec(comp_bleu)[0]
+    #                 if "smooth_method" in fn_sig:
+    #                     smooth = {"smooth_method": "exp"}
+    #                 else:
+    #                     smooth = {"smooth": "exp"}
+    #                 bleu = comp_bleu(
+    #                     correct=meters["_bleu_counts"].sum,
+    #                     total=meters["_bleu_totals"].sum,
+    #                     # sys_len=meters["_bleu_sys_len"].sum,
+    #                     # ref_len=meters["_bleu_ref_len"].sum,                
+    #                     sys_len=int(meters["_bleu_sys_len"].sum),
+    #                     ref_len=int(meters["_bleu_ref_len"].sum),
+    #                     **smooth,
+    #                 )
+    #                 return round(bleu.score, 2)
 
-                metrics.log_derived("bleu", compute_bleu)   
+    #             metrics.log_derived("bleu", compute_bleu)   
                 
                      
     def _inference_with_bleu(self, generator, sample, model):
@@ -512,12 +502,13 @@ class TranslationaAlignReorder(TranslationTask):
         gen_out = self.inference_step(generator, [model], sample, prefix_tokens=None)
         hyps, refs = [], []
         for i in range(len(gen_out)):
-            if len(gen_out[i][0]["tokens"]) > 0 :
-                remove_duplicate_tokens = torch.unique_consecutive(gen_out[i][0]["tokens"])
-            else:
-                remove_duplicate_tokens = gen_out[i][0]["tokens"]
+            # if len(gen_out[i][0]["tokens"]) > 0 :
+            #     remove_duplicate_tokens = torch.unique_consecutive(gen_out[i][0]["tokens"])
+            # else:
+            #     remove_duplicate_tokens = gen_out[i][0]["tokens"]
             
-            hyps.append(decode(remove_duplicate_tokens))
+            # hyps.append(decode(remove_duplicate_tokens))
+            hyps.append(decode(gen_out[i][0]["tokens"]))
             refs.append(
                 decode(
                     utils.strip_pad(sample["target"][i], self.tgt_dict.pad()),

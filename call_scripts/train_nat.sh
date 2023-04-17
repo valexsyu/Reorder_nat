@@ -153,9 +153,13 @@ function get_dataset() {
         dataset="iwslt14_de_en_bibertDist_mbert_pruned26458_8k"
     elif [ "$i" = "o" ]
     then
-        dataset="iwslt14_de_en_bibertDist_xlmr_pruned21785"        
+        dataset="iwslt14_de_en_bibertDist_xlmr_pruned21785"     
+    elif [ "$i" = "p" ]
+    then
+        dataset="iwslt14_de_en_mbert_pruned26458"            
     else      
         echo "error dataset id "
+        echo $1
         exit 1
     fi
 } 
@@ -224,7 +228,7 @@ function get_pretrain_model() {
     then
         pretrained_model="xlmr"
         pretrained_model_name="xlm-roberta-base"
-        bpe="bibert"    
+        bpe="xlmr"    
         pretrained_lm_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/ 
         pretrained_model_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/                        
     else
@@ -287,42 +291,49 @@ function get_kd_model() {
     if [ $(echo $i | cut -c 1) = "H" ]
     then
         lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
-        lm_loss_dis=False
+        lm_loss_type=COS
         lm_loss=True     
         lmk_loss=False   
     else
         if [ "$i" = "T" ]
         then
-            lm_loss_dis=True
+            lm_loss_type=DIS
             lm_loss_layer=-1
             lm_loss=True
             lmk_loss=False 
         elif [ "$i" = "N" ]
         then
-            lm_loss_dis=False
+            lm_loss_type=COS
             lm_loss_layer=-1
             lm_loss=False
             lmk_loss=False 
         elif [ $(echo $i | cut -c 1) = "K" ]
         then
-            lm_loss_dis=False
+            lm_loss_type=COS
             lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
             lm_loss=True     
             lmk_loss=True     
         elif [ $(echo $i | cut -c 1) = "A" ]
         then
             lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
-            lm_loss_dis=False
+            lm_loss_type=COS
             lm_loss=True     
             lmk_loss=False 
             lm_random_mask=True   
         elif [ $(echo $i | cut -c 1) = "B" ]
         then
             lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
-            lm_loss_dis=False
+            lm_loss_type=COS
             lm_loss=True     
             lmk_loss=True 
-            lm_random_mask=True                                    
+            lm_random_mask=True       
+        elif [ $(echo $i | cut -c 1) = "C" ]
+        then
+            lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
+            lm_loss_type=DIS
+            lm_loss=True     
+            lmk_loss=False 
+            lm_random_mask=True                                            
         else
             echo "error kd model id "
             exit 1
@@ -404,18 +415,23 @@ function default_setting() {
     warmup_updates=10000
     reset_dataloader=False
     reset_optimizer=False
+    reset_lr_scheduler=False
+    reset_meters=False
     debug=False
     has_eos=False
     blank_use_mask=False
     lm_random_mask=False
     wandb_team_id=valex-jcx
     lm_iter_num=1
+    lm_loss_type=COS
+    lm_mask_rate=-1
+    arch=nat_pretrained_model
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos,wandb-team-id:,lm-iter-num:,watch-lm-loss -- "$@")
+VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos,wandb-team-id:,lm-iter-num:,watch-lm-loss,lm-mask-rate:,reset-meters,reset-lr-scheduler,arch: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -497,7 +513,15 @@ while [ : ]; do
     --lm-iter-num)
       lm_iter_num="$2"
       shift 2
-      ;;                         
+      ;;  
+    --lm-mask-rate)
+      lm_mask_rate="$2"
+      shift 2
+      ;;   
+    --arch)
+      arch="$2"
+      shift 2
+      ;;                                        
     --no-atten-mask)
       no_atten_mask=True
       shift 1
@@ -509,9 +533,17 @@ while [ : ]; do
     --reset-optimizer)
       reset_optimizer=True
       shift 1
-      ;;    
+      ;;   
+    --reset-meters)
+      reset_meters=True
+      shift 1
+      ;;   
+    --reset-lr-scheduler)
+      reset_lr_scheduler=True
+      shift 1
+      ;;               
     --debug)
-      debug=True
+      debug=True   
       shift 1
       ;;          
     --has-eos)
@@ -538,7 +570,7 @@ get_ctc "$experiment_id"
 update_freq=$(((batch_size/max_tokens)/gpu))
 echo -e "Experiment:$experiment_id \nGPU_Number:$gpu \nBatch_Size:$batch_size \nMax_Tokens:$max_tokens \nMax_Epoch:$max_epoch \nUpdate_Freq:$update_freq"
 echo -e "Dataset:$dataset  \nPretrained_Model:$pretrained_model \nFix_LM:$fix_lm \nFix_SWE:$fix_swe"
-echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss \nLM_K_Loss:$lmk_loss"
+echo -e "VOC:$voc \nLM_Loss_Type:$lm_loss_type \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss \nLM_K_Loss:$lmk_loss"
 echo -e "Insert_Position:$insert_position \nDY_upsampling:$dynamic_upsampling \nNum_Upsampling_Rate:$num_upsampling_rate \nInsert_Mask:$insert_mask"
 echo -e "Init_Translator:$init_translator "
 
@@ -551,10 +583,7 @@ if [ "$fix_swe" = "True" ]
 then
     BOOL_COMMAND+=" --embedding-frozen"
 fi
-if [ "$lm_loss_dis" = "True" ]
-then
-    BOOL_COMMAND+=" --lm-loss-dis"
-fi
+
 if [ "$lm_loss" = "True" ]
 then
     BOOL_COMMAND+=" --lm-loss"
@@ -616,6 +645,14 @@ if [ "$reset_optimizer" = "True" ]
 then
     BOOL_COMMAND+=" --reset-optimizer"
 fi  
+if [ "$reset_lr_scheduler" = "True" ]
+then
+    BOOL_COMMAND+=" --reset-lr-scheduler"
+fi 
+if [ "$reset_meters" = "True" ]
+then
+    BOOL_COMMAND+=" --reset-meters"
+fi   
 if [ "$debug" = "True" ]
 then
     BOOL_COMMAND+=" --debug"
@@ -639,6 +676,11 @@ fi
 if [ "$watch_lm_loss" = "True" ]
 then
     BOOL_COMMAND+=" --watch-lm-loss"
+fi 
+
+if [ $(echo "$lm_mask_rate != -1"|bc ) -eq 1 ]
+then
+    BOOL_COMMAND+="  --lm-mask-rate  $lm_mask_rate"
 fi 
 
 
@@ -669,7 +711,6 @@ FIX_SWE=$fix_swe
 LM_LOSS=$lm_loss
 LM_K_LOSS=$lmk_loss
 LM_LOSS_LAYER=$lm_loss_layer
-LM_LOSS_DIS=$lm_loss_dis
 INSERT_MASK=$insert_mask
 NUM_UPSAMPLING_RATE=$num_upsampling_rate
 INSERT_POSITION=$insert_position
@@ -681,6 +722,8 @@ LM_START_STEP=$lm_start_step
 WARMUP_UPDATES=$warmup_updates
 VOC_CHOOSEN=$voc
 LM_ITER_NUM=$lm_iter_num
+LM_LOSS_TYPE=$lm_loss_type
+ARCH=$arch
 
 
 "  > $CHECKPOINT/temp.sh
@@ -702,7 +745,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --fixed-validation-seed 7 \
     --save-interval-updates $SAVE_INTERVAL_UPDATES \
 	--criterion nat_ctc_loss \
-	--arch nat_pretrained_model \
+	--arch $ARCH \
     --tensorboard-logdir $CHECKPOINT/tensorboard \
     --noise no_noise \
     --no-epoch-checkpoints \
@@ -725,6 +768,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --train-subset $TRAIN_SUBSET \
     --voc-choosen $VOC_CHOOSEN \
     --lm-iter-num $LM_ITER_NUM \
+    --lm-loss-type $LM_LOSS_TYPE \
     --pretrained-lm-path $PRETRAINED_LM_PATH --pretrained-model-path $PRETRAINED_MODEL_PATH \
 endmsg
 

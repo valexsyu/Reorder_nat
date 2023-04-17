@@ -8,6 +8,7 @@ from .fairseq_nat_model import *
 from .nonautoregressive_transformer import *
 from .nonautoregressive_positional_reorder import *
 from .nonautoregressive_pretrain_model import *
+from .ctcpmlm_rate_prediction_model import *
 from .nat_crf_transformer import *
 from .iterative_nonautoregressive_transformer import *
 from .cmlm_transformer import *

@@ -60,3 +60,10 @@ conda activate base
 #                                --save-interval-updates 70000 --max-tokens 2048 \
 #                                --has-eos --max-update 100000 --lm-start-step 75000 \
 #                                --g 2 --fp16 --dropout 0.2 
+
+
+
+
+
+
+

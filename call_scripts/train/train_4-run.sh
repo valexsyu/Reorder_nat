@@ -111,26 +111,56 @@ conda activate base
 
 
 
-#1
-bash call_scripts/train_nat.sh -e m-8-1-3-B12-UF20M \
+# #1
+# bash call_scripts/train_nat.sh -e m-8-1-3-B12-UF20M \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 -g 2 --fp16                                
+
+
+# #2
+# bash call_scripts/train_nat.sh -e m-8-3-3-B12-UF20M \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 -g 2 --fp16     
+
+
+# #3
+# bash call_scripts/train_nat.sh -e m-B-1-3-B12-UF20M \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 -g 2 --fp16     
+
+
+# #4
+# bash call_scripts/train_nat.sh -e m-B-3-1-C12-UF20M \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 --watch-lm-loss \
+#                                 -g 2 --fp16   
+
+
+
+# #5
+# bash call_scripts/train_nat.sh -e m-B-1-1-C12-UF20M \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                 -g 2 --fp16 
+
+
+
+# # 1
+# bash call_scripts/train_nat.sh -e 2-2-1-1-H12-UF20M-eos \
+#                                --save-interval-updates 70000 --max-tokens 4096 \
+#                                --has-eos --max-update 100000 --lm-start-step 75000 \
+#                                --g 1 --fp16 
+
+
+
+bash call_scripts/train_nat.sh -e m-B-1-3-N-UR20M-rate-pred \
                                 --save-interval-updates 70000 --max-tokens 2048 \
-                                --has-eos --max-update 100000 --lm-start-step 75000 \
-                                -g 2 --fp16                                
+                                --has-eos --max-update 100000 \
+                                --arch ctcpmlm_rate_pred \
+                                --fp16 --g 1  --debug --dryrun   
 
-
-#2
-bash call_scripts/train_nat.sh -e m-8-3-3-B12-UF20M \
-                                --save-interval-updates 70000 --max-tokens 2048 \
-                                --has-eos --max-update 100000 --lm-start-step 75000 \
-                                -g 2 --fp16     
-
-
-#2
-bash call_scripts/train_nat.sh -e m-B-1-3-B12-UF20M \
-                                --save-interval-updates 70000 --max-tokens 2048 \
-                                --has-eos --max-update 100000 --lm-start-step 75000 \
-                                -g 2 --fp16     
-
-
-
-
+                                

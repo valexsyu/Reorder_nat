@@ -51,7 +51,7 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
        
     
     def _compute_ctc_loss(  #valex
-        self, outputs, targets, masks=None, num_upsampling_rate=2, name="loss", factor=1.0, model=None, sample=None, 
+        self, lprobs, targets, masks=None, num_upsampling_rate=2, name="loss", factor=1.0, model=None, sample=None, 
     ):
         """
         outputs: batch x len x d_model
@@ -67,25 +67,20 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                 if dim is None
                 else x.float().mean(dim).type_as(x)
             )
-
-        lprobs = model.get_normalized_probs(
-            [outputs], log_probs=True
-        ).contiguous()  # (T, B, C) from the encoder 
+        
+        
+        lprobs = lprobs.contiguous()
+        # lprobs = model.get_normalized_probs(
+        #     [outputs], log_probs=True
+        # ).contiguous()  # (T, B, C) from the encoder 
         
         if "src_lengths" in sample["net_input"]:
             input_lengths = sample["net_input"]["src_lengths"]
             input_lengths_upsample = (num_upsampling_rate*input_lengths).type_as(input_lengths) 
-           
-            
-
         else:
-            if outputs["padding_mask"] is not None:
-                non_padding_mask = ~outputs["padding_mask"]
-                input_lengths = non_padding_mask.long().sum(-1)
-            else:
-                input_lengths = lprobs.new_full(
-                    (lprobs.size(1),), lprobs.size(0), dtype=torch.long
-                )
+            input_lengths = lprobs.new_full(
+                (lprobs.size(1),), lprobs.size(0), dtype=torch.long
+            )
         
         pad_mask = (targets != self.pad_idx) & (
                     targets != self.eos_idx) & (
@@ -192,6 +187,8 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
 
     def _custom_loss(self, loss, name="loss", factor=1.0):
         return {"name": name, "loss": loss, "factor": factor}
+    def _custom_value(self, value, name="num", factor=1.0):
+        return {"name": name, "value": value, "factor": factor}    
 
     def forward(self, model, sample, update_num , pretrained_lm=None, lm_loss_layer=-1, reduce=True):
         """Compute the loss for the given sample.
@@ -214,8 +211,17 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
             tgt_tokens = sample["target"]
             alignments = None
         outputs = model(src_tokens, src_lengths, tgt_tokens, alignments, update_num, pretrained_lm, lm_loss_layer)
+        
         losses, nll_loss = [], []
-
+        # NOTE:
+        # we don't need to use sample_size as denominator for the gradient
+        # here sample_size is just used for logging
+        sample_size = 1        
+        logging_output = {
+            "ntokens": ntokens,
+            "nsentences": nsentences,
+            "sample_size": sample_size,
+        }
         for obj in outputs:
             if outputs[obj].get("loss_type", "CTC") == "CTC":
                 _losses = self._compute_ctc_loss(
@@ -237,7 +243,12 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                     outputs[obj].get("ls", 0.0),
                     name=obj + "-loss",
                     factor=outputs[obj].get("factor", 1.0),
-                )                
+                )     
+            elif outputs[obj].get("loss_type", "CTC") == "NUM":
+                logging_output[obj] = utils.item(outputs[obj].get("value"))
+                # logging_output[obj] = outputs[obj].get("value")
+                continue
+                
             else:
                 _losses = self._custom_loss(
                     outputs[obj].get("loss"),
@@ -248,21 +259,18 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
             losses += [_losses]
             if outputs[obj].get("nll_loss", False):
                 nll_loss += [_losses.get("nll_loss", 0.0)]
-
         loss = sum(l["loss"] for l in losses)
         nll_loss = sum(l for l in nll_loss) if len(nll_loss) > 0 else loss.new_tensor(0)
 
-        # NOTE:
-        # we don't need to use sample_size as denominator for the gradient
-        # here sample_size is just used for logging
-        sample_size = 1
-        logging_output = {
-            "loss": loss.data,
-            "nll_loss": nll_loss.data,
-            "ntokens": ntokens,
-            "nsentences": nsentences,
-            "sample_size": sample_size,
-        }
+        logging_output["loss"]=loss.data
+        logging_output["nll_loss"]=nll_loss.data
+        # logging_output = {
+        #     "loss": loss.data,
+        #     "nll_loss": nll_loss.data,
+        #     "ntokens": ntokens,
+        #     "nsentences": nsentences,
+        #     "sample_size": sample_size,
+        # }
 
         for l in losses:
             logging_output[l["name"]] = (

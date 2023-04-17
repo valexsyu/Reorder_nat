@@ -154,7 +154,10 @@ function get_dataset() {
         dataset="iwslt14_de_en_bibertDist_mbert_pruned26458_8k"    
     elif [ "$i" = "o" ]
     then
-        dataset="iwslt14_de_en_bibertDist_xlmr_pruned21785"                                                                       
+        dataset="iwslt14_de_en_bibertDist_xlmr_pruned21785"
+    elif [ "$i" = "p" ]
+    then
+        dataset="iwslt14_de_en_mbert_pruned26458"                                                               
     else        
         echo "error dataset id "
         exit 1
@@ -205,7 +208,7 @@ function get_pretrain_model() {
         bpe="bibert"    
         pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/
         pretrained_model_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458  
-    elif [ "$i" = "9" ]
+    elif [ "$i" = "A" ]
     then
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
@@ -217,8 +220,8 @@ function get_pretrain_model() {
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
         bpe="bibert"    
-        pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/ 
-        pretrained_model_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/    
+        pretrained_lm_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458/ 
+        pretrained_model_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458/    
     elif [ "$i" = "C" ]
     then
         pretrained_model="xlmr"
@@ -285,42 +288,49 @@ function get_kd_model() {
     if [ $(echo $i | cut -c 1) = "H" ]
     then
         lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
-        lm_loss_dis=False
+        lm_loss_type=COS
         lm_loss=True     
         lmk_loss=False   
     else
         if [ "$i" = "T" ]
         then
-            lm_loss_dis=True
+            lm_loss_type=DIS
             lm_loss_layer=-1
             lm_loss=True
             lmk_loss=False 
         elif [ "$i" = "N" ]
         then
-            lm_loss_dis=False
+            lm_loss_type=COS
             lm_loss_layer=-1
             lm_loss=False
             lmk_loss=False 
         elif [ $(echo $i | cut -c 1) = "K" ]
         then
-            lm_loss_dis=False
+            lm_loss_type=COS
             lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
             lm_loss=True     
             lmk_loss=True    
         elif [ $(echo $i | cut -c 1) = "A" ]
         then
             lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
-            lm_loss_dis=False
+            lm_loss_type=COS
             lm_loss=True     
             lmk_loss=False 
             lm_random_mask=True   
         elif [ $(echo $i | cut -c 1) = "B" ]
         then
             lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
-            lm_loss_dis=False
+            lm_loss_type=COS
             lm_loss=True     
             lmk_loss=True 
-            lm_random_mask=True                               
+            lm_random_mask=True   
+        elif [ $(echo $i | cut -c 1) = "C" ]
+        then
+            lm_loss_layer=$(($(echo $i | cut -c 2-3)-13))
+            lm_loss_type=DIS
+            lm_loss=True     
+            lmk_loss=False 
+            lm_random_mask=True                                         
         else
             echo "error kd model id "
             exit 1
@@ -404,6 +414,7 @@ function default_setting() {
     blank_use_mask=False
     visualization=False
     lm_random_mask=False
+    arch=nat_pretrained_model
     
 }
 
@@ -423,7 +434,7 @@ function avg_lastk_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile,avg-speed:,skip-load-step-num,sacrebleu,visualization -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile,avg-speed:,skip-load-step-num,sacrebleu,visualization,arch: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -490,6 +501,10 @@ while [ : ]; do
       avg_speed="$2"
       shift 2
       ;; 
+    --arch)
+      arch="$2"
+      shift 2
+      ;;       
     --visualization)
       visualization=True
       shift 1
@@ -611,7 +626,7 @@ fi
 
 # DATA_TYPES=${data_subset[@]}
 # CHECK_TYPES=("last" "best" "best_top$TOPK")
-ARCH=nat_pretrained_model
+
 CRITERION=nat_ctc_loss
 CHECKPOINTS_PATH=checkpoints
 TASK=translation_align_reorder
@@ -633,7 +648,7 @@ if [ "$load_exist_bleu" = "False" ]; then
         # update_freq=$(((batch_size/max_tokens)/gpu))
         # echo -e "Experiment:$experiment_id \nGPU_Number:$gpu \nBatch_Size:$batch_size \nMax_Tokens:$max_tokens \nMax_Epoch:$max_epoch \nUpdate_Freq:$update_freq"
         # echo -e "Dataset:$dataset  \nPretrained_Model:$pretrained_model \nFix_LM:$fix_lm \nFix_SWE:$fix_swe"
-        # echo -e "VOC:$voc \nLM_Loss_Distribution:$lm_loss_dis \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss"
+        # echo -e "VOC:$voc \nLM_Loss_Type:$lm_loss_type \nLM_Loss_Layer:$lm_loss_layer \nLM_Loss:$lm_loss"
         # echo -e "Insert_Position:$insert_position \nDY_upsampling:$dynamic_upsampling \nNum_Upsampling_Rate:$num_upsampling_rate \nInsert_Mask:$insert_mask"
         
         BOOL_COMMAND="       "
@@ -736,7 +751,8 @@ RESULT_PATH=$RESULT_PATH
 CHECKPOINTS_DATA=$checkpoint_data_name
 DATA_TYPE=$data_type
 PRETRAINED_MODE=$pretrained_model
-ARCH=$ARCH
+ARCH=$arch
+NUM_UPSAMPLING_RATE=$num_upsampling_rate
 BATCH_SIZE=$batch_size
 BPE=$bpe
 PRETRAINED_MODEL_NAME=$pretrained_model_name
@@ -766,6 +782,7 @@ PRETRAINED_MODEL_PATH=$pretrained_model_path
         --pretrained-model-name $PRETRAINED_MODEL_NAME \
         --sacrebleu \
         --bpe $BPE \
+        --num-upsampling-rate $NUM_UPSAMPLING_RATE \
         --pretrained-bpe ${PRETRAINED_MODEL_NAME} --pretrained-bpe-src ${PRETRAINED_MODEL_NAME} \
         --remove-bpe \
         --upsample-fill-mask \

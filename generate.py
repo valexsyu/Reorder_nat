@@ -306,13 +306,13 @@ def _main(cfg: DictConfig, output_file):
                     extra_symbols_to_ignore=get_symbols_to_strip_from_output(generator),
                 )
                 #valex
-                _tokens = list(hypo_str.split())
-                if len(_tokens) > 1 :
-                    result = removeDuplicates(_tokens) 
-                else:
-                    result = _tokens                
-                hypo_str = ' '.join(result)
-                #valex                
+                # _tokens = list(hypo_str.split())
+                # if len(_tokens) > 1 :
+                #     result = removeDuplicates(_tokens) 
+                # else:
+                #     result = _tokens                
+                # hypo_str = ' '.join(result)
+                # #valex                
                 detok_hypo_str = decode_fn(hypo_str)
                 if not cfg.common_eval.quiet:
                     score = hypo["score"] / math.log(2)  # convert to base 2

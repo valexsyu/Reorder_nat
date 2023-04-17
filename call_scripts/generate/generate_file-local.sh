@@ -265,7 +265,20 @@ conda activate base
 # CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 20 --local --data-subset test \
 #                        --ck-types top --avg-speed 1 \
 #                         -e m-8-3-3-K12-UF20M-test --visualization
-CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 20 --local --data-subset test \
+CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 100 --local --data-subset test \
                        --ck-types top --avg-speed 1 \
-                        -e m-8-1-1-A12-UF20M 
+                       -e m-8-3-1-A12-UF20M \
+                       -e m-B-1-1-B12-UF20M-lm5 \
+                       -e m-8-3-1-B12-UF20M \
+                       -e m-B-1-1-B12-UF20M \
+                       -e m-B-3-1-C12-UF20M-lm5 \
+                       -e m-B-1-1-C12-UF20M-lm5 \
+                       -e m-8-1-1-A12-UF20M-lm5 \
+                       -e m-B-3-1-A12-UF20M-lm5 \
+                       -e m-8-3-3-B12-UF20M \
+                       -e m-B-1-3-B12-UF20M \
+                       -e m-B-3-1-C12-UF20M \
+                       -e m-B-1-1-C12-UF20M \
+                       -e m-8-3-3-A12-UF20M \
+                       -e m-B-3-1-B12-UF20M-lm5 
                         
