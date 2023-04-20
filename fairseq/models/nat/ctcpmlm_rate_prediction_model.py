@@ -118,7 +118,7 @@ class CTCPMLMRatePred(NATPretrainedModel):
             
         else :
             print("use initial target rate")
-            pseudo_target_rate = 
+            pseudo_target_rate = 2
         
         
         

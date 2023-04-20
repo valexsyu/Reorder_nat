@@ -479,9 +479,9 @@ class NATPretrainedModel(BaseFairseqModel):
         
         if self.voc_choosen == 2 and self.output_projection_warmup > update_num :
             with torch.no_grad(): 
-                logits, output_hidden_states, rate, src_upsample_tokens = self.translation(src_tokens, src_lengths, self.num_upsampling_rate, **kwargs)
+                logits, output_hidden_states, rate, src_upsample_tokens = self.translation(src_tokens, src_lengths, rate=self.num_upsampling_rate, **kwargs)
         else:
-            logits, output_hidden_states, rate, src_upsample_tokens = self.translation(src_tokens, src_lengths, self.num_upsampling_rate, **kwargs)
+            logits, output_hidden_states, rate, src_upsample_tokens = self.translation(src_tokens, src_lengths, rate=self.num_upsampling_rate, **kwargs)
         
         if self.voc_choosen == 2:
             logits = self.output_projection_layer(output_hidden_states)
@@ -603,7 +603,7 @@ class NATPretrainedModel(BaseFairseqModel):
             ### jcx ###
 
             # logits, output_hidden_states, rate, src_tokens_upsample = self.translation(src_tokens, src_lengths, **kwargs) 
-            logits, output_hidden_states, rate, src_tokens_upsample, attention_mask = self.translation(src_tokens, src_lengths, self.num_upsampling_rate, **kwargs) 
+            logits, output_hidden_states, rate, src_tokens_upsample, attention_mask = self.translation(src_tokens, src_lengths, rate=self.num_upsampling_rate, **kwargs) 
             ### jcx ###
             if self.voc_choosen == 2:
                 logits = self.output_projection_layer(output_hidden_states)            
@@ -661,7 +661,8 @@ class NATPretrainedModel(BaseFairseqModel):
 
             #########################################
         else:
-            logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, self.num_upsampling_rate, **kwargs) 
+            import pdb;pdb.set_trace()
+            logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, rate=self.num_upsampling_rate, **kwargs) 
             if self.voc_choosen == 2:
                 logits = self.output_projection_layer(output_hidden_states)            
 
@@ -1210,8 +1211,8 @@ class NATPretrainedModel(BaseFairseqModel):
                     tgt_tokens != self.tgt_dict.bos())    
         target_lengths = pad_mask.sum(-1)    
         import pdb;pdb.set_trace() ##
-        tgt_logits, tgt_hidden_states, tgt_logits_ini, tgt_hidden_states_ini= self.translation(tgt_tokens, target_lengths, upsampling_flag=False) 
-        src_logits, src_hidden_states, src_logits_ini, src_hidden_states_ini= self.translation(src_tokens, src_lengths) 
+        tgt_logits, tgt_hidden_states, tgt_logits_ini, tgt_hidden_states_ini= self.translation(tgt_tokens, target_lengths, upsampling_flag=False,rate=self.num_upsampling_rate) 
+        src_logits, src_hidden_states, src_logits_ini, src_hidden_states_ini= self.translation(src_tokens, src_lengths,rate=self.num_upsampling_rate) 
         tgt_translate_token = F.softmax(tgt_logits, dim=-1).argmax(-1)
         src_translate_token = F.softmax(src_logits, dim=-1).argmax(-1)
         tgt_translate_token_ini = F.softmax(tgt_logits_ini, dim=-1).argmax(-1)

@@ -33,8 +33,19 @@ class CTCPMLMPredRateConfig(TranslationAlignReorderConfig):
 
 @register_task("ctcpmlm_pred_rate", dataclass=TranslationAlignReorderConfig)
 class CTCPMLMPredRate(TranslationaAlignReorder):
+    def __init__(self, cfg: CTCPMLMPredRateConfig, src_dict, tgt_dict):
+        super().__init__(cfg, src_dict, tgt_dict)    
+        self.use_initial_target_rate = cfg.use_initial_target_rate
+        self.initial_target_rate_value = cfg.initial_target_rate_value
+        self.num_rate_level = cfg.num_rate_level
+    
+    def initial_target_rate(self, inital_value, bz):
+        target_rate = 2
+    
     def train_step(
         self, sample, model, criterion, optimizer, update_num, ignore_grad=False
     ):  
-        if update_num <= 1
+        # if  self.use_initial_target_rate :
+        pass
+            
     
