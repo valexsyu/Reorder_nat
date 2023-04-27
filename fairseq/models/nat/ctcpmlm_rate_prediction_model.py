@@ -79,7 +79,7 @@ class CTCPMLMRatePred(NATPretrainedModel):
 
     @staticmethod
     def add_args(parser):
-        super().add_args(parser)
+        NATPretrainedModel.add_args(parser)
         """Add model-specific arguments to the parser."""
  
         parser.add_argument(

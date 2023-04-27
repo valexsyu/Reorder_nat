@@ -20,12 +20,13 @@ conda activate base
 # -g 2 --fp16                                   
 # --lm-mask-rate 0.15
 
-bash call_scripts/train_nat.sh -e m-B-1-1-H12-UR20M-lmx015-test \
-                                --save-interval-updates 70000 --max-tokens 2048 \
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-lmx015-test-777 \
+                                --save-interval-updates 70000 --max-tokens 1024 \
                                 --has-eos --max-update 100000 --lm-start-step 75000 \
-                                --lm-mask-rate 0.15 \
-                                --arch ctcpmlm_rate_pred \
-                                --debug --dryrun 
+                                --arch ctcpmlm_rate_selection \
+                                --criterion nat_ctc_sel_rate_loss \
+                                --lmax-only-step 5000 \
+                                --debug --dryrun --valid-set  
                                 # -g 1 --fp16   
 
 

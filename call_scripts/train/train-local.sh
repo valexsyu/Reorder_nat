@@ -31,5 +31,5 @@
 CUDA_VISIBLE_DEVICES=0 bash call_scripts/train_nat.sh -e m-B-1-3-N-UR20M-rate-pred --local \
                                 --save-interval-updates 70000 --max-tokens 2048 \
                                 --has-eos --max-update 100000 \
-                                --arch ctcpmlm_rate_pred \
-                                --fp16 --g 1  --debug --dryrun             
+                                --arch ctcpmlm_rate_selection \
+                                --fp16 --g 1  --debug --dryrun --valid-set            

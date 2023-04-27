@@ -108,12 +108,14 @@ conda activate base
 #                         -e m-B-3-3-N-UF60M-Ltest \
 
 bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        -b 100 \
-                        -e m-B-3-1-N-UF30M-Ltest \
-                        -e m-B-3-1-N-UF40M-Ltest 
+                        --avg-ck-turnoff \
+                        -b 50 \
+                        --debug \
+                        -e m-B-3-1-N-UF30M-Ltest 
                         # --debug \
                         # --arch ctcpmlm_rate_pred 
 #                         # --avg-ck-turnoff \
 #                         # --debug \                        
 
                         # -e m-B-3-1-N-UF20M-Ltest \
+                        # -e m-B-3-1-N-UF30M-Ltest \

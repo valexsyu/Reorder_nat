@@ -426,12 +426,20 @@ function default_setting() {
     lm_loss_type=COS
     lm_mask_rate=-1
     arch=nat_pretrained_model
+    criterion=nat_ctc_loss
+    lmax_only_step=5000
     
 }
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:g:b:s: --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:,reset-dataloader,reset-optimizer,debug,has-eos,wandb-team-id:,lm-iter-num:,watch-lm-loss,lm-mask-rate:,reset-meters,reset-lr-scheduler,arch: -- "$@")
+VALID_ARGS=$(getopt \
+            -o e:g:b:s: \
+            --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,\
+            --long save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:, \
+            --long reset-dataloader,reset-optimizer,debug,has-eos,wandb-team-id:,lm-iter-num:,watch-lm-loss,lm-mask-rate:, \
+            --long reset-meters,reset-lr-scheduler,arch:,criterion:,lmax-only-step: \
+             -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -521,7 +529,15 @@ while [ : ]; do
     --arch)
       arch="$2"
       shift 2
-      ;;                                        
+      ;;        
+    --criterion)
+      criterion="$2"
+      shift 2
+      ;;         
+    --lmax-only-step)
+      lmax_only_step="$2"
+      shift 2
+      ;;                                              
     --no-atten-mask)
       no_atten_mask=True
       shift 1
@@ -724,6 +740,8 @@ VOC_CHOOSEN=$voc
 LM_ITER_NUM=$lm_iter_num
 LM_LOSS_TYPE=$lm_loss_type
 ARCH=$arch
+CRITERION=$criterion
+LMAX_ONLY_STEP=$lmax_only_step
 
 
 "  > $CHECKPOINT/temp.sh
@@ -744,7 +762,7 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --log-format 'simple' --log-interval 100 \
     --fixed-validation-seed 7 \
     --save-interval-updates $SAVE_INTERVAL_UPDATES \
-	--criterion nat_ctc_loss \
+	--criterion $CRITERION \
 	--arch $ARCH \
     --tensorboard-logdir $CHECKPOINT/tensorboard \
     --noise no_noise \
@@ -769,6 +787,8 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
     --voc-choosen $VOC_CHOOSEN \
     --lm-iter-num $LM_ITER_NUM \
     --lm-loss-type $LM_LOSS_TYPE \
+    --keep-last-epochs 5 \
+    --lmax-only-step $LMAX_ONLY_STEP \
     --pretrained-lm-path $PRETRAINED_LM_PATH --pretrained-model-path $PRETRAINED_MODEL_PATH \
 endmsg
 
@@ -787,5 +807,8 @@ bash $CHECKPOINT/scrip.sh
     # --lm-loss-dis $LM_LOSS_DIS \
     # --upsample-fill-mask $INSERT_MASK \
     # --max-epoch $MAX_EPOCH \
-    # --keep-last-epochs 5 \
     # --save-interval 1 \
+    #----- store last 5 epoch-----------
+    # --keep-last-epochs 5 \ add it 
+    # --no-epoch-checkpoints \ remove it
+    #-----------------------------

@@ -113,7 +113,17 @@ class TranslationAlignReorderConfig(TranslationConfig):
     )        
     visualization: bool = field(
         default=False, metadata={"help": "visualize the hidden representation"},
-    )           
+    )     
+    # rate_list: Optional[float] = field(
+    #     default=False, nargs="+" , metadata={"help": "visualize the hidden representation"},
+    # )  
+    lmax_only_step: int = field(
+        default=5000, metadata={"help": "leave step only use max probablity of rate to calculate"},
+    )
+    max_update: int = field(
+        default=100000, metadata={"help": "maximum training step number"},
+    )    
+              
 
 @register_task("translation_align_reorder", dataclass=TranslationAlignReorderConfig)
 class TranslationaAlignReorder(TranslationTask):

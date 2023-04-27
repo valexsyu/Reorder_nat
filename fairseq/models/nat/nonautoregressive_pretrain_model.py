@@ -220,7 +220,6 @@ class NATPretrainedModel(BaseFairseqModel):
 
     @staticmethod
     def add_args(parser):
-    
         """Add model-specific arguments to the parser."""
         parser.add_argument(
             "--use-align-position",
@@ -661,7 +660,9 @@ class NATPretrainedModel(BaseFairseqModel):
 
             #########################################
         else:
-            import pdb;pdb.set_trace()
+            if self.debug :
+                self.num_upsampling_rate = 2
+                
             logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, rate=self.num_upsampling_rate, **kwargs) 
             if self.voc_choosen == 2:
                 logits = self.output_projection_layer(output_hidden_states)            
@@ -1037,7 +1038,7 @@ class NATPretrainedModel(BaseFairseqModel):
             if self.dynamic_upsampling :
                 if self.dynamic_rate :
                     B, L = source.size(0), source.size(1)
-                    new_length = torch.Tensor([L * rate]).int().item()    
+                    new_length = torch.Tensor([L * rate]).int().item() 
                     if new_length > self.translator.config.max_position_embeddings :
                         rate= float(self.translator.config.max_position_embeddings)/float(L)  
                         
@@ -1117,7 +1118,7 @@ class NATPretrainedModel(BaseFairseqModel):
         # return logits, hidden_states, logits_ini, hidden_states_ini
         # ###################
 
-        return logits, hidden_states, rate , src_tokens_upsample[:,1:]
+        return logits, hidden_states, out_rate , src_tokens_upsample[:,1:]
     
 
 
