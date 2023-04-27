@@ -6,7 +6,8 @@
 #6-8
 
 bash call_scripts/tool/watch-test-polling.sh \
-                    -e m-B-3-1-N-UF40M-Ltest \
+                    -e m-B-1-1-N-UR20M-rate_sel-5k-rate_2_3_4 \
+                    --arch ctcpmlm_rate_selection \
                     --sleep 10
                     # --arch ctcpmlm_rate_pred \
 

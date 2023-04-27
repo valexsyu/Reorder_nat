@@ -398,16 +398,29 @@ conda activate base
 #                                 --has-eos --max-update 100000 \
 #                                 -g 2 --fp16    
 
-bash call_scripts/train_nat.sh -e m-B-3-1-N-UF30M-Ltest \
-                                --save-interval-updates 70000 --max-tokens 2048 \
-                                --has-eos --max-update 100000 \
-                                -g 2 --fp16  
+# bash call_scripts/train_nat.sh -e m-B-3-1-N-UF30M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 2 --fp16  
 
 
                                 
 
-bash call_scripts/train_nat.sh -e m-B-3-1-N-UF20M-Ltest-amp \
+# bash call_scripts/train_nat.sh -e m-B-3-1-N-UF20M-Ltest-amp \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 2 --amp
+
+
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_sel-5k-rate_2_3_4 \
                                 --save-interval-updates 70000 --max-tokens 2048 \
-                                --has-eos --max-update 100000 \
-                                -g 2 --amp
+                                --has-eos --max-update 100000 --lm-start-step 75000 \
+                                --arch ctcpmlm_rate_selection \
+                                --criterion nat_ctc_sel_rate_loss \
+                                --lmax-only-step 5000 \
+                                -g 4 --fp16 
+
+
+
+
 
