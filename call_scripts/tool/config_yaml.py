@@ -46,6 +46,8 @@ def parser_function():
     parser.add_argument('-b', '--basic-yaml-path', help='load basic yaml', default="call_scripts/train/basic.yaml", type=str)
     parser.add_argument('-o', '--save-dir', help='save the yaml', default=None, type=str)
     parser.add_argument('-e', '--experiment', help='experiment id', default=None, type=str)
+    parser.add_argument('--save-interval-updates', help='save-interval-updates', default=None, type=int)
+    
     #common
     parser.add_argument('--wandb-entity', help='no reocde in wandb', default=None, type=str)
     parser.add_argument('--wandb-project', help='no reocde in wandb', default=None, type=str)
@@ -67,10 +69,13 @@ def parser_function():
     parser.add_argument('--lm-start-step', help='start to add loss by useing lm model (ED loss) ', default=None, type=int)
     parser.add_argument('--voc-choosen', help='others function', default=None, type=int)
     parser.add_argument('--dropout', help='dropout', default=None, type=float)
+    parser.add_argument('--has-eos', help='has eos', action='store_true')
+    
     
     
     
     #optimization
+    parser.add_argument('--max-update', help='max-update', default=None, type=int)
     parser.add_argument('--update-freq', help='update parameters every N_i batches, when in epoch i', default=None, type=int)
     
     
@@ -98,29 +103,20 @@ def set_config(config, key1 , key2, value):
         if len(value) >=2 :
             config[key1][key2] = value
             return
-        value=value[0]
-        if value == True or value is None:
-            pass
-        elif value == False :
-            del config[key1][key2]     
-        elif value is not None and value is not False :
-            config[key1][key2] = [value]  
-        else :
-            raise ValueError("The value is not defined.")
-            import pdb;pdb.set_trace()
-            print("=============error============")        
-    else:
-        if (isinstance(value, bool) and value == True) or value is None:
-            pass
-        elif (isinstance(value, bool) and value == False) or value is None:
-            del config[key1][key2]     
-        elif value is not None and value is not False :
+        temp =value[0]
+        if temp is None:
+            pass 
+        else:
             config[key1][key2] = value  
-        else :
-            raise ValueError("The value is not defined.")
-            import pdb;pdb.set_trace()
-            print("=============error============")
-        
+    else:
+        if value is None:
+            pass 
+        else:
+            config[key1][key2] = value  
+            
+def del_config(config, key1 , key2):
+    del config[key1][key2]             
+
          
 # def del_config(config, key1 , key2):
 #     del config[key1][key2]   
@@ -141,6 +137,8 @@ def main():
     key1='checkpoint'
     # set_config(config, key1 ,'save_dir', os.path.join(args.save_dir))
     set_config(config, key1 ,'save_dir', os.path.join(args.save_dir))
+    set_config(config, key1 ,'save_interval_updates', args.save_interval_updates)
+    
     
 #common
     key1='common'
@@ -174,16 +172,19 @@ def main():
     set_config(config, key1 ,'dynamic_rate', args.dynamic_rate) 
     set_config(config, key1 ,'lm_start_step', args.lm_start_step)
     set_config(config, key1 ,'voc_choosen', args.voc_choosen)    
-    set_config(config, key1 ,'dropout', args.dropout)       
+    set_config(config, key1 ,'dropout', args.dropout)   
+    set_config(config, key1 ,'has_eos', args.has_eos)    
     
     
 #optimization
     key1='optimization'
     set_config(config, key1 ,'update_freq', [args.update_freq]) 
+    set_config(config, key1 , 'stop_min_lr', 1e-09 )  
+    
 #optimizer
     key1='optimizer'
     if args.task_name != 'transaltion_ctcpmlm_rate' :
-        set_config(config, key1 ,'groups', False)
+        del config[key1]['groups']
         set_config(config, key1 ,'_name', 'adam') 
         set_config(config, key1 ,'adam_betas', [0.9,0.98]) 
         set_config(config, key1 ,'adam_eps', 1e-06) 
@@ -196,7 +197,8 @@ def main():
         del config[key1]
         add_config(config, key1 , '_name', 'inverse_sqrt') 
         set_config(config, key1 , 'warmup_updates', 10000) 
-        set_config(config, key1 , 'warmup_init_lr', 1e-07 ) 
+        set_config(config, key1 , 'warmup_init_lr', 1e-07 )
+        set_config(config, key1 , 'lr', [0.0002] )
      
 #task    
     key1='task'

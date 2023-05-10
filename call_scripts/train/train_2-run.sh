@@ -240,6 +240,7 @@ bash call_scripts/train_nat.sh -e m-B-1-1-N-UR40M \
                                 --arch nat_pretrained_model \
                                 --criterion nat_ctc_loss \
                                 --has-eos --max-update 100000 \
+                                --hydra \
                                 -g 1 --fp16 
 
 

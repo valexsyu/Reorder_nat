@@ -6,8 +6,8 @@ common:
   log_format: simple
   log_file: null
   tensorboard_logdir: null
-  wandb_project: null
-  wandb_entity: null
+  wandb_project: NAT-Pretrained-Model
+  wandb_entity: valex-jcx
   azureml_logging: false
   seed: 1
   cpu: false
@@ -46,7 +46,7 @@ common_eval:
   results_path: null
 distributed_training:
   _name: null
-  distributed_world_size: 2
+  distributed_world_size: 1
   distributed_num_procs: 2
   distributed_rank: 0
   distributed_backend: nccl
@@ -87,15 +87,15 @@ distributed_training:
   not_fsdp_flatten_parameters: false
 dataset:
   _name: null
-  num_workers: 10
+  num_workers: 8
   skip_invalid_size_inputs_valid_test: false
-  max_tokens: 512
+  max_tokens: 2048
   batch_size: null
   required_batch_size_multiple: 8
   required_seq_len_multiple: 1
   dataset_impl: null
   data_buffer_size: 10
-  train_subset: valid
+  train_subset: train
   valid_subset: valid
   combine_valid_subsets: null
   ignore_unused_valid_subsets: false
@@ -122,7 +122,7 @@ optimization:
   clip_norm: 0.0
   sentence_avg: false
   update_freq:
-  - 12
+  - 6
   lr:
   - 0.25
   stop_min_lr: 1.0e-09
@@ -130,7 +130,7 @@ optimization:
   skip_remainder_batch: false
 checkpoint:
   _name: null
-  save_dir: checkpoints/m-B-1-1-N-UR20M-HHHHHHHHHHHHHHHHHHHHHHHHHHH
+  save_dir: checkpoints/m-B-1-1-N-UR20M
   restore_file: checkpoint_last.pt
   continue_once: null
   finetune_from_model: null
@@ -140,7 +140,7 @@ checkpoint:
   reset_optimizer: false
   optimizer_overrides: '{}'
   save_interval: 1
-  save_interval_updates: 25000
+  save_interval_updates: 70000
   keep_interval_updates: -1
   keep_interval_updates_pattern: -1
   keep_last_epochs: 5
@@ -217,8 +217,9 @@ interactive:
   buffer_size: 0
   input: '-'
 model:
-  _name: ctcpmlm_rate_selection
+  _name: nat_pretrained_model
   dropout: 0.1
+  dynamic_rate: true
   embedding_frozen: true
   has_eos: true
   insert_position: uniform
@@ -240,6 +241,7 @@ task:
   _name: translation_ctcpmlm
   align_position_pad_index: 513
   data: ../../dataset/nat/iwslt14_de_en_bibertDist_mbert_pruned26458/de-en-databin
+  debug: false
   eval_bleu: true
   eval_bleu_print_samples: true
   left_pad_source: true
@@ -253,7 +255,7 @@ task:
   - 3
   - 4
 criterion:
-  _name: nat_ctc_sel_rate_loss
+  _name: nat_ctc_loss
 optimizer:
   _name: adam
   adam_betas:
@@ -263,6 +265,8 @@ optimizer:
   weight_decay: 0.01
 lr_scheduler:
   _name: inverse_sqrt
+  lr:
+  - 0.0002
   warmup_init_lr: 1.0e-07
   warmup_updates: 10000
 scoring: null

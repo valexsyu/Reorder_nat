@@ -827,11 +827,13 @@ cat > $CHECKPOINT/temp_hydra1.sh << 'endmsg'
     -e $EXPERIMENT_ID \
     --basic-yaml-path "call_scripts/train/basic.yaml" \
     --save-dir $CHECKPOINT \
+    --save-interval-updates $SAVE_INTERVAL_UPDATES \
     --task $TASK \
     --data $DATA_BIN \
 	--criterion $CRITERION \
 	--model-name $ARCH \
     --max-tokens $MAX_TOKENS \
+    --max-update $MAX_UPDATE \
     --update-freq $UPDATE_FREQ \
     --num-upsampling-rate $NUM_UPSAMPLING_RATE \
     --train-subset $TRAIN_SUBSET \

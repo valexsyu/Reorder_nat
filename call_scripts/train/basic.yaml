@@ -1,5 +1,5 @@
 common:
-  fp16: True
+  fp16: False
   fp16_no_flatten_grads: True
   log_format: simple
   log_interval: 100  
@@ -16,7 +16,7 @@ checkpoint:
   keep_last_epochs: 5
   best_checkpoint_metric: bleu
   keep_best_checkpoints: 5 
-  save_dir: checkpoints/m-B-1-1-N-UR20M-rate_pred
+  save_dir: checkpoints/m-B-1-1-N-UR20M-Unassigned
   maximize_best_checkpoint_metric: True
 
 distributed_training:
@@ -103,12 +103,13 @@ model:
   voc_choosen: 1 
   lm_iter_num: 1
   lm_loss_type: COS
-  lm_head_frozen: True
-  embedding_frozen: True
-  upsample_fill_mask: True
-  has_eos: True
+  lm_head_frozen: False
+  embedding_frozen: False
+  upsample_fill_mask: False
+  has_eos: False
   rate_predictor_classnum: 3
   rate_list: [2,3,4]
+  dynamic_rate: False 
 
 
 hydra:

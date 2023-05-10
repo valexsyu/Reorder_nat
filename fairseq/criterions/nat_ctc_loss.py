@@ -501,7 +501,7 @@ class NatCTCSelRateLoss(NatEncoderCTCLoss):
         # div_tgt_lengths = torch.stack([i['tgt_lengths'] for i in ctc_losses], dim = 0)
         #leave some steps for checkpoint averaging
         time = update_num / (self.max_update - self.lmax_only_step)
-        curr_lambda = 2/3
+        curr_lambda = 1/3
         num_rate, bz = ctc_losses.size() # num_rate x bz size
         if time < curr_lambda:   
             t_1 = time / curr_lambda

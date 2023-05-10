@@ -36,11 +36,38 @@
 
 
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select \
-                                --save-interval-updates 70000 --max-tokens 1024 \
-                                --arch ctcpmlm_rate_selection \
-                                --task translation_ctcpmlm \
-                                --criterion nat_ctc_sel_rate_loss \
-                                --hydra \
-                                -g 2 --fp16
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --task translation_ctcpmlm \
+#                                 --arch nat_pretrained_model \
+#                                 --criterion nat_ctc_loss \
+#                                 --has-eos --max-update 100000 \
+#                                 --hydra \
+#                                 --local \
+#                                 -g 1 --fp16   
 
+
+
+
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UR30M-hydra \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --task translation_ctcpmlm \
+#                                 --arch nat_pretrained_model \
+#                                 --criterion nat_ctc_loss \
+#                                 --has-eos --max-update 100000 \
+#                                 --hydra \
+#                                 --local \
+#                                 -g 1 --fp16  
+
+
+
+
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M \
+                                --save-interval-updates 70000 --max-tokens 2048 \
+                                --task translation_ctcpmlm \
+                                --arch nat_pretrained_model \
+                                --criterion nat_ctc_loss \
+                                --has-eos --max-update 100000 \
+                                --hydra \
+                                --local \
+                                -g 1 --fp16   

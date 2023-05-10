@@ -30,15 +30,8 @@ conda activate base
 #                                 --valid-set \
 #                                 -g 1 --fp16
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-HHHHHHHHHHHHHHHHHHHHHHHHHHH \
-                                --save-interval-updates 70000 --max-tokens 512 \
-                                --arch ctcpmlm_rate_selection \
-                                --task translation_ctcpmlm \
-                                --criterion nat_ctc_sel_rate_loss \
-                                --hydra \
-                                --local \
-                                --valid-set \
-                                -g 2 --fp16
+
+
 
 
 
