@@ -28,8 +28,19 @@
 #                                --has-eos --max-update 100000 --lm-start-step 75000 \
 #                                --g 1
 
-CUDA_VISIBLE_DEVICES=0 bash call_scripts/train_nat.sh -e m-B-1-3-N-UR20M-rate-pred --local \
-                                --save-interval-updates 70000 --max-tokens 2048 \
-                                --has-eos --max-update 100000 \
+# CUDA_VISIBLE_DEVICES=0 bash call_scripts/train_nat.sh -e m-B-1-3-N-UR20M-rate-pred --local \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 --arch ctcpmlm_rate_selection \
+#                                 --fp16 --g 1  --debug --dryrun --valid-set     
+
+
+
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select \
+                                --save-interval-updates 70000 --max-tokens 1024 \
                                 --arch ctcpmlm_rate_selection \
-                                --fp16 --g 1  --debug --dryrun --valid-set            
+                                --task translation_ctcpmlm \
+                                --criterion nat_ctc_sel_rate_loss \
+                                --hydra \
+                                -g 2 --fp16
+

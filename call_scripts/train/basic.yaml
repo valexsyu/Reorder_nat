@@ -1,0 +1,128 @@
+common:
+  fp16: True
+  fp16_no_flatten_grads: True
+  log_format: simple
+  log_interval: 100  
+  # tensorboard_logdir: checkpoints/m-B-1-1-N-UR20M-rate_pred/tensorboard
+  # wandb_project: NAT-Pretrained-Model
+  # wandb_entity: valex-jcx 
+  
+
+
+checkpoint:
+  save_interval: 1
+  save_interval_updates: 25000
+  no_epoch_checkpoints: True
+  keep_last_epochs: 5
+  best_checkpoint_metric: bleu
+  keep_best_checkpoints: 5 
+  save_dir: checkpoints/m-B-1-1-N-UR20M-rate_pred
+  maximize_best_checkpoint_metric: True
+
+distributed_training:
+  ddp_backend: legacy_ddp
+  distributed_world_size: 2
+
+task:
+  _name: transaltion_ctcpmlm_rate
+  data: /livingrooms/valexsyu/dataset/nat/iwslt14_de_en_bibertDist_mbert_pruned26458/de-en-databin
+  noise: no_noise
+  align_position_pad_index: 513
+  eval_bleu_print_samples: True 
+  eval_bleu: True 
+  pretrained_lm_path: /livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458/
+  pretrained_model_path: /livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458/
+  left_pad_source: True
+  prepend_bos: True
+  lmax_only_step: 5000
+  debug: True
+  rate_list: [2,3,4]
+
+
+
+dataset:
+  num_workers: 8
+  max_tokens: 2048 
+  train_subset: train
+  valid_subset: valid
+  # validate_interval: 100
+  # validate_interval_updates: 100
+  fixed_validation_seed: 7
+
+criterion:
+  _name: nat_ctc_pred_rate_loss
+
+
+optimization:
+  max_update: 100000
+  update_freq: [3]
+  stop_min_lr: 1e-09
+
+  
+
+
+optimizer:
+  _name: composite
+  
+  groups:
+    translator:
+      lr: [0.0002]
+      lr_float: null
+      optimizer:
+        _name: adam
+        adam_betas: [0.9,0.98]
+        adam_eps: 1e-06
+        weight_decay: 0.01
+      lr_scheduler:
+        _name: inverse_sqrt
+        warmup_updates: 10000
+        warmup_init_lr: 1e-07
+    rate_predictor:
+      lr: [0.0002]
+      lr_float: null
+      optimizer:
+        _name: adam
+        adam_betas: [0.9,0.98]
+        adam_eps: 1e-06
+        weight_decay: 0.01
+      lr_scheduler:
+        _name: inverse_sqrt
+        warmup_updates: 10000
+        warmup_init_lr: 1e-07
+
+lr_scheduler: pass_through
+
+model:
+  _name: ctcpmlm_rate_predictor
+  dropout: 0.1
+  lm_start_step: 75000
+  pretrained_lm_name: bert-base-multilingual-uncased
+  pretrained_model_name: bert-base-multilingual-uncased
+  num_upsampling_rate: 20 
+  insert_position: uniform
+  voc_choosen: 1 
+  lm_iter_num: 1
+  lm_loss_type: COS
+  lm_head_frozen: True
+  embedding_frozen: True
+  upsample_fill_mask: True
+  has_eos: True
+  rate_predictor_classnum: 3
+  rate_list: [2,3,4]
+
+
+hydra:
+  job:
+    config:
+      override_dirname:
+        kv_sep: ':'
+        item_sep: '__'
+        exclude_keys:
+          - run_config
+          - distributed_training.distributed_port
+          - common.user_dir
+  run:
+    dir: ./
+  sweep:
+    dir: /checkpoints/${env:PREFIX}/${hydra.job.config_name}/${hydra.job.override_dirname}
+    subdir: ${hydra.job.num}

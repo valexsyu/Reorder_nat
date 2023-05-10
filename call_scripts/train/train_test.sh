@@ -20,17 +20,29 @@ conda activate base
 # -g 2 --fp16                                   
 # --lm-mask-rate 0.15
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-lmx015-test-777 \
-                                --save-interval-updates 70000 --max-tokens 1024 \
-                                --has-eos --max-update 100000 --lm-start-step 75000 \
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-GGGGGGGGGGGGGGGGGGGGGGGGGGG \
+#                                 --save-interval-updates 70000 --max-tokens 512 \
+#                                 --arch ctcpmlm_rate_predictor \
+#                                 --task transaltion_ctcpmlm_rate \
+#                                 --criterion nat_ctc_pred_rate_loss \
+#                                 --hydra \
+#                                 --local \
+#                                 --valid-set \
+#                                 -g 1 --fp16
+
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-HHHHHHHHHHHHHHHHHHHHHHHHHHH \
+                                --save-interval-updates 70000 --max-tokens 512 \
                                 --arch ctcpmlm_rate_selection \
+                                --task translation_ctcpmlm \
                                 --criterion nat_ctc_sel_rate_loss \
-                                --lmax-only-step 5000 \
-                                --debug --dryrun --valid-set  
-                                # -g 1 --fp16   
+                                --hydra \
+                                --local \
+                                --valid-set \
+                                -g 2 --fp16
 
 
 
+# fairseq-hydra-train -r --config-dir checkpoints/m-B-1-1-N-UR20M-test/  --config-name m-B-1-1-N-UR20M.yaml 
   
 
                                                      

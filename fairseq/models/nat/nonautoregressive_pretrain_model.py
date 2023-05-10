@@ -55,7 +55,6 @@ class NATPretrainedModel(BaseFairseqModel):
             self.mask = src_dict.indices["[MASK]"]
         except:
             self.mask = src_dict.indices["<mask>"]
-        self.label_smoothing = args.label_smoothing
         self.num_upsampling_rate = args.num_upsampling_rate
         if self.num_upsampling_rate >= 10 :
             self.num_upsampling_rate = self.num_upsampling_rate / 10
@@ -214,12 +213,11 @@ class NATPretrainedModel(BaseFairseqModel):
             
 
 
-
-
                                                       
 
     @staticmethod
     def add_args(parser):
+        
         """Add model-specific arguments to the parser."""
         parser.add_argument(
             "--use-align-position",
@@ -497,7 +495,6 @@ class NATPretrainedModel(BaseFairseqModel):
                 "tgt": tgt_tokens,
                 "mask": None if src_upsample_tokens is None else src_upsample_tokens.ne(self.pad),
                 "num_upsampling_rate": rate,
-                "ls": self.label_smoothing,
                 "nll_loss": True,
                 "loss_type": "CTC",
             }
@@ -674,6 +671,8 @@ class NATPretrainedModel(BaseFairseqModel):
             unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
             indices -= indices.min(dim=1, keepdims=True)[0]
             remove_duplicate_tokens = torch.full_like(_tokens,self.pad)
+            # remove_duplicate_score = torch.full_like(_scores,self.pad)
+            # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
             remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
         else:
             remove_duplicate_tokens = _tokens      

@@ -427,7 +427,9 @@ function default_setting() {
     lm_mask_rate=-1
     arch=nat_pretrained_model
     criterion=nat_ctc_loss
+    task=translation_ctcpmlm
     lmax_only_step=5000
+    hydra=False
     
 }
 
@@ -438,7 +440,7 @@ VALID_ARGS=$(getopt \
             --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,\
             --long save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:, \
             --long reset-dataloader,reset-optimizer,debug,has-eos,wandb-team-id:,lm-iter-num:,watch-lm-loss,lm-mask-rate:, \
-            --long reset-meters,reset-lr-scheduler,arch:,criterion:,lmax-only-step: \
+            --long reset-meters,reset-lr-scheduler,arch:,criterion:,lmax-only-step:,task:,hydra \
              -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
@@ -502,6 +504,10 @@ while [ : ]; do
       dryrun=True
       shift 1
       ;;       
+    --hydra)      
+      hydra=True
+      shift 1
+      ;;           
     --dropout)
       dropout="$2"
       shift 2
@@ -530,6 +536,10 @@ while [ : ]; do
       arch="$2"
       shift 2
       ;;        
+    --task)
+      task="$2"
+      shift 2
+      ;;
     --criterion)
       criterion="$2"
       shift 2
@@ -706,13 +716,21 @@ if [ ! -d "checkpoints" ]; then
 fi
 
 CHECKPOINT=checkpoints/$experiment_id
-# DATA_BIN=/livingrooms/valexsyu/dataset/nat/$dataset/de-en-databin
+
+# if [[ "$hydra" = "True" && "$dataroot" = "../../dataset/nat" ]]; then
+#     DATA_BIN=/home/valex/Documents/Study/dataset/nat/$dataset/de-en-databin
+# else
+#     DATA_BIN=$dataroot/$dataset/de-en-databin
+# fi
 DATA_BIN=$dataroot/$dataset/de-en-databin
+
 
 ##----------RUN  Bash-----------------------------
 mkdir $CHECKPOINT
 mkdir $CHECKPOINT/tensorboard
 echo "
+GPU=$gpu
+EXPERIMENT_ID=$experiment_id
 CHECKPOINT=$CHECKPOINT
 DATA_BIN=$DATA_BIN
 MAX_TOKENS=$max_tokens
@@ -742,17 +760,22 @@ LM_LOSS_TYPE=$lm_loss_type
 ARCH=$arch
 CRITERION=$criterion
 LMAX_ONLY_STEP=$lmax_only_step
+TASK=$task
 
 
 "  > $CHECKPOINT/temp.sh
+cp $CHECKPOINT/temp.sh $CHECKPOINT/temp_hydra.sh
+
+
 
 echo "python train.py \\" >> $CHECKPOINT/temp.sh
+
 
 cat > $CHECKPOINT/temp1.sh << 'endmsg'
     $DATA_BIN \
     --save-dir $CHECKPOINT \
     --ddp-backend=legacy_ddp \
-    --task translation_align_reorder \
+    --task $TASK \
     --optimizer adam --adam-betas '(0.9,0.98)' \
     --lr 0.0002 --lr-scheduler inverse_sqrt \
     --stop-min-lr '1e-09' --warmup-updates $WARMUP_UPDATES \
@@ -795,9 +818,44 @@ endmsg
 cat $CHECKPOINT/temp.sh $CHECKPOINT/temp1.sh > $CHECKPOINT/scrip.sh
 echo "$BOOL_COMMAND" >> $CHECKPOINT/scrip.sh
 
+
+
+#=====================hydra-train=============
+echo "python  call_scripts/tool/config_yaml.py \\" >> $CHECKPOINT/temp_hydra.sh
+
+cat > $CHECKPOINT/temp_hydra1.sh << 'endmsg'
+    -e $EXPERIMENT_ID \
+    --basic-yaml-path "call_scripts/train/basic.yaml" \
+    --save-dir $CHECKPOINT \
+    --task $TASK \
+    --data $DATA_BIN \
+	--criterion $CRITERION \
+	--model-name $ARCH \
+    --max-tokens $MAX_TOKENS \
+    --update-freq $UPDATE_FREQ \
+    --num-upsampling-rate $NUM_UPSAMPLING_RATE \
+    --train-subset $TRAIN_SUBSET \
+    --lm-start-step $LM_START_STEP \
+    --voc-choosen $VOC_CHOOSEN \
+    --lmax-only-step $LMAX_ONLY_STEP \
+    --dropout $DROPOUT \
+    --distributed-world-size $GPU \
+    --pretrained-lm-path $PRETRAINED_LM_PATH --pretrained-model-path $PRETRAINED_MODEL_PATH \
+endmsg
+
+cat $CHECKPOINT/temp_hydra.sh $CHECKPOINT/temp_hydra1.sh > $CHECKPOINT/hydra.sh
+echo "$BOOL_COMMAND" >> $CHECKPOINT/hydra.sh
 rm $CHECKPOINT/temp*
 
-bash $CHECKPOINT/scrip.sh
+if [ "$hydra" = "True" ]
+then
+    bash $CHECKPOINT/hydra.sh
+    fairseq-hydra-train -r --config-dir $CHECKPOINT/  --config-name $experiment_id.yaml
+else
+    bash $CHECKPOINT/scrip.sh
+fi 
+
+
 
 # :<<'END_COMMENT' 
     # --lm-head-frozen $FIX_LM \
@@ -812,3 +870,6 @@ bash $CHECKPOINT/scrip.sh
     # --keep-last-epochs 5 \ add it 
     # --no-epoch-checkpoints \ remove it
     #-----------------------------
+
+
+    

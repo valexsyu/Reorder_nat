@@ -22,6 +22,7 @@ from fairseq.tasks.translation import (
 from fairseq.utils import new_arange
 from typing import Optional
 from transformers import AutoModel, AutoModelForMaskedLM
+from typing import List
 
 NOISE_CHOICES = ChoiceEnum(["random_delete", "random_mask", "no_noise", "full_mask"])
 FREEZE_MODULE = ChoiceEnum(["reorder", "translator","None"])
@@ -29,7 +30,8 @@ EVAL_BLEU_ORDER = 4
 logger = logging.getLogger(__name__)
 
 @dataclass
-class TranslationAlignReorderConfig(TranslationConfig):
+class TranslationCTCPMLMConfig(TranslationConfig):
+# class TranslationAlignReorderConfig(TranslationConfig):
     noise: NOISE_CHOICES = field(
         default="random_delete",
         metadata={"help": "type of noise"},
@@ -114,26 +116,31 @@ class TranslationAlignReorderConfig(TranslationConfig):
     visualization: bool = field(
         default=False, metadata={"help": "visualize the hidden representation"},
     )     
-    # rate_list: Optional[float] = field(
-    #     default=False, nargs="+" , metadata={"help": "visualize the hidden representation"},
-    # )  
     lmax_only_step: int = field(
         default=5000, metadata={"help": "leave step only use max probablity of rate to calculate"},
     )
     max_update: int = field(
         default=100000, metadata={"help": "maximum training step number"},
     )    
+    rate_list: List[float] = field(
+        default_factory=list, metadata={"help": "visualize the hidden representation"},
+    )     
               
 
-@register_task("translation_align_reorder", dataclass=TranslationAlignReorderConfig)
-class TranslationaAlignReorder(TranslationTask):
+# @register_task("translation_align_reorder", dataclass=TranslationAlignReorderConfig)
+# class TranslationaAlignReorder(TranslationTask):
+@register_task("translation_ctcpmlm", dataclass=TranslationCTCPMLMConfig)
+class TranslationCTCPMLM(TranslationTask):
     """
     Translation (Sequence Generation) task for Levenshtein Transformer
     See `"Levenshtein Transformer" <https://arxiv.org/abs/1905.11006>`_.
     """
-    cfg: TranslationAlignReorderConfig
+    # cfg: TranslationAlignReorderConfig
+    cfg: TranslationCTCPMLMConfig
 
-    def __init__(self, cfg: TranslationAlignReorderConfig, src_dict, tgt_dict):
+
+    # def __init__(self, cfg: TranslationAlignReorderConfig, src_dict, tgt_dict):
+    def __init__(self, cfg: TranslationCTCPMLMConfig, src_dict, tgt_dict):
         super().__init__(cfg, src_dict, tgt_dict)
         if cfg.add_blank_symbol :
             self.blank_symbol = '<blank>'
@@ -398,19 +405,12 @@ class TranslationaAlignReorder(TranslationTask):
         self, sample, model, criterion, optimizer, update_num, ignore_grad=False
     ):  
         model.train()
-        """ for merge only use
-        cuda0 = torch.device('cuda:0')
-        loss=torch.Tensor(0)
-        sample_size=1
-        logging_output={'loss': 0, 'sample_size' : 1}#, 'nll_loss': torch.Tensor(0.187), 'ntokens': 960, 'nsentences': 40, 'sample_size': 1, 'word_ins-loss': 0.18786469101905823}
-        return loss, sample_size, logging_output
-        """
         loss, sample_size, logging_output = criterion(model, sample, update_num,
                                                       self.pretrained_lm, self.lm_loss_layer)
          
         if ignore_grad:
             loss *= 0
-
+        
         optimizer.backward(loss)
         return loss, sample_size, logging_output
 
@@ -433,68 +433,12 @@ class TranslationaAlignReorder(TranslationTask):
 
     def upsampling(self, source, rate): 
         upsampled =  torch.repeat_interleave(source, rate, dim=1)
-        return upsampled
-
-    # def reduce_metrics(self, logging_outputs, criterion):
-    #     super().reduce_metrics(logging_outputs, criterion)
-    #     if self.cfg.eval_bleu:
-
-    #         def sum_logs(key):
-    #             import torch
-
-    #             result = sum(log.get(key, 0) for log in logging_outputs)
-    #             if torch.is_tensor(result):
-    #                 result = result.cpu()
-    #             return result
-
-    #         counts, totals = [], []
-    #         for i in range(EVAL_BLEU_ORDER):
-    #             counts.append(sum_logs("_bleu_counts_" + str(i)))
-    #             totals.append(sum_logs("_bleu_totals_" + str(i)))
-
-    #         if max(totals) > 0:
-    #             # log counts as numpy arrays -- log_scalar will sum them correctly
-    #             metrics.log_scalar("_bleu_counts", np.array(counts))
-    #             metrics.log_scalar("_bleu_totals", np.array(totals))
-    #             metrics.log_scalar("_bleu_sys_len", sum_logs("_bleu_sys_len"))
-    #             metrics.log_scalar("_bleu_ref_len", sum_logs("_bleu_ref_len"))
-
-    #             def compute_bleu(meters):
-    #                 import inspect
-
-    #                 try:
-    #                     from sacrebleu.metrics import BLEU
-
-    #                     comp_bleu = BLEU.compute_bleu
-    #                 except ImportError:
-    #                     # compatibility API for sacrebleu 1.x
-    #                     import sacrebleu
-
-    #                     comp_bleu = sacrebleu.compute_bleu
-
-    #                 fn_sig = inspect.getfullargspec(comp_bleu)[0]
-    #                 if "smooth_method" in fn_sig:
-    #                     smooth = {"smooth_method": "exp"}
-    #                 else:
-    #                     smooth = {"smooth": "exp"}
-    #                 bleu = comp_bleu(
-    #                     correct=meters["_bleu_counts"].sum,
-    #                     total=meters["_bleu_totals"].sum,
-    #                     # sys_len=meters["_bleu_sys_len"].sum,
-    #                     # ref_len=meters["_bleu_ref_len"].sum,                
-    #                     sys_len=int(meters["_bleu_sys_len"].sum),
-    #                     ref_len=int(meters["_bleu_ref_len"].sum),
-    #                     **smooth,
-    #                 )
-    #                 return round(bleu.score, 2)
-
-    #             metrics.log_derived("bleu", compute_bleu)   
-                
+        return upsampled               
                      
     def _inference_with_bleu(self, generator, sample, model):
         import sacrebleu
-
         def decode(toks, escape_unk=False):
+            
             s = self.tgt_dict.string(
                 toks.int().cpu(),
                 self.cfg.eval_bleu_remove_bpe,
@@ -532,5 +476,71 @@ class TranslationaAlignReorder(TranslationTask):
             return sacrebleu.corpus_bleu(hyps, [refs], tokenize="none")
         else:
             return sacrebleu.corpus_bleu(hyps, [refs])
+        
+
+
+
+        
+@register_task("transaltion_ctcpmlm_rate", dataclass=TranslationCTCPMLMConfig)
+class TranslationCTCPMLMRate(TranslationCTCPMLM):
+    cfg: TranslationCTCPMLMConfig
+    def __init__(self, cfg: TranslationCTCPMLMConfig, src_dict, tgt_dict):
+        super().__init__(cfg, src_dict, tgt_dict)  
+        
+         
+        
+    def optimizer_step(self, optimizer, model, update_num):
+        optimizer.step(groups={"rate_predictor"})
+        optimizer.step(groups={"translator"})
+        # if hasattr(model, "get_groups_for_update"):
+        #     groups = model.get_groups_for_update(update_num)
+        #     optimizer.step(groups={groups})
+        # else:
+        #     optimizer.step()
+    def train_step(
+        self, sample, model, criterion, optimizer, update_num, ignore_grad=False
+    ):  
+        model.train()
+        """ for merge only use
+        cuda0 = torch.device('cuda:0')
+        loss=torch.Tensor(0)
+        sample_size=1
+        logging_output={'loss': 0, 'sample_size' : 1}#, 'nll_loss': torch.Tensor(0.187), 'ntokens': 960, 'nsentences': 40, 'sample_size': 1, 'word_ins-loss': 0.18786469101905823}
+        return loss, sample_size, logging_output
+        """
+        transaltor_loss, rate_pred_loss, sample_size, logging_output = criterion(model, sample, update_num,
+                                                      self.pretrained_lm, self.lm_loss_layer)
+         
+        if ignore_grad:
+            transaltor_loss *= 0
+            rate_pred_loss *= 0
+        
+        optimizer.backward(transaltor_loss)
+        optimizer.backward(rate_pred_loss)
+        loss = transaltor_loss + rate_pred_loss
+        return loss, sample_size, logging_output            
+        
+    def valid_step(self, sample, model, criterion, update_num):
+        model.eval()
+        with torch.no_grad():
+            transaltor_loss, rate_pred_loss, sample_size, logging_output = criterion(model, sample, update_num)
+            loss = transaltor_loss + rate_pred_loss
+        # return loss, sample_size, logging_output
+        if self.cfg.eval_bleu:
+            bleu = self._inference_with_bleu(self.nat_generator, sample, model)
+            logging_output["_bleu_sys_len"] = bleu.sys_len
+            logging_output["_bleu_ref_len"] = bleu.ref_len
+            # we split counts into separate entries so that they can be
+            # summed efficiently across workers using fast-stat-sync
+            assert len(bleu.counts) == EVAL_BLEU_ORDER
+            for i in range(EVAL_BLEU_ORDER):
+                logging_output["_bleu_counts_" + str(i)] = bleu.counts[i]
+                logging_output["_bleu_totals_" + str(i)] = bleu.totals[i]
+            
+        return loss, sample_size, logging_output           
      
-    
+
+
+
+
+           

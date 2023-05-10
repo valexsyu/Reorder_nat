@@ -119,3 +119,8 @@ bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
 
                         # -e m-B-3-1-N-UF20M-Ltest \
                         # -e m-B-3-1-N-UF30M-Ltest \
+
+bash call_scripts/generate_nat.sh --data-subset test --ck-types last \
+                        -b 50 \
+                        --arch nat_pretrained_model \
+                        -e m-B-1-1-N-UF20M                         

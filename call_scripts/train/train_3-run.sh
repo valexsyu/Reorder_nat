@@ -335,13 +335,47 @@ conda activate base
 #                                 -g 2 --fp16   
 
 
-bash call_scripts/train_nat.sh -e m-B-3-1-N-UF40M-Ltest \
-                                --save-interval-updates 70000 --max-tokens 2048 \
-                                --has-eos --max-update 100000 \
-                                -g 2 --fp16       
+# bash call_scripts/train_nat.sh -e m-B-3-1-N-UF40M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 2 --fp16       
 
-bash call_scripts/train_nat.sh -e m-B-3-1-N-UF50M-Ltest \
-                                --save-interval-updates 70000 --max-tokens 2048 \
+# bash call_scripts/train_nat.sh -e m-B-3-1-N-UF50M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 2 --fp16  
+
+
+
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 4096 \
+#                                 --task translation_ctcpmlm \
+#                                 --arch nat_pretrained_model \
+#                                 --criterion nat_ctc_loss \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 3 --fp16       
+                            
+
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UR40M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --task translation_ctcpmlm \
+#                                 --arch nat_pretrained_model \
+#                                 --criterion nat_ctc_loss \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 3 --fp16 
+
+
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M \
+                                --save-interval-updates 70000 --max-tokens 4096 \
+                                --task translation_ctcpmlm \
+                                --arch nat_pretrained_model \
+                                --criterion nat_ctc_loss \
                                 --has-eos --max-update 100000 \
-                                -g 2 --fp16  
+                                -g 1 --fp16   
+
+
+
+
+
+
 
