@@ -1,0 +1,9 @@
+m-B-1-1-N-UR20M-rate_select
+========================================================
+List of experiments:
+	m-B-1-1-N-UR20M-rate_select
+=========================No.1  ID:m-B-1-1-N-UR20M-rate_select==============================
+Namespace(checkpoint_upper_bound=None, ckpref='checkpoints.best_bleu', inputs=['checkpoints/m-B-1-1-N-UR20M-rate_select'], num_epoch_checkpoints=5, num_update_checkpoints=None, output='checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint_best_top5.pt')
+averaging checkpoints:  ['checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint.best_bleu_41.7703.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint.best_bleu_41.7701.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint.best_bleu_41.7603.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint.best_bleu_41.7504.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint.best_bleu_41.6902.pt']
+Finished writing averaged checkpoint to checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint_best_top5.pt
+Checkpoint : checkpoints/m-B-1-1-N-UR20M-rate_select	  Batchsize : 50

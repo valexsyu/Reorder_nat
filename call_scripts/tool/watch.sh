@@ -5,32 +5,35 @@
 #4-1
 #6-8
 
+# bash call_scripts/tool/watch-test-polling.sh \
+#                     --arch ctcpmlm_rate_predictor \
+#                     --task transaltion_ctcpmlm_rate \
+#                     --criterion nat_ctc_pred_rate_loss \
+#                     -e m-B-1-1-N-UR20M-rate_predict_divTGT \
+#                     -e m-B-1-1-N-UR20M-rate_predict \
+#                     --sleep 100 &
+
+# bash call_scripts/tool/watch-test-polling.sh \
+#                     --arch ctcpmlm_rate_predictor \
+#                     --task transaltion_ctcpmlm_rate \
+#                     --criterion nat_ctc_pred_rate_loss \
+#                     -e m-B-1-1-N-UR20M-rate_select \
+#                     --sleep 10 &
+
+# execute the two commands simultaneously
 bash call_scripts/tool/watch-test-polling.sh \
-                    -e m-B-1-1-N-UR20M-rate_sel-5k-rate_2_3_4 \
-                    --arch ctcpmlm_rate_selection \
-                    --sleep 10
-                    # --arch ctcpmlm_rate_pred \
+    --arch ctcpmlm_rate_predictor \
+    --task transaltion_ctcpmlm_rate \
+    --criterion nat_ctc_pred_rate_loss \
+    -e m-B-1-1-N-UR20M-rate_predict_divTGT \
+    -e m-B-1-1-N-UR20M-rate_predict \
+    --sleep 100 &
 
-#1-1
-# -e K-2-3-3-B12-UD25B-lmx015 \
-#1-2
-# -e Z-2-3-3-B12-UD25B-lmx015 \
+bash call_scripts/tool/watch-test-polling.sh \
+    --arch ctcpmlm_rate_predictor \
+    --task transaltion_ctcpmlm_rate \
+    --criterion nat_ctc_pred_rate_loss \
+    -e m-B-1-1-N-UR20M-rate_select \
+    --sleep 10 &
 
-#2-11
-# -e m-B-1-3-C12-UF20M-lm5 \
-
-#3-1
-# -e 2-2-3-3-B12-UD25B-lmx015 \
-#3-2
-# -e Y-2-3-3-B12-UD25B-lmx015 \
-
-#6-9
-# -e m-B-3-3-B12-UF20B-lmx015 \
-#6-1
-# -e 2-2-1-3-B12-UD25B-lmx015 \
-#6-2
-# -e 2-2-2-3-B12-UD25B-lmx015 \
-#6-3
-# -e 2-2-3-3-B12-UR40B-lmx015 \
-
-
+wait

@@ -38,4 +38,13 @@ conda activate base
 # fairseq-hydra-train -r --config-dir checkpoints/m-B-1-1-N-UR20M-test/  --config-name m-B-1-1-N-UR20M.yaml 
   
 
-                                                     
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-TTTTTTTTTTTTTT \
+                                --save-interval-updates 70000 --max-tokens 2048 \
+                                --arch ctcpmlm_rate_predictor \
+                                --task transaltion_ctcpmlm_rate \
+                                --criterion nat_ctc_pred_rate_loss \
+                                --hydra \
+                                --debug \
+                                --valid-set 
+                                # -g 1 --fp16    
+                                                                                 

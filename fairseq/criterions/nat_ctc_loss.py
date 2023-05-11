@@ -30,6 +30,7 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
         self.pad_idx = task.target_dictionary.pad()
         self.eos_idx = task.target_dictionary.eos()    
         self.bos_idx = task.target_dictionary.bos()
+        self.debug = task.cfg.debug   
         if task.cfg.blank_use_mask :
             if '[MASK]' in task.target_dictionary.symbols :
                 self.blank_idx = task.target_dictionary.indices['[MASK]']
@@ -608,24 +609,35 @@ class NatCTCPredRateLoss(NatCTCSelRateLoss):
         
         ce_loss = ce_losses[0]
         #leave some steps for checkpoint averaging
+        
+        tgt_lengths=collect_losses[list(collect_losses.keys())[0]][0]['tgt_lengths']
         time = update_num / (self.max_update - self.lmax_only_step)
         curr_lambda = 1/3
         num_rate, bz = ctc_losses.size() # num_rate x bz size
         if time < curr_lambda:   
             t_1 = time / curr_lambda
-            ctc_loss = ctc_losses.mean()  # bz size
+            if self.debug :
+                ctc_loss = torch.sum(ctc_losses).div(torch.sum(tgt_lengths))
+            else:    
+                ctc_loss = ctc_losses.mean()  # bz size
             ce_loss = ce_loss
         elif time < 1:
             t_2 = (time - curr_lambda) / (1 - curr_lambda)
             rate_max_lprob, max_idx = torch.max(rate_outputs['rate']['out'], dim = 1)
             ctc_rmax_losses = torch.gather(ctc_losses, 0, max_idx.view(1, -1))
-            ctc_loss = ctc_rmax_losses.mean()    
+            if self.debug :
+                ctc_loss = torch.sum(ctc_rmax_losses).div(torch.sum(tgt_lengths))
+            else:                
+                ctc_loss = ctc_rmax_losses.mean()    
             ctc_loss = t_2 * ctc_rmax_losses.mean()  + (1 - t_2) * ctc_losses.mean()
             ce_loss = ce_loss
         else:
             rate_max_lprob, max_idx = torch.max(rate_outputs['rate']['out'], dim = 1)
             ctc_rmax_losses = torch.gather(ctc_losses, 0, max_idx.view(1, -1))
-            ctc_loss = ctc_rmax_losses.mean() 
+            if self.debug :
+                ctc_loss = torch.sum(ctc_rmax_losses).div(torch.sum(tgt_lengths))
+            else:                
+                ctc_loss = ctc_rmax_losses.mean()  
             ce_loss = ce_loss
               
 

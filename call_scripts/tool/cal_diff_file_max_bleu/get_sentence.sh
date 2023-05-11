@@ -1,5 +1,7 @@
 
 #!/bin/bash
+# get_sentence -d file2.0.txt -d file3.0.txt -d file4.0.txt -t file2.0.txt -p c
+
 
 root_path=/home/valex/Documents/Study/battleship/Reorder_nat/checkpoints/
 folder_path=sel_rate/m-B-1-1-N-UR20M-rate_sel-5k-rate_2_3_4/

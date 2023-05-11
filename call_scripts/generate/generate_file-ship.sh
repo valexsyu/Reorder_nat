@@ -107,20 +107,40 @@ conda activate base
 #                         -b 50 \
 #                         -e m-B-3-3-N-UF60M-Ltest \
 
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         --avg-ck-turnoff \
+#                         -b 50 \
+#                         --debug \
+#                         -e m-B-3-1-N-UF30M-Ltest 
+#                         # --debug \
+#                         # --arch ctcpmlm_rate_pred 
+# #                         # --avg-ck-turnoff \
+# #                         # --debug \                        
+
+#                         # -e m-B-3-1-N-UF20M-Ltest \
+#                         # -e m-B-3-1-N-UF30M-Ltest \
+
 bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        --avg-ck-turnoff \
                         -b 50 \
-                        --debug \
-                        -e m-B-3-1-N-UF30M-Ltest 
-                        # --debug \
-                        # --arch ctcpmlm_rate_pred 
-#                         # --avg-ck-turnoff \
-#                         # --debug \                        
+                        --arch ctcpmlm_rate_predictor \
+                        --task transaltion_ctcpmlm_rate \
+                        --criterion nat_ctc_pred_rate_loss \
+                        -e m-B-1-1-N-UR20M-rate_predict        
 
-                        # -e m-B-3-1-N-UF20M-Ltest \
-                        # -e m-B-3-1-N-UF30M-Ltest \
 
-bash call_scripts/generate_nat.sh --data-subset test --ck-types last \
+bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
                         -b 50 \
-                        --arch nat_pretrained_model \
-                        -e m-B-1-1-N-UF20M                         
+                        --arch ctcpmlm_rate_selection \
+                        --task translation_ctcpmlm \
+                        --criterion nat_ctc_sel_rate_loss \
+                        -e m-B-1-1-N-UR20M-rate_select
+
+
+bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+                        -b 50 \
+                        --arch ctcpmlm_rate_predictor \
+                        --task transaltion_ctcpmlm_rate \
+                        --criterion nat_ctc_pred_rate_loss \
+                        -e m-B-1-1-N-UR20M-rate_predict_divTGT
+
+

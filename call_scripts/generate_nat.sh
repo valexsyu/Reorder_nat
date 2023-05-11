@@ -415,6 +415,8 @@ function default_setting() {
     visualization=False
     lm_random_mask=False
     arch=nat_pretrained_model
+    criterion=nat_ctc_loss
+    task=translation_ctcpmlm
     
 }
 
@@ -434,7 +436,10 @@ function avg_lastk_checkpoints(){
 
 default_setting
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-subset:,debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,skip-exist-genfile,avg-speed:,skip-load-step-num,sacrebleu,visualization,arch: -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-subset:, \
+                             --long debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,\
+                             --long skip-exist-genfile,avg-speed:,skip-load-step-num,sacrebleu,\
+                             --long task:,arch:,criterion:,visualization, -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -504,7 +509,15 @@ while [ : ]; do
     --arch)
       arch="$2"
       shift 2
-      ;;       
+      ;;        
+    --task)
+      task="$2"
+      shift 2
+      ;;
+    --criterion)
+      criterion="$2"
+      shift 2
+      ;;                   
     --visualization)
       visualization=True
       shift 1
@@ -627,9 +640,12 @@ fi
 # DATA_TYPES=${data_subset[@]}
 # CHECK_TYPES=("last" "best" "best_top$TOPK")
 
-CRITERION=nat_ctc_loss
+
 CHECKPOINTS_PATH=checkpoints
-TASK=translation_align_reorder
+TASK=$task
+ CRITERION=$criterion
+# CRITERION=nat_ctc_loss
+# TASK=translation_align_reorder
 if [ "$load_exist_bleu" = "False" ]; then 
     for i in "${!exp_array[@]}"; do 
         experiment_id=${exp_array[$i]}
@@ -787,6 +803,7 @@ PRETRAINED_MODEL_PATH=$pretrained_model_path
         --remove-bpe \
         --upsample-fill-mask \
         --batch-size $BATCH_SIZE \
+        --max-source-positions 512 \
         --pretrained-lm-path $PRETRAINED_LM_PATH --pretrained-model-path $PRETRAINED_MODEL_PATH \
 endmsg
 

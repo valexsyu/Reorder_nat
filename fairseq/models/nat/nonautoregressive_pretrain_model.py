@@ -41,6 +41,7 @@ from ctcdecode import CTCBeamDecoder
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt   
+from omegaconf import ListConfig
 
 @register_model("nat_pretrained_model") 
 class NATPretrainedModel(BaseFairseqModel):
@@ -1127,6 +1128,9 @@ class NATPretrainedModel(BaseFairseqModel):
             max_source_positions = self.max_source_positions[0]
         elif isinstance(self.max_source_positions, int) :
             max_source_positions = self.max_source_positions
+        elif isinstance(self.max_source_positions, ListConfig):
+            max_source_positions = self.max_source_positions[0]    
+            max_source_positions = 512 
         else :
             import pdb;pdb.set_trace()
             print("self.max_source_positions is not defined the type")   
