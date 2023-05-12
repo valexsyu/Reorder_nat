@@ -521,7 +521,7 @@ class NatCTCSelRateLoss(NatEncoderCTCLoss):
             if self.debug :
                 ctc_lse_loss = - torch.sum(torch.logsumexp(-ctc_losses, dim = 0)).div(sum_tgt_lengths).div(num_rate_list)
                 ctc_min_loss, min_idx = torch.min(ctc_losses, dim = 0)
-                ctc_min_loss = ctc_min_loss.div(sum_tgt_lengths)  
+                ctc_min_loss = torch.sum(ctc_min_loss).div(sum_tgt_lengths)  
             else:             
                 ctc_lse_loss = - torch.sum(torch.logsumexp(-ctc_losses, dim = 0)) / bz
                 ctc_min_loss, min_idx = torch.min(ctc_losses, dim = 0)
@@ -530,7 +530,7 @@ class NatCTCSelRateLoss(NatEncoderCTCLoss):
         else:
             if self.debug :
                 ctc_min_loss, min_idx = torch.min(ctc_losses, dim = 0)
-                ctc_min_loss = ctc_min_loss.div(sum_tgt_lengths)
+                ctc_min_loss = torch.sum(ctc_min_loss).div(sum_tgt_lengths) 
             else:                         
                 ctc_min_loss, min_idx = torch.min(ctc_losses, dim = 0)
                 ctc_min_loss = ctc_min_loss.mean()    

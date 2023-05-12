@@ -377,7 +377,23 @@ bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_predict_divTGT \
                                 -g 1 --fp16    
 
 
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_predict_divTGT-NEW \
+                                --save-interval-updates 70000 --max-tokens 4096 \
+                                --arch ctcpmlm_rate_predictor \
+                                --task transaltion_ctcpmlm_rate \
+                                --criterion nat_ctc_pred_rate_loss \
+                                --hydra \
+                                --debug \
+                                -g 1 --fp16   
 
+bash call_scripts/train_nat.sh -e m-B-1-1-H12-UR20M-rate_predict_divTGT-NEW  \
+                                --save-interval-updates 70000 --max-tokens 4096 \
+                                --arch ctcpmlm_rate_predictor \
+                                --task transaltion_ctcpmlm_rate \
+                                --criterion nat_ctc_pred_rate_loss \
+                                --hydra \
+                                --debug \
+                                -g 1 --fp16   
 
 
 

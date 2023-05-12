@@ -73,7 +73,6 @@ def parser_function():
     parser.add_argument('--lm-loss', help='lm-loss', action='store_true')
     parser.add_argument('--lmk-loss', help='lmk-loss', action='store_true')
     parser.add_argument('--dynamic-upsampling', help='dynamic_upsampling', action='store_true')
-    parser.add_argument( '--pretrained-lm-name', help='pretrained_lm_name', default=None, type=str)
     parser.add_argument( '--pretrained-model-name', help='pretrained_model_name', default=None, type=str)
   
 
@@ -89,11 +88,13 @@ def parser_function():
     
     parser.add_argument('--data', help='dataset path', default=None, type=str)
     parser.add_argument('-t', '--task-name', help='task name', default=None, type=str)
-    parser.add_argument('--pretrained-lm-path', help='pretrained-lm-path', default=None, type=str)
     parser.add_argument('--pretrained-model-path', help='pretrained-model-path', default=None, type=str)
     parser.add_argument('--lmax-only-step', help='lmax_only_step', default=None, type=int)
     parser.add_argument('--debug', help='debug flag', action='store_true')
- 
+    parser.add_argument( '--pretrained-lm-name', help='pretrained_lm_name', default=None, type=str)
+    parser.add_argument('--pretrained-lm-path', help='pretrained-lm-path', default=None, type=str)
+    parser.add_argument('--eval-bleu-remove-bpe', help='eval_bleu_remove_bpe', default=None, type=str)
+    
     
     
     args = parser.parse_args()    
@@ -183,8 +184,8 @@ def main():
     set_config(config, key1 ,'dynamic_upsampling', args.dynamic_upsampling)  
     set_config(config, key1 ,'lm_loss', args.lm_loss)  
     set_config(config, key1 ,'lmk_loss', args.lmk_loss)  
-    set_config(config, key1 ,'pretrained_lm_name', args.pretrained_lm_name)
     set_config(config, key1 ,'pretrained_model_name', args.pretrained_model_name)
+    set_config(config, key1 ,'pretrained_model_path', args.pretrained_model_path) 
 
 
     
@@ -201,7 +202,7 @@ def main():
         del config[key1]['groups']
         set_config(config, key1 ,'_name', 'adam') 
         set_config(config, key1 ,'adam_betas', [0.9,0.98]) 
-        set_config(config, key1 ,'adam_eps', 1e-06) 
+        set_config(config, key1 ,'adam_eps', 1e-08) 
         set_config(config, key1 ,'weight_decay', 0.01) 
      
         
@@ -218,10 +219,12 @@ def main():
     key1='task'
     set_config(config, key1 ,'data', args.data) 
     set_config(config, key1 ,'_name', args.task_name) 
-    set_config(config, key1 ,'pretrained_lm_path', args.pretrained_lm_path) 
-    set_config(config, key1 ,'pretrained_model_path', args.pretrained_model_path) 
     set_config(config, key1 ,'lmax_only_step', args.lmax_only_step) 
     set_config(config, key1 ,'debug', args.debug) 
+    set_config(config, key1 ,'pretrained_lm_name', args.pretrained_lm_name)
+    set_config(config, key1 ,'pretrained_lm_path', args.pretrained_lm_path) 
+    set_config(config, key1 ,'eval_bleu_remove_bpe', args.eval_bleu_remove_bpe) 
+    
     
 
     

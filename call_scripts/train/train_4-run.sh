@@ -157,8 +157,8 @@ conda activate base
 
 
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select \
-                                --save-interval-updates 70000 --max-tokens 2048 \
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select-NEW \
+                                --save-interval-updates 70000 --max-tokens 3072 \
                                 --arch ctcpmlm_rate_selection \
                                 --task translation_ctcpmlm \
                                 --criterion nat_ctc_sel_rate_loss \
@@ -166,21 +166,11 @@ bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select \
                                 --hydra \
                                 -g 1 --fp16
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select-divTGT \
-                                --save-interval-updates 70000 --max-tokens 1536 \
-                                --arch ctcpmlm_rate_selection \
-                                --task translation_ctcpmlm \
-                                --criterion nat_ctc_sel_rate_loss \
-                                --has-eos --max-update 100000 \
-                                --hydra \
-                                --debug \
-                                -g 2 --fp16
-
 
 
 function pair_experiment() { 
     bash call_scripts/train_nat.sh -e $1 \
-                                    --save-interval-updates 70000 --max-tokens 2048 \
+                                    --save-interval-updates 70000 --max-tokens 3072 \
                                     --lm-start-step 75000 \
                                     --task translation_ctcpmlm \
                                     --arch nat_pretrained_model \
@@ -197,7 +187,7 @@ function pair_experiment() {
     
     for experiment in $1 $2; do
         bash call_scripts/train_nat.sh -e $experiment \
-                                        --save-interval-updates 70000 --max-tokens 2048 \
+                                        --save-interval-updates 70000 --max-tokens 3072 \
                                         --lm-start-step 75000 \
                                         --task translation_ctcpmlm \
                                         --arch nat_pretrained_model \

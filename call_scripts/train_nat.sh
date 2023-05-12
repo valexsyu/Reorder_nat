@@ -173,16 +173,19 @@ function get_pretrain_model() {
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
         init_translator=False
+        bpe_symbo="## "
     elif [ "$i" = "2" ]
     then
         pretrained_model="bibert"
         pretrained_model_name="jhu-clsp/bibert-ende"
         init_translator=False
+        bpe_symbo="@@ "
     elif [ "$i" = "3" ]
     then
         pretrained_model="dmbert"
         pretrained_model_name="distilbert-base-multilingual-cased"
         init_translator=False
+        bpe_symbo="## "
     elif [ "$i" = "4" ]
     then
         pretrained_model="xlmr"
@@ -193,16 +196,19 @@ function get_pretrain_model() {
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"     
         init_translator=True
+        bpe_symbo="## "
     elif [ "$i" = "6" ]
     then
         pretrained_model="bibert"
         pretrained_model_name="jhu-clsp/bibert-ende"
         init_translator=True     
+        bpe_symbo="@@ "
     elif [ "$i" = "7" ]
     then
         pretrained_model="mbert-cased"
         pretrained_model_name="bert-base-multilingual-cased"
         init_translator=False      
+        bpe_symbo="## "
     elif [ "$i" = "8" ]
     then
         pretrained_model="mbert"
@@ -210,6 +216,7 @@ function get_pretrain_model() {
         init_translator=False   
         pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/
         pretrained_model_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458  
+        bpe_symbo="## "
     elif [ "$i" = "A" ]
     then
         pretrained_model="mbert"
@@ -217,6 +224,7 @@ function get_pretrain_model() {
         bpe="bibert"    
         pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/
         pretrained_model_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/      
+        bpe_symbo="## "
     elif [ "$i" = "B" ]
     then
         pretrained_model="mbert"
@@ -224,6 +232,7 @@ function get_pretrain_model() {
         bpe="bibert"    
         pretrained_lm_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458/ 
         pretrained_model_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458/           
+        bpe_symbo="## "
     elif [ "$i" = "C" ]
     then
         pretrained_model="xlmr"
@@ -430,6 +439,7 @@ function default_setting() {
     task=translation_ctcpmlm
     lmax_only_step=5000
     hydra=False
+    bpe_symbo="@@ "
     
 }
 
@@ -761,6 +771,7 @@ ARCH=$arch
 CRITERION=$criterion
 LMAX_ONLY_STEP=$lmax_only_step
 TASK=$task
+BPE_SYMBO=$bpe_symbo
 
 
 "  > $CHECKPOINT/temp.sh
@@ -844,6 +855,7 @@ cat > $CHECKPOINT/temp_hydra1.sh << 'endmsg'
     --distributed-world-size $GPU \
     --pretrained-lm-name $PRETRAINED_LM_NAME \
     --pretrained-model-name $PRETRAINED_MODEL_NAME \
+    --eval-bleu-remove-bpe $BPE_SYMBO \
     --pretrained-lm-path $PRETRAINED_LM_PATH --pretrained-model-path $PRETRAINED_MODEL_PATH \
 endmsg
 

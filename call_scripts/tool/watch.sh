@@ -32,7 +32,7 @@ bash call_scripts/tool/watch-test-polling.sh \
     --task translation_ctcpmlm \
     --arch nat_pretrained_model \
     --criterion nat_ctc_loss \
-    -e m-B-1-1-N-UF20M  \
+    -e m-B-1-1-N-UF20M-nohydra  \
     --sleep 100 &
 
 

@@ -30,13 +30,16 @@ task:
   align_position_pad_index: 513
   eval_bleu_print_samples: True 
   eval_bleu: True 
+  pretrained_lm_name: bert-base-multilingual-uncased
   pretrained_lm_path: /livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458/
   pretrained_model_path: /livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458/
-  left_pad_source: True
-  prepend_bos: True
+  left_pad_source: False
+  prepend_bos: False
   lmax_only_step: 5000
   debug: True
   rate_list: [2,3,4]
+  max_source_positions: 512
+  eval_bleu_remove_bpe: "@@ "
 
 
 
@@ -71,7 +74,7 @@ optimizer:
       optimizer:
         _name: adam
         adam_betas: [0.9,0.98]
-        adam_eps: 1e-06
+        adam_eps: 1e-08
         weight_decay: 0.01
       lr_scheduler:
         _name: inverse_sqrt
@@ -83,7 +86,7 @@ optimizer:
       optimizer:
         _name: adam
         adam_betas: [0.9,0.98]
-        adam_eps: 1e-06
+        adam_eps: 1e-08
         weight_decay: 0.01
       lr_scheduler:
         _name: inverse_sqrt
@@ -96,8 +99,8 @@ model:
   _name: ctcpmlm_rate_predictor
   dropout: 0.1
   lm_start_step: 75000
-  pretrained_lm_name: bert-base-multilingual-uncased
   pretrained_model_name: bert-base-multilingual-uncased
+  pretrained_model_path: /livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458/
   num_upsampling_rate: 20 
   insert_position: uniform
   voc_choosen: 1 
