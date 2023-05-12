@@ -1,0 +1,19 @@
+m-B-1-1-N-UR20M-rate_select
+========================================================
+List of experiments:
+	m-B-1-1-N-UR20M-rate_select
+=========================No.1  ID:m-B-1-1-N-UR20M-rate_select==============================
+Namespace(checkpoint_upper_bound=None, ckpref='checkpoints.best_bleu', inputs=['checkpoints/m-B-1-1-N-UR20M-rate_select'], num_epoch_checkpoints=5, num_update_checkpoints=None, output='checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint_best_top5.pt')
+averaging checkpoints:  ['checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint.best_bleu_41.8704.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint.best_bleu_41.8404.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint.best_bleu_41.8201.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint.best_bleu_41.8200.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint.best_bleu_41.8000.pt']
+Finished writing averaged checkpoint to checkpoints/m-B-1-1-N-UR20M-rate_select/checkpoint_best_top5.pt
+Checkpoint : checkpoints/m-B-1-1-N-UR20M-rate_select	  Batchsize : 50
+Loading an exist vocab file ../../dataset/nat/iwslt14_de_en_bibertDist_mbert_pruned26458/de-en-databin/dict.de.txt to confirm the ids of speical tokens.
+[CLS] 2 [SEP] 3 [PAD] 0 [UNK] 1
+Loading an exist vocab file ../../dataset/nat/iwslt14_de_en_bibertDist_mbert_pruned26458/de-en-databin/dict.en.txt to confirm the ids of speical tokens.
+[CLS] 2 [SEP] 3 [PAD] 0 [UNK] 1
+The target voc size is the loading form config
+Loading an exist vocab file ../../dataset/nat/iwslt14_de_en_bibertDist_mbert_pruned26458/de-en-databin/dict.de.txt to confirm the ids of speical tokens.
+[CLS] 2 [SEP] 3 [PAD] 0 [UNK] 1
+Loading an exist vocab file ../../dataset/nat/iwslt14_de_en_bibertDist_mbert_pruned26458/de-en-databin/dict.en.txt to confirm the ids of speical tokens.
+[CLS] 2 [SEP] 3 [PAD] 0 [UNK] 1
+The target voc size is the loading form config

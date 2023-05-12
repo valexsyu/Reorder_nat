@@ -842,6 +842,8 @@ cat > $CHECKPOINT/temp_hydra1.sh << 'endmsg'
     --lmax-only-step $LMAX_ONLY_STEP \
     --dropout $DROPOUT \
     --distributed-world-size $GPU \
+    --pretrained-lm-name $PRETRAINED_LM_NAME \
+    --pretrained-model-name $PRETRAINED_MODEL_NAME \
     --pretrained-lm-path $PRETRAINED_LM_PATH --pretrained-model-path $PRETRAINED_MODEL_PATH \
 endmsg
 

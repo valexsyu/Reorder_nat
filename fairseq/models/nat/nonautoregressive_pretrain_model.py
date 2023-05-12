@@ -657,10 +657,7 @@ class NATPretrainedModel(BaseFairseqModel):
             # extra["padding_mask"] = new_arange(_tokens, *_tokens.size()) >= out_lens[:, :1]
 
             #########################################
-        else:
-            if self.debug :
-                self.num_upsampling_rate = 2
-                
+        else:               
             logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, rate=self.num_upsampling_rate, **kwargs) 
             if self.voc_choosen == 2:
                 logits = self.output_projection_layer(output_hidden_states)            

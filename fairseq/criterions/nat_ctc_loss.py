@@ -498,26 +498,42 @@ class NatCTCSelRateLoss(NatEncoderCTCLoss):
             ctc_losses = torch.stack(ctc_losses)
         if len(others_losses) > 0 :
             others_losses = torch.stack(others_losses)
-   
-        # div_tgt_lengths = torch.stack([i['tgt_lengths'] for i in ctc_losses], dim = 0)
+         
+        tgt_lengths=collect_losses[list(collect_losses.keys())[0]][0]['tgt_lengths'].detach() 
+        sum_tgt_lengths = torch.sum(tgt_lengths)
+        num_rate_list = len(self.rate_list)
+        avg_tgt_lengths = sum_tgt_lengths/num_rate_list
         #leave some steps for checkpoint averaging
         time = update_num / (self.max_update - self.lmax_only_step)
         curr_lambda = 1/3
         num_rate, bz = ctc_losses.size() # num_rate x bz size
         if time < curr_lambda:   
             t_1 = time / curr_lambda
-            ctc_sum_loss = ctc_losses.mean()  # bz size
-            ctc_lse_loss = - torch.sum(torch.logsumexp(-ctc_losses, dim = 0)) / bz
+            if self.debug :
+                ctc_sum_loss = torch.sum(ctc_losses).div(sum_tgt_lengths).div(num_rate_list)
+                ctc_lse_loss = - torch.sum(torch.logsumexp(-ctc_losses, dim = 0)).div(sum_tgt_lengths).div(num_rate_list)
+            else:  
+                ctc_sum_loss = ctc_losses.mean()  # bz size
+                ctc_lse_loss = - torch.sum(torch.logsumexp(-ctc_losses, dim = 0)) / bz
             loss = t_1 * ctc_lse_loss + (1 - t_1) * ctc_sum_loss                    
         elif time < 1:
             t_2 = (time - curr_lambda) / (1 - curr_lambda)
-            ctc_lse_loss = - torch.sum(torch.logsumexp(-ctc_losses, dim = 0)) / bz
-            ctc_min_loss, min_idx = torch.min(ctc_losses, dim = 0)
-            ctc_min_loss = ctc_min_loss.mean()    
+            if self.debug :
+                ctc_lse_loss = - torch.sum(torch.logsumexp(-ctc_losses, dim = 0)).div(sum_tgt_lengths).div(num_rate_list)
+                ctc_min_loss, min_idx = torch.min(ctc_losses, dim = 0)
+                ctc_min_loss = ctc_min_loss.div(sum_tgt_lengths)  
+            else:             
+                ctc_lse_loss = - torch.sum(torch.logsumexp(-ctc_losses, dim = 0)) / bz
+                ctc_min_loss, min_idx = torch.min(ctc_losses, dim = 0)
+                ctc_min_loss = ctc_min_loss.mean()    
             loss = t_2 * ctc_min_loss + (1 - t_2) * ctc_lse_loss 
         else:
-            ctc_min_loss, min_idx = torch.min(ctc_losses, dim = 0)
-            ctc_min_loss = ctc_min_loss.mean()    
+            if self.debug :
+                ctc_min_loss, min_idx = torch.min(ctc_losses, dim = 0)
+                ctc_min_loss = ctc_min_loss.div(sum_tgt_lengths)
+            else:                         
+                ctc_min_loss, min_idx = torch.min(ctc_losses, dim = 0)
+                ctc_min_loss = ctc_min_loss.mean()    
             loss = ctc_min_loss                       
               
 
@@ -611,33 +627,39 @@ class NatCTCPredRateLoss(NatCTCSelRateLoss):
         #leave some steps for checkpoint averaging
         
         tgt_lengths=collect_losses[list(collect_losses.keys())[0]][0]['tgt_lengths']
+        sum_tgt_lengths = torch.sum(tgt_lengths)
+        num_rate_list = len(self.rate_list)
         time = update_num / (self.max_update - self.lmax_only_step)
         curr_lambda = 1/3
         num_rate, bz = ctc_losses.size() # num_rate x bz size
         if time < curr_lambda:   
             t_1 = time / curr_lambda
             if self.debug :
-                ctc_loss = torch.sum(ctc_losses).div(torch.sum(tgt_lengths))
+                ctc_avg_loss = torch.sum(ctc_losses).div(sum_tgt_lengths).div(num_rate_list)
             else:    
-                ctc_loss = ctc_losses.mean()  # bz size
+                ctc_avg_loss = ctc_losses.mean()  # bz size
+            ctc_loss = ctc_avg_loss
             ce_loss = ce_loss
         elif time < 1:
             t_2 = (time - curr_lambda) / (1 - curr_lambda)
             rate_max_lprob, max_idx = torch.max(rate_outputs['rate']['out'], dim = 1)
             ctc_rmax_losses = torch.gather(ctc_losses, 0, max_idx.view(1, -1))
             if self.debug :
-                ctc_loss = torch.sum(ctc_rmax_losses).div(torch.sum(tgt_lengths))
+                ctc_rmax_loss = torch.sum(ctc_rmax_losses).div(sum_tgt_lengths)
+                ctc_avg_loss = torch.sum(ctc_losses).div(sum_tgt_lengths).div(num_rate_list)
             else:                
-                ctc_loss = ctc_rmax_losses.mean()    
-            ctc_loss = t_2 * ctc_rmax_losses.mean()  + (1 - t_2) * ctc_losses.mean()
+                ctc_rmax_loss = ctc_rmax_losses.mean()    
+                ctc_avg_loss = ctc_losses.mean()
+            ctc_loss = t_2 * ctc_rmax_loss + (1 - t_2) * ctc_avg_loss    
             ce_loss = ce_loss
         else:
             rate_max_lprob, max_idx = torch.max(rate_outputs['rate']['out'], dim = 1)
             ctc_rmax_losses = torch.gather(ctc_losses, 0, max_idx.view(1, -1))
             if self.debug :
-                ctc_loss = torch.sum(ctc_rmax_losses).div(torch.sum(tgt_lengths))
+                ctc_rmax_loss = torch.sum(ctc_rmax_losses).div(sum_tgt_lengths)
             else:                
-                ctc_loss = ctc_rmax_losses.mean()  
+                ctc_rmax_loss = ctc_rmax_losses.mean()  
+            ctc_loss = ctc_rmax_loss    
             ce_loss = ce_loss
               
 

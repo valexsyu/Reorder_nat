@@ -271,5 +271,23 @@ CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset t
                         --task translation_ctcpmlm \
                         --arch nat_pretrained_model \
                         --criterion nat_ctc_loss \
-                        -e m-B-1-1-N-UR20M
+                        -e m-B-1-1-N-UR20M     
+
+
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 10 --local \
+#                         --arch ctcpmlm_rate_selection \
+#                         --task translation_ctcpmlm \
+#                         --criterion nat_ctc_sel_rate_loss \
+#                         -e m-B-1-1-N-UR20M-rate_select
+
+
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 10 --local \
+#                         --arch ctcpmlm_rate_predictor \
+#                         --task transaltion_ctcpmlm_rate \
+#                         --criterion nat_ctc_pred_rate_loss \
+#                         -e m-B-1-1-N-UR20M-rate_predict_divTGT \
+#                         -e m-B-1-1-N-UR20M-rate_predict 
+
                         

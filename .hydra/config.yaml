@@ -6,8 +6,8 @@ common:
   log_format: simple
   log_file: null
   tensorboard_logdir: null
-  wandb_project: NAT-Pretrained-Model
-  wandb_entity: valex-jcx
+  wandb_project: null
+  wandb_entity: null
   azureml_logging: false
   seed: 1
   cpu: false
@@ -46,8 +46,8 @@ common_eval:
   results_path: null
 distributed_training:
   _name: null
-  distributed_world_size: 2
-  distributed_num_procs: 2
+  distributed_world_size: 1
+  distributed_num_procs: 1
   distributed_rank: 0
   distributed_backend: nccl
   distributed_init_method: null
@@ -66,7 +66,7 @@ distributed_training:
   slowmo_momentum: null
   slowmo_base_algorithm: localsgd
   localsgd_frequency: 3
-  nprocs_per_node: 2
+  nprocs_per_node: 1
   pipeline_model_parallel: false
   pipeline_balance: null
   pipeline_devices: null
@@ -89,13 +89,13 @@ dataset:
   _name: null
   num_workers: 8
   skip_invalid_size_inputs_valid_test: false
-  max_tokens: 2048
+  max_tokens: 1024
   batch_size: null
   required_batch_size_multiple: 8
   required_seq_len_multiple: 1
   dataset_impl: null
   data_buffer_size: 10
-  train_subset: train
+  train_subset: valid
   valid_subset: valid
   combine_valid_subsets: null
   ignore_unused_valid_subsets: false
@@ -117,12 +117,12 @@ dataset:
 optimization:
   _name: null
   max_epoch: 0
-  max_update: 100000
+  max_update: 250
   stop_time_hours: 0.0
   clip_norm: 0.0
   sentence_avg: false
   update_freq:
-  - 3
+  - 12
   lr:
   - 0.25
   stop_min_lr: 1.0e-09
@@ -130,7 +130,7 @@ optimization:
   skip_remainder_batch: false
 checkpoint:
   _name: null
-  save_dir: checkpoints/m-B-1-1-N-UR20M-rate_predict
+  save_dir: checkpoints/2-2-1-1-H4-UF20M
   restore_file: checkpoint_last.pt
   continue_once: null
   finetune_from_model: null
@@ -217,19 +217,22 @@ interactive:
   buffer_size: 0
   input: '-'
 model:
-  _name: ctcpmlm_rate_predictor
+  _name: nat_pretrained_model
   dropout: 0.1
-  dynamic_rate: true
+  dynamic_rate: false
+  dynamic_upsampling: false
   embedding_frozen: true
-  has_eos: false
+  has_eos: true
   insert_position: uniform
   lm_head_frozen: true
   lm_iter_num: 1
+  lm_loss: true
   lm_loss_type: COS
   lm_start_step: 75000
+  lmk_loss: false
   num_upsampling_rate: 20
-  pretrained_lm_name: bert-base-multilingual-uncased
-  pretrained_model_name: bert-base-multilingual-uncased
+  pretrained_lm_name: jhu-clsp/bibert-ende
+  pretrained_model_name: jhu-clsp/bibert-ende
   rate_list:
   - 2
   - 3
@@ -238,9 +241,9 @@ model:
   upsample_fill_mask: true
   voc_choosen: 1
 task:
-  _name: transaltion_ctcpmlm_rate
+  _name: translation_ctcpmlm
   align_position_pad_index: 513
-  data: /livingrooms/valexsyu/dataset/nat/iwslt14_de_en_bibertDist_mbert_pruned26458/de-en-databin
+  data: ../../dataset/nat/iwslt14_de_en_bibertDist_bibert/de-en-databin
   debug: false
   eval_bleu: true
   eval_bleu_print_samples: true
@@ -248,48 +251,27 @@ task:
   lmax_only_step: 5000
   noise: no_noise
   prepend_bos: true
-  pretrained_lm_path: /livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458/
-  pretrained_model_path: /livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458/
+  pretrained_lm_path: None
+  pretrained_model_path: None
   rate_list:
   - 2
   - 3
   - 4
 criterion:
-  _name: nat_ctc_pred_rate_loss
+  _name: nat_ctc_loss
 optimizer:
-  _name: composite
-  groups:
-    rate_predictor:
-      lr:
-      - 0.0002
-      lr_float: null
-      lr_scheduler:
-        _name: inverse_sqrt
-        warmup_init_lr: 1.0e-07
-        warmup_updates: 10000
-      optimizer:
-        _name: adam
-        adam_betas:
-        - 0.9
-        - 0.98
-        adam_eps: 1.0e-06
-        weight_decay: 0.01
-    translator:
-      lr:
-      - 0.0002
-      lr_float: null
-      lr_scheduler:
-        _name: inverse_sqrt
-        warmup_init_lr: 1.0e-07
-        warmup_updates: 10000
-      optimizer:
-        _name: adam
-        adam_betas:
-        - 0.9
-        - 0.98
-        adam_eps: 1.0e-06
-        weight_decay: 0.01
-lr_scheduler: pass_through
+  _name: adam
+  adam_betas:
+  - 0.9
+  - 0.98
+  adam_eps: 1.0e-06
+  weight_decay: 0.01
+lr_scheduler:
+  _name: inverse_sqrt
+  lr:
+  - 0.0002
+  warmup_init_lr: 1.0e-07
+  warmup_updates: 10000
 scoring: null
 bpe: null
 tokenizer: null

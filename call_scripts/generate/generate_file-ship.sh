@@ -121,26 +121,26 @@ conda activate base
 #                         # -e m-B-3-1-N-UF30M-Ltest \
 
 bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        -b 50 \
+                        -b 10 \
                         --arch ctcpmlm_rate_predictor \
                         --task transaltion_ctcpmlm_rate \
                         --criterion nat_ctc_pred_rate_loss \
                         -e m-B-1-1-N-UR20M-rate_predict        
 
 
-bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        -b 50 \
-                        --arch ctcpmlm_rate_selection \
-                        --task translation_ctcpmlm \
-                        --criterion nat_ctc_sel_rate_loss \
-                        -e m-B-1-1-N-UR20M-rate_select
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 50 \
+#                         --arch ctcpmlm_rate_selection \
+#                         --task translation_ctcpmlm \
+#                         --criterion nat_ctc_sel_rate_loss \
+#                         -e m-B-1-1-N-UR20M-rate_select
 
 
-bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        -b 50 \
-                        --arch ctcpmlm_rate_predictor \
-                        --task transaltion_ctcpmlm_rate \
-                        --criterion nat_ctc_pred_rate_loss \
-                        -e m-B-1-1-N-UR20M-rate_predict_divTGT
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 50 \
+#                         --arch ctcpmlm_rate_predictor \
+#                         --task transaltion_ctcpmlm_rate \
+#                         --criterion nat_ctc_pred_rate_loss \
+#                         -e m-B-1-1-N-UR20M-rate_predict_divTGT
 
 

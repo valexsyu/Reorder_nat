@@ -70,7 +70,13 @@ def parser_function():
     parser.add_argument('--voc-choosen', help='others function', default=None, type=int)
     parser.add_argument('--dropout', help='dropout', default=None, type=float)
     parser.add_argument('--has-eos', help='has eos', action='store_true')
-    
+    parser.add_argument('--lm-loss', help='lm-loss', action='store_true')
+    parser.add_argument('--lmk-loss', help='lmk-loss', action='store_true')
+    parser.add_argument('--dynamic-upsampling', help='dynamic_upsampling', action='store_true')
+    parser.add_argument( '--pretrained-lm-name', help='pretrained_lm_name', default=None, type=str)
+    parser.add_argument( '--pretrained-model-name', help='pretrained_model_name', default=None, type=str)
+  
+
     
     
     
@@ -87,7 +93,7 @@ def parser_function():
     parser.add_argument('--pretrained-model-path', help='pretrained-model-path', default=None, type=str)
     parser.add_argument('--lmax-only-step', help='lmax_only_step', default=None, type=int)
     parser.add_argument('--debug', help='debug flag', action='store_true')
-    
+ 
     
     
     args = parser.parse_args()    
@@ -173,11 +179,19 @@ def main():
     set_config(config, key1 ,'lm_start_step', args.lm_start_step)
     set_config(config, key1 ,'voc_choosen', args.voc_choosen)    
     set_config(config, key1 ,'dropout', args.dropout)   
-    set_config(config, key1 ,'has_eos', args.has_eos)    
+    set_config(config, key1 ,'has_eos', args.has_eos)  
+    set_config(config, key1 ,'dynamic_upsampling', args.dynamic_upsampling)  
+    set_config(config, key1 ,'lm_loss', args.lm_loss)  
+    set_config(config, key1 ,'lmk_loss', args.lmk_loss)  
+    set_config(config, key1 ,'pretrained_lm_name', args.pretrained_lm_name)
+    set_config(config, key1 ,'pretrained_model_name', args.pretrained_model_name)
+
+
     
     
 #optimization
     key1='optimization'
+    set_config(config, key1 ,'max_update', args.max_update)
     set_config(config, key1 ,'update_freq', [args.update_freq]) 
     set_config(config, key1 , 'stop_min_lr', 1e-09 )  
     
