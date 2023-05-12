@@ -46,8 +46,8 @@ common_eval:
   results_path: null
 distributed_training:
   _name: null
-  distributed_world_size: 2
-  distributed_num_procs: 2
+  distributed_world_size: 1
+  distributed_num_procs: 1
   distributed_rank: 0
   distributed_backend: nccl
   distributed_init_method: null
@@ -66,7 +66,7 @@ distributed_training:
   slowmo_momentum: null
   slowmo_base_algorithm: localsgd
   localsgd_frequency: 3
-  nprocs_per_node: 2
+  nprocs_per_node: 1
   pipeline_model_parallel: false
   pipeline_balance: null
   pipeline_devices: null
@@ -89,7 +89,7 @@ dataset:
   _name: null
   num_workers: 8
   skip_invalid_size_inputs_valid_test: false
-  max_tokens: 1536
+  max_tokens: 4096
   batch_size: null
   required_batch_size_multiple: 8
   required_seq_len_multiple: 1
@@ -122,7 +122,7 @@ optimization:
   clip_norm: 0.0
   sentence_avg: false
   update_freq:
-  - 4
+  - 3
   lr:
   - 0.25
   stop_min_lr: 1.0e-09
@@ -130,7 +130,7 @@ optimization:
   skip_remainder_batch: false
 checkpoint:
   _name: null
-  save_dir: checkpoints/m-B-1-1-N-UR20M-rate_select-divTGT-NEW
+  save_dir: checkpoints/m-B-1-1-N-UR20M-rate_predict_divTGT-NEW
   restore_file: checkpoint_last.pt
   continue_once: null
   finetune_from_model: null
@@ -217,12 +217,12 @@ interactive:
   buffer_size: 0
   input: '-'
 model:
-  _name: ctcpmlm_rate_selection
+  _name: ctcpmlm_rate_predictor
   dropout: 0.1
   dynamic_rate: true
   dynamic_upsampling: false
   embedding_frozen: true
-  has_eos: true
+  has_eos: false
   insert_position: uniform
   lm_head_frozen: true
   lm_iter_num: 1
@@ -241,7 +241,7 @@ model:
   upsample_fill_mask: true
   voc_choosen: 1
 task:
-  _name: translation_ctcpmlm
+  _name: transaltion_ctcpmlm_rate
   align_position_pad_index: 513
   data: /livingrooms/valexsyu/dataset/nat/iwslt14_de_en_bibertDist_mbert_pruned26458/de-en-databin
   debug: true
@@ -261,20 +261,41 @@ task:
   - 3
   - 4
 criterion:
-  _name: nat_ctc_sel_rate_loss
+  _name: nat_ctc_pred_rate_loss
 optimizer:
-  _name: adam
-  adam_betas:
-  - 0.9
-  - 0.98
-  adam_eps: 1.0e-08
-  weight_decay: 0.01
-lr_scheduler:
-  _name: inverse_sqrt
-  lr:
-  - 0.0002
-  warmup_init_lr: 1.0e-07
-  warmup_updates: 10000
+  _name: composite
+  groups:
+    rate_predictor:
+      lr:
+      - 0.0002
+      lr_float: null
+      lr_scheduler:
+        _name: inverse_sqrt
+        warmup_init_lr: 1.0e-07
+        warmup_updates: 10000
+      optimizer:
+        _name: adam
+        adam_betas:
+        - 0.9
+        - 0.98
+        adam_eps: 1.0e-08
+        weight_decay: 0.01
+    translator:
+      lr:
+      - 0.0002
+      lr_float: null
+      lr_scheduler:
+        _name: inverse_sqrt
+        warmup_init_lr: 1.0e-07
+        warmup_updates: 10000
+      optimizer:
+        _name: adam
+        adam_betas:
+        - 0.9
+        - 0.98
+        adam_eps: 1.0e-08
+        weight_decay: 0.01
+lr_scheduler: pass_through
 scoring: null
 bpe: null
 tokenizer: null

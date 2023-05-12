@@ -62,33 +62,38 @@ conda activate base
 #                                     -g 1 --fp16                                   
 function pair_experiment() { 
     CUDA_VISIBLE_DEVICES=0 bash call_scripts/train_nat.sh -e $1 \
-                                    --save-interval-updates 70000 --max-tokens 4096 \
+                                    --save-interval-updates 70000 --max-tokens 1024 \
                                     --lm-start-step 75000 \
                                     --task translation_ctcpmlm \
                                     --arch nat_pretrained_model \
                                     --criterion nat_ctc_loss \
-                                    --has-eos --max-update 70000 \
+                                    --has-eos --max-update 100 \
+                                    --local \
                                     --hydra \
-                                    -g 2 --fp16       
+                                    --valid-set \
+                                    -g 1 --fp16       
 
-    for experiment in $2 $3 $4; do
+    for experiment in $2; do
         mkdir checkpoints/$experiment/
         cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/
         cp checkpoints/$1/checkpoint_last.pt checkpoints/$experiment/
     done
     
-    for experiment in $1 $2 $3 $4; do
+    for experiment in $1 $2; do
         CUDA_VISIBLE_DEVICES=0 bash call_scripts/train_nat.sh -e $experiment \
-                                --save-interval-updates 70000 --max-tokens 4096 \
+                                --save-interval-updates 70000 --max-tokens 1024 \
                                 --lm-start-step 75000 \
                                 --task translation_ctcpmlm \
                                 --arch nat_pretrained_model \
                                 --criterion nat_ctc_loss \
-                                --has-eos --max-update 100000 \
+                                --has-eos --max-update 120 \
                                 --hydra \
-                                -g 2 --fp16        
+                                --local \
+                                --valid-set \
+                                -g 1 --fp16        
     done                                                                                                                                                
 
 }
 
-pair_experiment 2-2-1-1-H12-UF20M 2-2-1-1-N-UF20M 2-2-1-1-H7-UF20M 2-2-1-1-H4-UF20M
+pair_experiment 2-2-1-1-H12-UF20M-TTTTTTT 2-2-1-1-N-UF20M-TTTTTTTTTT 
+

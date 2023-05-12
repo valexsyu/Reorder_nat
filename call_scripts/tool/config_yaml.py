@@ -224,6 +224,7 @@ def main():
     set_config(config, key1 ,'pretrained_lm_name', args.pretrained_lm_name)
     set_config(config, key1 ,'pretrained_lm_path', args.pretrained_lm_path) 
     set_config(config, key1 ,'eval_bleu_remove_bpe', args.eval_bleu_remove_bpe) 
+    set_config(config, key1 ,'pretrained_model_path', args.pretrained_model_path)     
     
     
 

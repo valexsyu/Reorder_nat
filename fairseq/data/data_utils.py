@@ -385,6 +385,11 @@ def post_process(sentence: str, symbol: str):
         sentence = (sentence + " ").replace(symbol, "").rstrip()
     elif symbol == "none":
         pass
+    elif symbol in {"subword_nmt", "## ", "##"}:
+        if symbol == "subword_nmt":
+            symbol = "## "
+        sentence = (sentence + " ").replace(symbol, "").rstrip()        
+        
     elif symbol is not None:
         raise NotImplementedError(f"Unknown post_process option: {symbol}")
     return sentence

@@ -234,22 +234,22 @@ conda activate base
 
 
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UF20M \
-                                --save-interval-updates 70000 --max-tokens 2048 \
-                                --task translation_ctcpmlm \
-                                --arch nat_pretrained_model \
-                                --criterion nat_ctc_loss \
-                                --has-eos --max-update 100000 \
-                                --hydra \
-                                -g 2 --fp16   
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UF20M \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --task translation_ctcpmlm \
+#                                 --arch nat_pretrained_model \
+#                                 --criterion nat_ctc_loss \
+#                                 --has-eos --max-update 100000 \
+#                                 --hydra \
+#                                 -g 2 --fp16   
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UF20M-nohydra \
-                                --save-interval-updates 70000 --max-tokens 2048 \
-                                --task translation_ctcpmlm \
-                                --arch nat_pretrained_model \
-                                --criterion nat_ctc_loss \
-                                --has-eos --max-update 100000 \
-                                -g 2 --fp16   
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UF20M-nohydra \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --task translation_ctcpmlm \
+#                                 --arch nat_pretrained_model \
+#                                 --criterion nat_ctc_loss \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 2 --fp16   
 
 
 bash call_scripts/train_nat.sh -e m-B-1-1-N-UF20M-NEW \

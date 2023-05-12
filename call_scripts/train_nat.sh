@@ -179,7 +179,7 @@ function get_pretrain_model() {
         pretrained_model="bibert"
         pretrained_model_name="jhu-clsp/bibert-ende"
         init_translator=False
-        bpe_symbo="@@ "
+        bpe_symbo="## "
     elif [ "$i" = "3" ]
     then
         pretrained_model="dmbert"

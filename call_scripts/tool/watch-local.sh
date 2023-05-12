@@ -5,6 +5,6 @@ bash call_scripts/tool/watch-test-polling.sh \
     --task transaltion_ctcpmlm_rate \
     --criterion nat_ctc_pred_rate_loss \
     --local \
-    -e m-B-1-1-N-UR20M-rate_select \
-    -e m-B-1-1-N-UR20M-rate_select-divTGT \
+    -e m-B-1-1-N-UR20M-rate_select-NEW \
+    -e m-B-1-1-N-UR20M-rate_select-divTGT-NEW \
     --sleep 10
