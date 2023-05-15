@@ -840,7 +840,7 @@ for i in "${!exp_array[@]}"; do
         # python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT 'checkpoint.best_bleu'
         
         if [ "$skip_load_step_num" = "False" ]; then
-            checkpoint_bestk_step=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT 'checkpoint.best_bleu')
+            checkpoint_bestk_step=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT 'both')
         fi
         for data_type in "${data_subset[@]}" ; do
             output_bleu_array=()

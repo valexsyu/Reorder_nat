@@ -6,12 +6,13 @@ function default_setting() {
     task=translation_ctcpmlm
     local=False
     bz=50
+    gpu_id=0
     
 }
 
 
-VALID_ARGS=$(getopt -o e: --long experiment:,twcc,sleep:,local,b \
-                          --long task:,arch:,criterion: -- "$@")
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,sleep:,local,b \
+                          --long task:,arch:,criterion:,gpu_id: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -25,12 +26,17 @@ while [ : ]; do
         experiment_ids="$2"     
         echo "$experiment_ids" 
         exp_array+=("$experiment_ids")
+
         shift 2
         ;;
-    --b)
+    -b)
       bz="$2"
       shift 2
-      ;;              
+      ;;       
+    --gpu_id)
+      gpu_id="$2"
+      shift 2
+      ;;               
     --arch)
       arch="$2"
       shift 2
@@ -68,14 +74,23 @@ do
       experiment_id=${exp_array[$i]}
       CHECKPOINT=checkpoints/$experiment_id
       if [ ! -d "$CHECKPOINT" ]; then
-         echo "Folder is not exist"
+         echo "Folder $CHECKPOINT is not exist"
          continue
       fi       
+      
+      last_value=$(tail -1 $CHECKPOINT/best_top5.test.record | grep -oE "last:[0-9]+" | grep -oE "[0-9]+")
+      if [ -n "$last_value" ] && [ "$last_value" -ge 100000 ]; then
+          echo "The $CHECKPOINT : Last value is equal to or greater than 100,000"
+          score_array+=$(tail -1 $CHECKPOINT/best_top5.test.record) 
+          continue
+      fi
+
       dt=$(date)
       random_num=$RANDOM  # while runing 2 watch in the same time to avoid write the same temp file. 
+
       if [ "$local" = "True" ]; then  
         echo "Wait local Resource"   
-        CUDA_VISIBLE_DEVICES=1 bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local \
+        CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num      
       else
         echo "Wait Battleship Resource"

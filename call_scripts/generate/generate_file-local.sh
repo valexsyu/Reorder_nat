@@ -265,13 +265,13 @@ conda activate base
 # CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 20 --local --data-subset test \
 #                        --ck-types top --avg-speed 1 \
 #                         -e m-8-3-3-K12-UF20M-test --visualization
-CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
-                       --ck-types top --avg-speed 1 \
-                        -b 50 \
-                        --task translation_ctcpmlm \
-                        --arch nat_pretrained_model \
-                        --criterion nat_ctc_loss \
-                        -e m-B-1-1-N-UR20M     
+# CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
+#                        --ck-types top --avg-speed 1 \
+#                         -b 50 \
+#                         --task translation_ctcpmlm \
+#                         --arch nat_pretrained_model \
+#                         --criterion nat_ctc_loss \
+#                         -e m-B-1-1-N-UR20M     
 
 
 # bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
@@ -290,4 +290,13 @@ CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset t
 #                         -e m-B-1-1-N-UR20M-rate_predict_divTGT \
 #                         -e m-B-1-1-N-UR20M-rate_predict 
 
-                        
+
+
+CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
+                       --ck-types top --avg-speed 1 \
+                        -b 20 \
+                        --task translation_ctcpmlm \
+                        --arch nat_pretrained_model \
+                        --criterion nat_ctc_loss \
+                        -e 2-2-1-1-H12-UR40M    
+

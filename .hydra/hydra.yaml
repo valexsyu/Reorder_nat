@@ -111,7 +111,7 @@ hydra:
     override_dirname: ''
     id: ???
     num: ???
-    config_name: m-B-1-1-N-UR20M-rate_predict_divTGT-NEW.yaml
+    config_name: 2-2-1-1-H12-UF20M.yaml
     env_set: {}
     env_copy: []
     config:

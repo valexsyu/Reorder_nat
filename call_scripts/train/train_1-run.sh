@@ -513,7 +513,7 @@ function pair_experiment() {
 }
 
 pair_experiment 2-2-1-1-H12-UF20M 2-2-1-1-N-UF20M 2-2-1-1-H7-UF20M 2-2-1-1-H4-UF20M
-
+pair_experiment 2-2-1-1-H12-UF20T 2-2-1-1-N-UF20T 2-2-1-1-H10-UF20T 2-2-1-1-H8-UF20M
 
 
 

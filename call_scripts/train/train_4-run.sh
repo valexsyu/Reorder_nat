@@ -166,6 +166,16 @@ bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select-NEW \
                                 --hydra \
                                 -g 1 --fp16
 
+bash call_scripts/train_nat.sh -e m-B-1-1-H12-UR20M-rate_select-divTGT-NEW-2 \
+                                --save-interval-updates 70000 --max-tokens 3072 \
+                                --arch ctcpmlm_rate_selection \
+                                --task translation_ctcpmlm \
+                                --criterion nat_ctc_sel_rate_loss \
+                                --has-eos --max-update 100000 \
+                                --lm-start-step 25000 \
+                                --hydra \
+                                --debug \
+                                -g 2 --fp16
 
 
 function pair_experiment() { 
@@ -199,3 +209,6 @@ function pair_experiment() {
 
 }
 pair_experiment 2-2-1-1-H12-UR40M 2-2-1-1-N-UR40M
+
+
+
