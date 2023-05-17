@@ -120,12 +120,12 @@ conda activate base
 #                         # -e m-B-3-1-N-UF20M-Ltest \
 #                         # -e m-B-3-1-N-UF30M-Ltest \
 
-bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        -b 10 \
-                        --arch ctcpmlm_rate_predictor \
-                        --task transaltion_ctcpmlm_rate \
-                        --criterion nat_ctc_pred_rate_loss \
-                        -e m-B-1-1-N-UR20M-rate_predict        
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 10 \
+#                         --arch ctcpmlm_rate_predictor \
+#                         --task transaltion_ctcpmlm_rate \
+#                         --criterion nat_ctc_pred_rate_loss \
+#                         -e m-B-1-1-N-UR20M-rate_predict        
 
 
 # bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
@@ -144,3 +144,12 @@ bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
 #                         -e m-B-1-1-N-UR20M-rate_predict_divTGT
 
 
+
+bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+                        -b 50 \
+                        --task translation_ctcpmlm \
+                        --arch nat_pretrained_model \
+                        --criterion nat_ctc_loss \
+                        --avg-ck-turnoff \
+                        --debug \
+                        -e m-B-3-1-H12-UF30M

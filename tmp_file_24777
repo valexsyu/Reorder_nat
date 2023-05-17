@@ -1,9 +1,0 @@
-m-B-1-1-N-UF20M-nohydra
-========================================================
-List of experiments:
-	m-B-1-1-N-UF20M-nohydra
-=========================No.1  ID:m-B-1-1-N-UF20M-nohydra==============================
-Namespace(checkpoint_upper_bound=None, ckpref='checkpoints.best_bleu', inputs=['checkpoints/m-B-1-1-N-UF20M-nohydra'], num_epoch_checkpoints=5, num_update_checkpoints=None, output='checkpoints/m-B-1-1-N-UF20M-nohydra/checkpoint_best_top5.pt')
-averaging checkpoints:  ['checkpoints/m-B-1-1-N-UF20M-nohydra/checkpoint.best_bleu_41.5904.pt', 'checkpoints/m-B-1-1-N-UF20M-nohydra/checkpoint.best_bleu_41.5703.pt', 'checkpoints/m-B-1-1-N-UF20M-nohydra/checkpoint.best_bleu_41.5403.pt', 'checkpoints/m-B-1-1-N-UF20M-nohydra/checkpoint.best_bleu_41.5304.pt', 'checkpoints/m-B-1-1-N-UF20M-nohydra/checkpoint.best_bleu_41.5103.pt']
-Finished writing averaged checkpoint to checkpoints/m-B-1-1-N-UF20M-nohydra/checkpoint_best_top5.pt
-Checkpoint : checkpoints/m-B-1-1-N-UF20M-nohydra	  Batchsize : 50

@@ -1,7 +1,0 @@
-m-B-1-1-N-UR20M
-========================================================
-List of experiments:
-	m-B-1-1-N-UR20M
-=========================No.1  ID:m-B-1-1-N-UR20M==============================
-Namespace(checkpoint_upper_bound=None, ckpref='checkpoints.best_bleu', inputs=['checkpoints/m-B-1-1-N-UR20M'], num_epoch_checkpoints=5, num_update_checkpoints=None, output='checkpoints/m-B-1-1-N-UR20M/checkpoint_best_top5.pt')
-averaging checkpoints:  ['checkpoints/m-B-1-1-N-UR20M/checkpoint.best_bleu_41.5900.pt', 'checkpoints/m-B-1-1-N-UR20M/checkpoint.best_bleu_41.5604.pt', 'checkpoints/m-B-1-1-N-UR20M/checkpoint.best_bleu_41.5601.pt', 'checkpoints/m-B-1-1-N-UR20M/checkpoint.best_bleu_41.5204.pt', 'checkpoints/m-B-1-1-N-UR20M/checkpoint.best_bleu_41.5103.pt']

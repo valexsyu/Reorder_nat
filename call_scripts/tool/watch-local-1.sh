@@ -7,5 +7,6 @@ bash call_scripts/tool/watch-test-polling.sh \
     --criterion nat_ctc_pred_rate_loss \
     -b 20 \
     --gpu_id 1 \
-    -e m-B-1-1-N-UR20M-rate_select-divTGT-NEW-2 \
+    -e m-B-1-1-N-UR20M-rate_select-divTGT-NEW-3 \
+    -e 2-2-3-1-N-UR20M-rate_select-divTGT-NEW-3 \
     --sleep 10

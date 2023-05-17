@@ -117,7 +117,7 @@ dataset:
 optimization:
   _name: null
   max_epoch: 0
-  max_update: 100000
+  max_update: 70000
   stop_time_hours: 0.0
   clip_norm: 0.0
   sentence_avg: false
@@ -130,7 +130,7 @@ optimization:
   skip_remainder_batch: false
 checkpoint:
   _name: null
-  save_dir: checkpoints/2-2-1-1-H12-UF20M
+  save_dir: checkpoints/m-B-3-1-H12-UF40M
   restore_file: checkpoint_last.pt
   continue_once: null
   finetune_from_model: null
@@ -224,15 +224,15 @@ model:
   embedding_frozen: true
   has_eos: true
   insert_position: uniform
-  lm_head_frozen: true
+  lm_head_frozen: false
   lm_iter_num: 1
   lm_loss: true
   lm_loss_type: COS
   lm_start_step: 75000
   lmk_loss: false
-  num_upsampling_rate: 20
-  pretrained_model_name: jhu-clsp/bibert-ende
-  pretrained_model_path: None
+  num_upsampling_rate: 40
+  pretrained_model_name: bert-base-multilingual-uncased
+  pretrained_model_path: /livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458/
   rate_list:
   - 2
   - 3
@@ -243,7 +243,7 @@ model:
 task:
   _name: translation_ctcpmlm
   align_position_pad_index: 513
-  data: /livingrooms/valexsyu/dataset/nat/iwslt14_de_en_bibertDist_bibert/de-en-databin
+  data: /livingrooms/valexsyu/dataset/nat/iwslt14_de_en_bibertDist_mbert_pruned26458/de-en-databin
   debug: false
   eval_bleu: true
   eval_bleu_print_samples: true
@@ -253,9 +253,9 @@ task:
   max_source_positions: 512
   noise: no_noise
   prepend_bos: false
-  pretrained_lm_name: jhu-clsp/bibert-ende
-  pretrained_lm_path: None
-  pretrained_model_path: None
+  pretrained_lm_name: bert-base-multilingual-uncased
+  pretrained_lm_path: /livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458/
+  pretrained_model_path: /livingrooms/valexsyu/dataset/model/mbert/pruned_models_BertForMaskedLM/pruned_V26458/
   rate_list:
   - 2
   - 3

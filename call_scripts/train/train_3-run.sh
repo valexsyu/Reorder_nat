@@ -400,5 +400,15 @@ bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select-divTGT-NEW-2 \
                                 -g 1 --fp16
 
 
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select-divTGT-NEW-3 \
+                                --save-interval-updates 70000 --max-tokens 3072 \
+                                --arch ctcpmlm_rate_selection \
+                                --task translation_ctcpmlm \
+                                --criterion nat_ctc_sel_rate_loss \
+                                --has-eos --max-update 100000 \
+                                --hydra \
+                                -g 1 --fp16
+
+
 
 

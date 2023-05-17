@@ -1,7 +1,0 @@
-m-B-1-1-N-UR20M-rate_select-divTGT-NEW
-========================================================
-List of experiments:
-	m-B-1-1-N-UR20M-rate_select-divTGT-NEW
-=========================No.1  ID:m-B-1-1-N-UR20M-rate_select-divTGT-NEW==============================
-Namespace(checkpoint_upper_bound=None, ckpref='checkpoints.best_bleu', inputs=['checkpoints/m-B-1-1-N-UR20M-rate_select-divTGT-NEW'], num_epoch_checkpoints=5, num_update_checkpoints=None, output='checkpoints/m-B-1-1-N-UR20M-rate_select-divTGT-NEW/checkpoint_best_top5.pt')
-averaging checkpoints:  ['checkpoints/m-B-1-1-N-UR20M-rate_select-divTGT-NEW/checkpoint.best_bleu_39.5603.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select-divTGT-NEW/checkpoint.best_bleu_39.5404.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select-divTGT-NEW/checkpoint.best_bleu_39.5204.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select-divTGT-NEW/checkpoint.best_bleu_39.5200.pt', 'checkpoints/m-B-1-1-N-UR20M-rate_select-divTGT-NEW/checkpoint.best_bleu_39.5102.pt']
