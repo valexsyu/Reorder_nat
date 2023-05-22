@@ -469,64 +469,85 @@ conda activate base
 #                                 -g 2 --fp16
 
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select-divTGT-NEW \
-                                --save-interval-updates 70000 --max-tokens 1536 \
-                                --arch ctcpmlm_rate_selection \
-                                --task translation_ctcpmlm \
-                                --criterion nat_ctc_sel_rate_loss \
-                                --has-eos --max-update 100000 \
-                                --hydra \
-                                --debug \
-                                -g 2 --fp16
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_select-divTGT-NEW \
+#                                 --save-interval-updates 70000 --max-tokens 1536 \
+#                                 --arch ctcpmlm_rate_selection \
+#                                 --task translation_ctcpmlm \
+#                                 --criterion nat_ctc_sel_rate_loss \
+#                                 --has-eos --max-update 100000 \
+#                                 --hydra \
+#                                 --debug \
+#                                 -g 2 --fp16
 
 
 
-function pair_experiment() { 
-    bash call_scripts/train_nat.sh -e $1 \
-                                    --save-interval-updates 70000 --max-tokens 3072 \
-                                    --lm-start-step 75000 \
-                                    --task translation_ctcpmlm \
-                                    --arch nat_pretrained_model \
-                                    --criterion nat_ctc_loss \
-                                    --has-eos --max-update 70000 \
-                                    --hydra \
-                                    -g 2 --fp16   
+# function pair_experiment() { 
+#     bash call_scripts/train_nat.sh -e $1 \
+#                                     --save-interval-updates 70000 --max-tokens 3072 \
+#                                     --lm-start-step 75000 \
+#                                     --task translation_ctcpmlm \
+#                                     --arch nat_pretrained_model \
+#                                     --criterion nat_ctc_loss \
+#                                     --has-eos --max-update 70000 \
+#                                     --hydra \
+#                                     -g 2 --fp16   
 
-    for experiment in $2 $3 $4; do
-        if [ -e checkpoints/$experiment/checkpoint_last.pt ] && \
-        [ $(ls checkpoints/$experiment/checkpoint.best_bleu_* 2>/dev/null | grep -c "^checkpoints/$experiment/checkpoint.best_bleu_.*") -eq 5 ]; then    
-            echo "All 6 checkpoint files exist"
-        else 
-            mkdir checkpoints/$experiment/
-            cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/
-            cp checkpoints/$1/checkpoint_last.pt checkpoints/$experiment/     
-        fi     
-    done
+#     for experiment in $2 $3 $4; do
+#         if [ -e checkpoints/$experiment/checkpoint_last.pt ] && \
+#         [ $(ls checkpoints/$experiment/checkpoint.best_bleu_* 2>/dev/null | grep -c "^checkpoints/$experiment/checkpoint.best_bleu_.*") -eq 5 ]; then    
+#             echo "All 6 checkpoint files exist"
+#         else 
+#             mkdir checkpoints/$experiment/
+#             cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/
+#             cp checkpoints/$1/checkpoint_last.pt checkpoints/$experiment/     
+#         fi     
+#     done
     
-    for experiment in $1 $2 $3 $4; do
-        bash call_scripts/train_nat.sh -e $experiment \
-                                        --save-interval-updates 70000 --max-tokens 3072 \
-                                        --lm-start-step 75000 \
-                                        --task translation_ctcpmlm \
-                                        --arch nat_pretrained_model \
-                                        --criterion nat_ctc_loss \
-                                        --has-eos --max-update 100000 \
-                                        --hydra \
-                                        -g 2 --fp16        
-    done                                                                                                                                                
+#     for experiment in $1 $2 $3 $4; do
+#         bash call_scripts/train_nat.sh -e $experiment \
+#                                         --save-interval-updates 70000 --max-tokens 3072 \
+#                                         --lm-start-step 75000 \
+#                                         --task translation_ctcpmlm \
+#                                         --arch nat_pretrained_model \
+#                                         --criterion nat_ctc_loss \
+#                                         --has-eos --max-update 100000 \
+#                                         --hydra \
+#                                         -g 2 --fp16        
+#     done                                                                                                                                                
 
-}
+# }
 
 # pair_experiment 2-2-1-1-H12-UF20M 2-2-1-1-N-UF20M 2-2-1-1-H7-UF20M 2-2-1-1-H4-UF20M
 
-bash call_scripts/train_nat.sh -e 2-2-3-1-N-UR20M-rate_select-divTGT-NEW-3 \
-                                --save-interval-updates 70000 --max-tokens 1536 \
-                                --arch ctcpmlm_rate_selection \
-                                --task translation_ctcpmlm \
-                                --criterion nat_ctc_sel_rate_loss \
-                                --has-eos --max-update 100000 \
+# bash call_scripts/train_nat.sh -e 2-2-3-1-N-UR20M-rate_select-divTGT-NEW-3 \
+#                                 --save-interval-updates 70000 --max-tokens 1536 \
+#                                 --arch ctcpmlm_rate_selection \
+#                                 --task translation_ctcpmlm \
+#                                 --criterion nat_ctc_sel_rate_loss \
+#                                 --has-eos --max-update 100000 \
+#                                 --hydra \
+#                                 -g 2 --fp16
+
+
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_predict_divTGT-NEW-detach-correct \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --arch ctcpmlm_rate_predictor \
+#                                 --task transaltion_ctcpmlm_rate \
+#                                 --criterion nat_ctc_pred_rate_loss \
+#                                 --hydra \
+#                                 -g 2 --fp16   
+
+
+
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-predsel-rate \
+                                --save-interval-updates 70000 --max-tokens 2048 \
+                                --arch ctcpmlm_rate_predictor \
+                                --task transaltion_ctcpmlm_rate \
+                                --criterion nat_ctc_predsel_rate_loss \
                                 --hydra \
-                                -g 2 --fp16
+                                -g 2 --fp16   
+
+
 
 
 

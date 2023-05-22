@@ -222,6 +222,7 @@ function get_pretrain_model() {
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
         bpe="bibert"    
+        init_translator=False   
         pretrained_lm_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/
         pretrained_model_path=$modelroot/mbert/pruned_models_BertModel/pruned_V26458/      
         bpe_symbo="## "
@@ -229,7 +230,8 @@ function get_pretrain_model() {
     then
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
-        bpe="bibert"    
+        bpe="bibert"   
+        init_translator=False    
         pretrained_lm_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458/ 
         pretrained_model_path=$modelroot/mbert/pruned_models_BertForMaskedLM/pruned_V26458/           
         bpe_symbo="## "
@@ -238,6 +240,7 @@ function get_pretrain_model() {
         pretrained_model="xlmr"
         pretrained_model_name="xlm-roberta-base"
         bpe="xlmr"    
+        init_translator=False   
         pretrained_lm_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/ 
         pretrained_model_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/                        
     else

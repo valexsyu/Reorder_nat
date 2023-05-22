@@ -113,6 +113,9 @@ model:
   rate_predictor_classnum: 3
   rate_list: [2,3,4]
   dynamic_rate: False 
+  init_translator: False
+  no_atten_mask: False
+
 
 
 hydra:

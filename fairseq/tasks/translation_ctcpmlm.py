@@ -181,7 +181,6 @@ class TranslationCTCPMLM(TranslationTask):
         
         
         
-        
         self.lm_loss_layer = cfg.lm_loss_layer
         self.twcc = cfg.twcc
         self.watch_test_bleu = cfg.watch_test_bleu

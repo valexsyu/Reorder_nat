@@ -1,0 +1,1 @@
+this sible is configurationed for the video wizard , and if i flip it in one direction tip , the video is played forward ; if i flip it in the other direction , it goes backwards .

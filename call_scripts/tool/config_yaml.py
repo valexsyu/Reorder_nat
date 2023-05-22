@@ -74,6 +74,9 @@ def parser_function():
     parser.add_argument('--lmk-loss', help='lmk-loss', action='store_true')
     parser.add_argument('--dynamic-upsampling', help='dynamic_upsampling', action='store_true')
     parser.add_argument( '--pretrained-model-name', help='pretrained_model_name', default=None, type=str)
+    parser.add_argument('--init-translator', help='init_translator', action='store_true')
+    parser.add_argument('--no-atten-mask', help='no_atten_mask', action='store_true')
+    
   
 
     
@@ -186,6 +189,11 @@ def main():
     set_config(config, key1 ,'lmk_loss', args.lmk_loss)  
     set_config(config, key1 ,'pretrained_model_name', args.pretrained_model_name)
     set_config(config, key1 ,'pretrained_model_path', args.pretrained_model_path) 
+    set_config(config, key1 ,'init_translator', args.init_translator) 
+    set_config(config, key1 ,'no_atten_mask', args.no_atten_mask) 
+    
+    
+    
 
 
     

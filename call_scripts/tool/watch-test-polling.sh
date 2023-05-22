@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function default_setting() {
     twcc=False
     sleep_time=3600
@@ -78,11 +80,21 @@ do
          continue
       fi       
       
-      last_value=$(tail -1 $CHECKPOINT/best_top5.test.record | grep -oE "last:[0-9]+" | grep -oE "[0-9]+")
-      if [ -n "$last_value" ] && [ "$last_value" -ge 100000 ]; then
+      ## To reduce generation time, 
+      ## skip iterations where the generated output exceeds 100,000 tokens 
+      ## or when the last generated value remains unchanged
+      pervious_value=$(tail -1 $CHECKPOINT/best_top5.test.record | grep -oE "last:[0-9]+" | grep -oE "[0-9]+")
+      if [ -n "$pervious_value" ] && [ "$pervious_value" -ge 100000 ]; then
           echo "The $CHECKPOINT : Last value is equal to or greater than 100,000"
           score_array+=$(tail -1 $CHECKPOINT/best_top5.test.record) 
           continue
+      else
+          echo "Last Value Loading....."
+          last_value=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT last | grep -oE "last:[0-9]+" | grep -oE "[0-9]+")
+          if [ "$last_value" = "$previous_value" ]; then
+          echo "The $CHECKPOINT : last generated value remains unchanged"
+              continue
+          fi
       fi
 
       dt=$(date)

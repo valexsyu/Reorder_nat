@@ -150,6 +150,6 @@ bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
                         --task translation_ctcpmlm \
                         --arch nat_pretrained_model \
                         --criterion nat_ctc_loss \
-                        --avg-ck-turnoff \
-                        --debug \
-                        -e m-B-3-1-H12-UF30M
+                        -e m-B-1-1-N-UR20M \
+                        -e m-B-1-1-N-UR30M-NEW \
+                        -e m-B-1-1-N-UR40M-NEW 

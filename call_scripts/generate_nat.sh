@@ -1,4 +1,6 @@
 #!/bin/bash
+# conda init bash
+
 source $HOME/.bashrc 
 conda activate base
 

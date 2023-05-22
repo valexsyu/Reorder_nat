@@ -145,6 +145,30 @@ for(my $n=1;$n<=4;$n++) {
   }
 }
 
+
+# for (my $n = 1; $n <= 4; $n++) {
+#   if (defined($TOTAL[$n])) {
+#     if ($CORRECT[$n] == 0) {
+#       printf "DEBUG: \$CORRECT[$n] is 0\n";
+#       $CORRECT[$n] = 0.1;
+#       printf "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
+#       printf "$CORRECT[$n]";
+#       printf "$TOTAL[$n]";
+
+#       exit(1);
+#     }
+
+#     $bleu[$n] = ($TOTAL[$n]) ? $CORRECT[$n] / $TOTAL[$n] : 0;
+#     # print STDERR "CORRECT[$n]:$CORRECT[$n] TOTAL[$n]:$TOTAL[$n]\n";
+#   } else {
+#     $bleu[$n] = 0;
+#   }
+# }
+
+
+
+
+
 if ($length_reference==0){
   printf "BLEU = 0, 0/0/0/0 (BP=0, ratio=0, hyp_len=0, ref_len=0)\n";
   exit(1);
@@ -169,7 +193,7 @@ printf "BLEU = %.2f, %.1f/%.1f/%.1f/%.1f (BP=%.3f, ratio=%.3f, hyp_len=%d, ref_l
     $length_reference;
 
 
-print STDERR "It is not advisable to publish scores from multi-bleu.perl.  The scores depend on your tokenizer, which is unlikely to be reproducible from your paper or consistent across research groups.  Instead you should detokenize then use mteval-v14.pl, which has a standard tokenization.  Scores from multi-bleu.perl can still be used for internal purposes when you have a consistent tokenizer.\n";
+# print STDERR "It is not advisable to publish scores from multi-bleu.perl.  The scores depend on your tokenizer, which is unlikely to be reproducible from your paper or consistent across research groups.  Instead you should detokenize then use mteval-v14.pl, which has a standard tokenization.  Scores from multi-bleu.perl can still be used for internal purposes when you have a consistent tokenizer.\n";
 
 sub my_log {
   return -9999999999 unless $_[0];

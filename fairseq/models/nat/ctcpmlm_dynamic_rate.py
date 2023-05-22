@@ -181,8 +181,30 @@ class CTCPMLMRateSelection(NATPretrainedModel):
                             We can add it from nonautoregressive_pretrain_model, but need to modify.")
             print("=============error============")
         else:
+            
             # if self.debug :
-            #     self.num_upsampling_rate = 2
+            #     upsampling_rate=4
+            #     logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, rate=upsampling_rate, **kwargs) 
+            #     _scores, _tokens = F.log_softmax(logits, dim=-1).max(-1)  #B x T
+            #     if _tokens.size(1) > 0 :
+            #         unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
+            #         indices -= indices.min(dim=1, keepdims=True)[0]
+            #         remove_duplicate_tokens = torch.full_like(_tokens,self.pad)
+            #         # remove_duplicate_score = torch.full_like(_scores,self.pad)
+            #         # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
+            #         remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
+            #     else:
+            #         remove_duplicate_tokens = _tokens      
+
+            #     return DataOut(
+            #         output_tokens=remove_duplicate_tokens,
+            #         output_scores=_scores,
+            #         attn=None,
+            #         step=0,
+            #         max_step=0,
+            #         history=None,
+            #     )                
+            
             
             scores=[] ; tokens=[] ; sentence_scores=[] ; max_length=0
             for upsampling_rate in self.rate_list :
@@ -291,7 +313,8 @@ class CTCPMLMRatePredictor(CTCPMLMRateSelection):
                                             self.src_dict.bos_index, self.src_dict.pad_index)
         # Load the pre-trained word embedding weights from the translator model
         for trans_params, rate_params in zip(self.translator.bert.embeddings.parameters(), self.rate_predictor.rate_bert.embeddings.parameters()) :
-            trans_params = rate_params
+            rate_params = trans_params.detach()  
+            
             
         for p in self.translator.parameters():
             p.param_group = "translator"
@@ -359,6 +382,9 @@ class CTCPMLMRatePredictor(CTCPMLMRateSelection):
             # if self.debug :
             #     self.num_upsampling_rate = 2
             
+                      
+                
+                
             scores=[] ; tokens=[] ; sentence_scores=[] ; max_length=0
             for upsampling_rate in self.rate_list :
                 logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, rate=upsampling_rate, **kwargs) 

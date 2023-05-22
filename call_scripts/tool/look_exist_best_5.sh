@@ -1,11 +1,16 @@
+#!/bin/sh
+# e.g. bash call_scripts/tool/look_exist_best_5.sh -e K-2-1-1-H7-UR40M -e m-B-1-1-N-UR20M \
+#                         -e m-B-1-1-N-UR20M-rate_select-divTGT-NEW-3 -e 2-2-3-1-N-UR20M-rate_select-divTGT-NEW-3 \
+#                         -e m-B-1-1-N-UR20M-rate_predict_divTGT-NEW-detach --sleep 60
+
 function default_setting() {
     twcc=False
     sleep_time=10
     port=51645
     ip=203.145.216.187
     arch=nat_pretrained_model
-    
 }
+
 
 
 VALID_ARGS=$(getopt -o e: --long experiment:,twcc,sleep:,port:,ip:,arch: -- "$@")

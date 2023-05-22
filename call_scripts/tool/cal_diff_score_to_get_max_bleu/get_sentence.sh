@@ -1,6 +1,9 @@
 
 #!/bin/bash
 # get_sentence -d file2.0.txt -d file3.0.txt -d file4.0.txt -t file2.0.txt -p c
+# e.g. bash call_scripts/tool/cal_diff_score_to_get_max_bleu/get_sentence.sh \
+#       -d generate-test-2.txt -d generate-test-3.txt -d generate-test-4.txt \
+#       -t generate-test-2.txt -p m-B-1-1-N-UR20M-rate_select-divTGT-NEW-2/test/best_top5_20_1.bleu
 
 
 root_path=/home/valex/Documents/Study/battleship/Reorder_nat/checkpoints/
@@ -40,7 +43,7 @@ done
 
 echo "========================================================"
 
-file_paht=$root_path$folder_path
+file_path=$root_path$folder_path
 
 
 if [ "${#data_name_array[@]}" -gt 0 ]; then
@@ -48,22 +51,24 @@ if [ "${#data_name_array[@]}" -gt 0 ]; then
     for i in "${data_name_array[@]}"; do
         # Do what you need based on $i
         # echo -e "\t$i"
-        cat $file_paht/$i | head -n -2 | grep -P "^D" |sort -V |cut -f 2-  > $file_paht/D-$i
-        parsing_data_array+=("$file_paht/D-$i")
+        cat $file_path/$i | head -n -2 | grep -P "^D" |sort -V |cut -f 2-  > $file_path/D-$i
+        parsing_data_array+=("$file_path/D-$i")
 
-        bleu=$(cat $file_paht/$i | tail -n -1 | cut -d ' ' -f 5-7 )
+        bleu=$(cat $file_path/$i | tail -n -1 | cut -d ' ' -f 5-7 )
         echo "$i : $bleu "
     done
 fi
-cat $file_paht/$tgt_name | head -n -2 | grep -P "^T" |sort -V |cut -f 2-  > $file_paht/T-$tgt_name
-parsing_tgt_array+=("$file_paht/T-$tgt_name")
+cat $file_path/$tgt_name | head -n -2 | grep -P "^T" |sort -V |cut -f 2-  > $file_path/T-$tgt_name
+parsing_tgt_array+=("$file_path/T-$tgt_name")
 
 
 # echo "${data_name_array[@]}"
-python get_max_sentence.py --data ${parsing_data_array[@]} \
+python call_scripts/tool/cal_diff_score_to_get_max_bleu/get_max_score_sentence.py --data ${parsing_data_array[@]} \
                            --tgt ${parsing_tgt_array[@]} \
-                           --output_max_sentence $file_paht/max_sentence.txt \
-                           --output_index $file_paht/index.txt
+                           --output_max_sentence $file_path/max_sentence.txt \
+                           --output_index $file_path/index.txt
 echo "========================================================"
-echo "Using maximu rate:"
-perl multi-bleu.perl $file_paht/T-$tgt_name < $file_paht/max_sentence.txt  
+perl call_scripts/tool/cal_diff_score_to_get_max_bleu/multi-bleu.perl $file_path/T-$tgt_name < $file_path/max_sentence.txt 
+
+
+ 

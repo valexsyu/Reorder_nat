@@ -75,7 +75,7 @@
 
 
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UF20M \
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M \
                                 --save-interval-updates 70000 --max-tokens 2048 \
                                 --task translation_ctcpmlm \
                                 --arch nat_pretrained_model \

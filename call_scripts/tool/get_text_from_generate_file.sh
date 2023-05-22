@@ -1,6 +1,10 @@
 #!/bin/bash
 #S:Sorce / T:Target / H:hypo / D:Detokenize
 
+# how to use it ?
+#1. cd to the generate-test.txt folder
+#2. bash ../../../../call_scripts/tool/get_text_from_generate_file.sh
+
 token_path=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/iwslt14_de_en_bibertDist_mbert_pruned26458
 SRC=de
 TGT=en
@@ -32,3 +36,4 @@ done
 
 cat $token_path/test.$TGT | awk '{print NF}' > target_token_num.txt
 cat $token_path/test.$SRC | awk '{print NF}' > source_token_num.txt
+echo "Done"

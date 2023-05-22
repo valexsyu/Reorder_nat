@@ -122,7 +122,7 @@ data-bin/
 examples/
 data/
 call_scripts/generate/output_file/
-tmp_file
+tmp_file*
 
 # reranking
 /examples/reranking/rerank_data

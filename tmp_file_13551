@@ -19,4 +19,9 @@ Loading an exist vocab file ../../dataset/nat/iwslt14_de_en_bibertDist_bibert/de
 The target voc size is the loading form config
 > /home/valex/Documents/Study/battleship/Reorder_nat/generate.py(317)_main()
 -> detok_hypo_str = decode_fn(hypo_str)
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
 (Pdb) 

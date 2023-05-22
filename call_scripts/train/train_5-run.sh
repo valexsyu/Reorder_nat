@@ -101,45 +101,45 @@ conda activate base
 
 
 
-function pair_experiment() { 
-    bash call_scripts/train_nat.sh -e $1 \
-                                    --save-interval-updates 70000 --max-tokens 2048 \
-                                    --lm-start-step 75000 \
-                                    --task translation_ctcpmlm \
-                                    --arch nat_pretrained_model \
-                                    --criterion nat_ctc_loss \
-                                    --has-eos --max-update 70000 \
-                                    --hydra \
-                                    -g 3 --fp16       
+# function pair_experiment() { 
+#     bash call_scripts/train_nat.sh -e $1 \
+#                                     --save-interval-updates 70000 --max-tokens 2048 \
+#                                     --lm-start-step 75000 \
+#                                     --task translation_ctcpmlm \
+#                                     --arch nat_pretrained_model \
+#                                     --criterion nat_ctc_loss \
+#                                     --has-eos --max-update 70000 \
+#                                     --hydra \
+#                                     -g 3 --fp16       
 
 
-        for experiment in $2 ; do
-            if [ -e checkpoints/$experiment/checkpoint_last.pt ] && \
-            [ $(ls checkpoints/$experiment/checkpoint.best_bleu_* 2>/dev/null | grep -c "^checkpoints/$experiment/checkpoint.best_bleu_.*") -eq 5 ]; then
-                echo "All 6 checkpoint files exist"
-            else        
-                mkdir checkpoints/$experiment/
-                cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/
-                cp checkpoints/$1/checkpoint_last.pt checkpoints/$experiment/
-            fi
-        done
+#         for experiment in $2 ; do
+#             if [ -e checkpoints/$experiment/checkpoint_last.pt ] && \
+#             [ $(ls checkpoints/$experiment/checkpoint.best_bleu_* 2>/dev/null | grep -c "^checkpoints/$experiment/checkpoint.best_bleu_.*") -eq 5 ]; then
+#                 echo "All 6 checkpoint files exist"
+#             else        
+#                 mkdir checkpoints/$experiment/
+#                 cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/
+#                 cp checkpoints/$1/checkpoint_last.pt checkpoints/$experiment/
+#             fi
+#         done
 
-    for experiment in $1 $2; do
-        bash call_scripts/train_nat.sh -e $experiment \
-                                        --save-interval-updates 70000 --max-tokens 2048 \
-                                        --lm-start-step 75000 \
-                                        --task translation_ctcpmlm \
-                                        --arch nat_pretrained_model \
-                                        --criterion nat_ctc_loss \
-                                        --has-eos --max-update 100000 \
-                                        --hydra \
-                                        -g 3 --fp16        
-    done                                                                                                                                                
+#     for experiment in $1 $2; do
+#         bash call_scripts/train_nat.sh -e $experiment \
+#                                         --save-interval-updates 70000 --max-tokens 2048 \
+#                                         --lm-start-step 75000 \
+#                                         --task translation_ctcpmlm \
+#                                         --arch nat_pretrained_model \
+#                                         --criterion nat_ctc_loss \
+#                                         --has-eos --max-update 100000 \
+#                                         --hydra \
+#                                         -g 3 --fp16        
+#     done                                                                                                                                                
 
-}
+# }
 
 # pair_experiment m-B-3-1-H12-UF20M m-B-3-1-N-UF20M 
-pair_experiment m-B-1-1-H12-UR20M m-B-1-1-N-UR20M
+# pair_experiment m-B-1-1-H12-UR20M m-B-1-1-N-UR20M
 
 
 
@@ -147,7 +147,7 @@ pair_experiment m-B-1-1-H12-UR20M m-B-1-1-N-UR20M
 
 function pair_experiment() { 
     bash call_scripts/train_nat.sh -e $1 \
-                                    --save-interval-updates 70000 --max-tokens 2048 \
+                                    --save-interval-updates 70000 --max-tokens 1536 \
                                     --lm-start-step 75000 \
                                     --task translation_ctcpmlm \
                                     --arch nat_pretrained_model \
@@ -169,7 +169,7 @@ function pair_experiment() {
     
     for experiment in $1 $2 $3 $4; do
         bash call_scripts/train_nat.sh -e $experiment \
-                                        --save-interval-updates 70000 --max-tokens 2048 \
+                                        --save-interval-updates 70000 --max-tokens 1536 \
                                         --lm-start-step 75000 \
                                         --task translation_ctcpmlm \
                                         --arch nat_pretrained_model \
@@ -180,4 +180,12 @@ function pair_experiment() {
     done                                                                                                                                                
 
 }
-pair_experiment 2-2-1-1-H7-UF20T 2-2-1-1-N-UF20T 
+# pair_experiment 2-2-1-1-H7-UF20T 2-2-1-1-N-UF20T
+# pair_experiment J-2-1-1-H7-UF20M J-2-1-1-N-UF20M J-2-1-1-H12-UF20M
+# pair_experiment J-2-1-1-H7-UF20T J-2-1-1-N-UF20T J-2-1-1-H12-UF20T
+pair_experiment J-6-1-1-H7-UF20M J-6-1-1-N-UF20M J-6-1-1-H12-UF20M 
+pair_experiment J-6-1-1-H7-UF20T J-6-1-1-N-UF20T J-6-1-1-H12-UF20T 
+
+
+
+

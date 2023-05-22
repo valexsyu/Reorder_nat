@@ -42,7 +42,8 @@ bash call_scripts/tool/watch-test-polling.sh \
     --arch ctcpmlm_rate_predictor \
     --task transaltion_ctcpmlm_rate \
     --criterion nat_ctc_pred_rate_loss \
-    -e m-B-1-1-N-UR20M-rate_predict_divTGT-NEW-detach \
+    -e m-B-1-1-N-UR20M-rate_predict_divTGT-NEW-detach-correct \
     --sleep 10 &
 
 wait
+
