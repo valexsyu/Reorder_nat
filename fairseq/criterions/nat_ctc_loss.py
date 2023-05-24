@@ -982,3 +982,123 @@ class NatCTCPredSelRateLoss(NatCTCSelRateLoss):
                 )
 
         return ctc_loss, ce_loss, sample_size, logging_output
+    
+    
+    
+    
+    
+
+@register_criterion("nat_ctc_predsel_rate_test_loss", dataclass=LabelSmoothedDualImitationCriterionConfig)
+class NatCTCPredSelRateTestLoss(NatCTCSelRateLoss):
+    def __init__(self, task, label_smoothing):
+        super().__init__(task, label_smoothing)
+        
+
+    def forward(self, model, sample, update_num , pretrained_lm=None, lm_loss_layer=-1, reduce=True):
+        """Compute the loss for the given sample.
+        Returns a tuple with three elements:
+        1) the loss
+        2) the sample size, which is used as the denominator for the gradient
+        3) logging outputs to display while training
+        """
+    
+        
+        nsentences, ntokens = sample["nsentences"], sample["ntokens"]
+
+        # B x T
+        src_tokens, src_lengths = (
+            sample["net_input"]["src_tokens"],
+            sample["net_input"]["src_lengths"],
+        )
+        #tgt_tokens, prev_output_tokens = sample["target"], sample["prev_target"]
+        if sample.get("alignments", None) is not None: 
+            tgt_tokens , alignments= sample["target"], sample["alignments"]
+        else:
+            tgt_tokens = sample["target"]
+            alignments = None
+        
+
+        
+        
+        # for upsampling_rate in self.rate_list : 
+        
+        collect_losses={}
+        ctc_losses = []
+        ce_losses = []
+        others_losses = []
+        for upsampling_rate in self.rate_list :      
+            outputs = model.ctc_forward(src_tokens, src_lengths, tgt_tokens, alignments, update_num, 
+                            pretrained_lm, lm_loss_layer, upsampling_rate)
+            
+            ## ex : collect_losses = {2:[{ctc-loss},{ce-loss}], 3:[{},{}], 4[{},{}] }
+            collection_name = "r-" + str(upsampling_rate)
+            collect_losses, ctc_losses, _ , others_losses = self.loss_collection(outputs, collect_losses, collection_name , sample, 
+                                                                   ctc_losses, ce_losses, others_losses) 
+       
+        if len(ctc_losses) > 0 :
+            ctc_losses = torch.stack(ctc_losses)
+        if len(others_losses) > 0 :
+            others_losses = torch.stack(others_losses)
+        
+        tgt_rate = F.softmax(-ctc_losses.transpose(0,1), dim=1).detach()
+        
+        rate_outputs = model.rate_pred_forward(src_tokens, tgt_rate)
+        collection_name = "rate"
+        collect_losses, _ , ce_losses , _  = self.loss_collection(rate_outputs, collect_losses, "rate", sample, 
+                                                                   ctc_losses, ce_losses, others_losses) 
+        
+        ce_loss = ce_losses[0]
+        #leave some steps for checkpoint averaging
+        
+        tgt_lengths=collect_losses[list(collect_losses.keys())[0]][0]['tgt_lengths']
+        sum_tgt_lengths = torch.sum(tgt_lengths)
+        num_rate_list = len(self.rate_list)
+        time = update_num / (self.max_update - self.lmax_only_step)
+        curr_lambda = 1/3
+        num_rate, bz = ctc_losses.size() # num_rate x bz size
+        if time < curr_lambda:   
+            t_1 = time / curr_lambda
+            ctc_avg_loss = torch.sum(ctc_losses).div(sum_tgt_lengths).div(num_rate_list)
+            ctc_lse_loss = - torch.sum(torch.logsumexp(-ctc_losses, dim = 0)).div(sum_tgt_lengths).div(num_rate_list)
+            # ctc_avg_loss = ctc_losses.mean()  # bz size
+            ctc_loss = t_1 * ctc_lse_loss + (1 - t_1) * ctc_avg_loss  
+            ce_loss = ce_loss
+        elif time < 1:
+            t_2 = (time - curr_lambda) / (1 - curr_lambda)
+            rate_max_lprob, max_idx = torch.max(rate_outputs['rate']['out'].detach(), dim = 1)
+            ctc_rmax_losses = torch.gather(ctc_losses, 0, max_idx.view(1, -1))
+            ctc_rmax_loss = torch.sum(ctc_rmax_losses).div(sum_tgt_lengths)
+            ctc_lse_loss = - torch.sum(torch.logsumexp(-ctc_losses, dim = 0)).div(sum_tgt_lengths).div(num_rate_list)
+            # ctc_rmax_loss = ctc_rmax_losses.mean()    
+            # ctc_avg_loss = ctc_losses.mean()
+            ctc_loss = t_2 * ctc_rmax_loss + (1 - t_2) * ctc_lse_loss    
+            ce_loss = ce_loss
+        else:
+            rate_max_lprob, max_idx = torch.max(rate_outputs['rate']['out'].detach(), dim = 1)
+            ctc_rmax_losses = torch.gather(ctc_losses, 0, max_idx.view(1, -1))
+            ctc_rmax_loss = torch.sum(ctc_rmax_losses).div(sum_tgt_lengths)
+            # ctc_rmax_loss = ctc_rmax_losses.mean()  
+            ctc_loss = ctc_rmax_loss    
+            ce_loss = ce_loss
+
+        # NOTE:
+        # we don't need to use sample_size as denominator for the gradient
+        # here sample_size is just used for logging
+        sample_size = 1        
+        logging_output = {
+            "ctc_loss": ctc_loss.data,
+            "rate_loss": ce_loss.data,
+            "nll_loss": 0,
+            "ntokens": ntokens,
+            "nsentences": nsentences,
+            "sample_size": sample_size,
+        }
+        for collection_name, losses in collect_losses.items() :
+            for l in losses:
+                logging_output[collection_name + "-" + l["name"]] = (
+                    utils.item(l["loss"].mean().data / l["factor"])
+                    if reduce
+                    else l[["loss"]].data / l["factor"]
+                )
+
+        return ctc_loss, ce_loss, sample_size, logging_output    
