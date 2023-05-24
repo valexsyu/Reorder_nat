@@ -540,6 +540,69 @@ class TranslationCTCPMLMRate(TranslationCTCPMLM):
      
 
 
+       
+@register_task("transaltion_ctcpmlm_rate_test", dataclass=TranslationCTCPMLMConfig)
+class TranslationCTCPMLMRateTest(TranslationCTCPMLMRate):
+    cfg: TranslationCTCPMLMConfig
+    def __init__(self, cfg: TranslationCTCPMLMConfig, src_dict, tgt_dict):
+        super().__init__(cfg, src_dict, tgt_dict)  
+        
+         
+        
+    def optimizer_step(self, optimizer, model, update_num):
+        # optimizer.step(groups={"rate_predictor"})
+        optimizer.step(groups={"translator"})
+        # if hasattr(model, "get_groups_for_update"):
+        #     groups = model.get_groups_for_update(update_num)
+        #     optimizer.step(groups={groups})
+        # else:
+        #     optimizer.step()
+    def train_step(
+        self, sample, model, criterion, optimizer, update_num, ignore_grad=False
+    ):  
+        model.train()
+        """ for merge only use
+        cuda0 = torch.device('cuda:0')
+        loss=torch.Tensor(0)
+        sample_size=1
+        logging_output={'loss': 0, 'sample_size' : 1}#, 'nll_loss': torch.Tensor(0.187), 'ntokens': 960, 'nsentences': 40, 'sample_size': 1, 'word_ins-loss': 0.18786469101905823}
+        return loss, sample_size, logging_output
+        """
+        transaltor_loss, rate_pred_loss, sample_size, logging_output = criterion(model, sample, update_num,
+                                                      self.pretrained_lm, self.lm_loss_layer)
+         
+        if ignore_grad:
+            transaltor_loss *= 0
+            
+        rate_pred_loss *= 0
+        optimizer.backward(transaltor_loss)
+        # optimizer.backward(rate_pred_loss)
+        loss = transaltor_loss + rate_pred_loss
+        return loss, sample_size, logging_output            
+        
+    def valid_step(self, sample, model, criterion, update_num):
+        model.eval()
+        with torch.no_grad():
+            transaltor_loss, rate_pred_loss, sample_size, logging_output = criterion(model, sample, update_num)
+            loss = transaltor_loss + rate_pred_loss
+        # return loss, sample_size, logging_output
+        if self.cfg.eval_bleu:
+            bleu = self._inference_with_bleu(self.nat_generator, sample, model)
+            logging_output["_bleu_sys_len"] = bleu.sys_len
+            logging_output["_bleu_ref_len"] = bleu.ref_len
+            # we split counts into separate entries so that they can be
+            # summed efficiently across workers using fast-stat-sync
+            assert len(bleu.counts) == EVAL_BLEU_ORDER
+            for i in range(EVAL_BLEU_ORDER):
+                logging_output["_bleu_counts_" + str(i)] = bleu.counts[i]
+                logging_output["_bleu_totals_" + str(i)] = bleu.totals[i]
+            
+        return loss, sample_size, logging_output           
+     
 
+
+
+
+           
 
            
