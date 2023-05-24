@@ -312,7 +312,8 @@ class CTCPMLMRatePredictor(CTCPMLMRateSelection):
         self.rate_predictor = RatePredictor(config, args.encoder_embed_dim, args.rate_predictor_classnum, 
                                             self.src_dict.bos_index, self.src_dict.pad_index)
         # Load the pre-trained word embedding weights from the translator model
-        for trans_params, rate_params in zip(self.translator.bert.embeddings.parameters(), self.rate_predictor.rate_bert.embeddings.parameters()) :
+        for trans_params, rate_params in zip(self.translator.bert.embeddings.parameters(), 
+                                             self.rate_predictor.rate_bert.embeddings.parameters()) :
             rate_params = trans_params.detach()  
             
             
@@ -344,7 +345,7 @@ class CTCPMLMRatePredictor(CTCPMLMRateSelection):
     ):  
         
         return super().forward(src_tokens, src_lengths, tgt_tokens, alignments, update_num,
-        pretrained_lm=None, lm_loss_layer=-1, upsampling_rate=2.0, **kwargs
+        pretrained_lm, lm_loss_layer, upsampling_rate, **kwargs
     )
     
     def rate_pred_forward(
