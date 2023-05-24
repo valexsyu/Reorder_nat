@@ -22,7 +22,7 @@ def best_file_class(input_path,output_list):
     file_class=""
     file_names = [name for name in os.listdir(input_path) if name.startswith('checkpoint.best_bleu')]
     # for name in file_names:
-    for name in tqdm(file_names, desc='Loading best files'):
+    for name in tqdm(file_names, disable=True, desc='Loading best files'):
         if name.startswith('checkpoint.best_bleu'):
             i=+1
             load_file_path=os.path.join(input_path,name)

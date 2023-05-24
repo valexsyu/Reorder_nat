@@ -538,15 +538,44 @@ conda activate base
 #                                 -g 2 --fp16   
 
 
+function pair_experiment_1() { 
+    bash call_scripts/train_nat.sh -e $1 \
+                                    --save-interval-updates 70000 --max-tokens 2048 \
+                                    --lm-start-step 75000 \
+                                    --task translation_ctcpmlm \
+                                    --arch nat_pretrained_model \
+                                    --criterion nat_ctc_loss \
+                                    --has-eos --max-update 70000 \
+                                    --hydra \
+                                    -g 1 --fp16       
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-predsel-rate \
-                                --save-interval-updates 70000 --max-tokens 2048 \
-                                --arch ctcpmlm_rate_predictor \
-                                --task transaltion_ctcpmlm_rate \
-                                --criterion nat_ctc_predsel_rate_loss \
-                                --hydra \
-                                -g 2 --fp16   
 
+        for experiment in $2 $3 $4 ; do
+            if [ -e checkpoints/$experiment/checkpoint_last.pt ] && \
+            [ $(ls checkpoints/$experiment/checkpoint.best_bleu_* 2>/dev/null | grep -c "^checkpoints/$experiment/checkpoint.best_bleu_.*") -eq 5 ]; then
+                echo "All 6 checkpoint files exist"
+            else        
+                mkdir checkpoints/$experiment/
+                cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/
+                cp checkpoints/$1/checkpoint_last.pt checkpoints/$experiment/
+            fi
+        done
+
+    for experiment in $1 $2 $3 $4 ; do
+        bash call_scripts/train_nat.sh -e $experiment \
+                                        --save-interval-updates 70000 --max-tokens 2048 \
+                                        --lm-start-step 75000 \
+                                        --task translation_ctcpmlm \
+                                        --arch nat_pretrained_model \
+                                        --criterion nat_ctc_loss \
+                                        --has-eos --max-update 100000 \
+                                        --hydra \
+                                        -g 1 --fp16        
+    done                                                                                                                                                
+
+}
+
+pair_experiment_1 2-6-1-1-H7-UF20T 2-6-1-1-N-UF20T 2-6-1-1-H12-UF20T 
 
 
 

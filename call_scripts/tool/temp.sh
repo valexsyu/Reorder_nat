@@ -23,7 +23,8 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
     --task transaltion_ctcpmlm_rate \
     --criterion nat_ctc_pred_rate_loss \
     -b 20 \
-    --gpu_id 0 \
+    --gpu_id 1 \
+    -e m-B-1-1-N-UR20M-rate_predict \
     -e m-B-1-1-N-UR20M-predsel-rate \
     --sleep 100" C-m
 
@@ -36,22 +37,23 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
     --arch nat_pretrained_model \
     --criterion nat_ctc_loss \
     -b 20 \
-    --gpu_id 1 \
-    -e 2-6-1-1-H7-UF20M  \
-    -e 2-2-1-1-H7-UF20T \
-    -e 2-2-1-1-H7-UF20T \
-    -e J-6-1-1-H7-UF20M \
+    --gpu_id 0 \
+    -e 2-6-1-1-H7-UF20T \
+    -e 2-6-1-1-N-UF20T \
+    -e J-6-1-1-H7-UF20T \
+    -e J-6-1-1-N-UF20T \
     --sleep 60" C-m
 
 # Select the third window and execute the third script
 tmux select-pane -t 2
 tmux send-keys "conda activate reorder_nat" C-m
 tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
+    -e 2-6-1-1-H7-UF20T \
+    -e 2-6-1-1-N-UF20T \
+    -e m-B-1-1-N-UR20M-rate_predict \
     -e m-B-1-1-N-UR20M-predsel-rate \
-    -e 2-6-1-1-H7-UF20M \
-    -e 2-2-1-1-H7-UF20T \
-    -e 2-2-1-1-H7-UF20T \
-    -e J-6-1-1-H7-UF20M \
+    -e J-6-1-1-H7-UF20T \
+    -e J-6-1-1-N-UF20T \
     --sleep 60" C-m
 
 # Attach to the tmux session to view the windows

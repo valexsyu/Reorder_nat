@@ -111,7 +111,7 @@ hydra:
     override_dirname: ''
     id: ???
     num: ???
-    config_name: 2-2-1-1-N-UF20M-TTTTTTTTTTT.yaml
+    config_name: J-6-1-1-H7-UF20T.yaml
     env_set: {}
     env_copy: []
     config:

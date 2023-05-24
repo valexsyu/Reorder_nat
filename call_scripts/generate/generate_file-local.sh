@@ -308,7 +308,6 @@ CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --data-subset test --ck
                         --arch ctcpmlm_rate_selection \
                         --task transaltion_ctcpmlm_rate \
                         --criterion nat_ctc_pred_rate_loss \
-                        --debug \
                         --local \
                         --avg-ck-turnoff \
                         -e 2-2-1-1-H12-UR40M \

@@ -308,25 +308,25 @@ conda activate base
 
 
 
-function recoder_7k_best5() {
-    experiment_1=$1
-    batch_size=$2
-    max_token=$3
-    gpu=$4
-    bash call_scripts/train_nat.sh \
-            -e $experiment_1 --fp16 -g 2 \
-            --save-interval-updates 70000 --max-update 70000 --lm-start-step 75000 \
-            --lm-mask-rate 0.15 \
-            --max-tokens $max_token -b $batch_size -g $gpu
-    mkdir checkpoints/$experiment_1/top5_70000steps    
-    cp checkpoints/$experiment_1/checkpoint.best_bleu_*  checkpoints/$experiment_1/top5_70000steps
+# function recoder_7k_best5() {
+#     experiment_1=$1
+#     batch_size=$2
+#     max_token=$3
+#     gpu=$4
+#     bash call_scripts/train_nat.sh \
+#             -e $experiment_1 --fp16 -g 2 \
+#             --save-interval-updates 70000 --max-update 70000 --lm-start-step 75000 \
+#             --lm-mask-rate 0.15 \
+#             --max-tokens $max_token -b $batch_size -g $gpu
+#     mkdir checkpoints/$experiment_1/top5_70000steps    
+#     cp checkpoints/$experiment_1/checkpoint.best_bleu_*  checkpoints/$experiment_1/top5_70000steps
 
-    bash call_scripts/train_nat.sh \
-            -e $experiment_1 --fp16 -g 2 \
-            --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 \
-            --lm-mask-rate 0.15 \
-            --max-tokens $max_token -b $batch_size -g $gpu
-}
+#     bash call_scripts/train_nat.sh \
+#             -e $experiment_1 --fp16 -g 2 \
+#             --save-interval-updates 70000 --max-update 100000 --lm-start-step 75000 \
+#             --lm-mask-rate 0.15 \
+#             --max-tokens $max_token -b $batch_size -g $gpu
+# }
 
 
 # #5
@@ -370,10 +370,21 @@ function recoder_7k_best5() {
 
 
 
-bash call_scripts/train_nat.sh -e m-B-3-1-N-UF60M-Ltest \
-                                --save-interval-updates 70000 --max-tokens 2048 \
-                                --has-eos --max-update 100000 \
-                                -g 1 --fp16   
+# bash call_scripts/train_nat.sh -e m-B-3-1-N-UF60M-Ltest \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --has-eos --max-update 100000 \
+#                                 -g 1 --fp16   
                                                      
 
+
+
+
+
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-predsel-rate-test \
+                                --save-interval-updates 70000 --max-tokens 1024 \
+                                --arch ctcpmlm_rate_predictor \
+                                --task transaltion_ctcpmlm_rate_test \
+                                --criterion nat_ctc_predsel_rate_loss \
+                                --hydra \
+                                -g 1 --fp16   
 

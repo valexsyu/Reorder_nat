@@ -309,7 +309,76 @@ function pair_experiment() {
 pair_experiment 2-2-1-1-H7-UF20T 2-2-1-1-N-UF20T
 pair_experiment J-2-1-1-H7-UF20M J-2-1-1-N-UF20M J-2-1-1-H12-UF20M
 pair_experiment J-2-1-1-H7-UF20T J-2-1-1-N-UF20T J-2-1-1-H12-UF20T
-# pair_experiment J-6-1-1-H7-UF20M J-6-1-1-N-UF20M J-6-1-1-H12-UF20M 
-# pair_experiment J-6-1-1-H7-UF20T J-6-1-1-N-UF20T J-6-1-1-H12-UF20T 
+
+
+
+
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-predsel-rate \
+                                --save-interval-updates 70000 --max-tokens 3072 \
+                                --arch ctcpmlm_rate_predictor \
+                                --task transaltion_ctcpmlm_rate \
+                                --criterion nat_ctc_predsel_rate_loss \
+                                --hydra \
+                                -g 1 --fp16   
+
+
+
+function pair_experiment() { 
+    bash call_scripts/train_nat.sh -e $1 \
+                                    --save-interval-updates 70000 --max-tokens 3072 \
+                                    --lm-start-step 75000 \
+                                    --task translation_ctcpmlm \
+                                    --arch nat_pretrained_model \
+                                    --criterion nat_ctc_loss \
+                                    --has-eos --max-update 70000 \
+                                    --hydra \
+                                    -g 1 --fp16   
+    
+    echo "Loading $1 checkpoint_last step"
+    cur_last=$(python call_scripts/tool/load_checkpoint_step.py checkpoints/$1/ last | awk -F':' '/last/{gsub(/[^0-9]/, "", $3); print $3}')
+    if [ "$cur_last" -eq 70000 ]; then
+        echo "save top 5 before 70000"
+        mkdir checkpoints/$experiment/top5_70000
+        cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/top5_70000
+        for experiment in $2 $3 $4; do
+            if [ -e checkpoints/$experiment/checkpoint_last.pt ] && \
+            [ $(ls checkpoints/$experiment/checkpoint.best_bleu_* 2>/dev/null | grep -c "^checkpoints/$experiment/checkpoint.best_bleu_.*") -eq 5 ]; then    
+                echo "All 6 checkpoint files exist"
+            else 
+                mkdir checkpoints/$experiment/
+                cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/
+                cp checkpoints/$1/checkpoint_last.pt checkpoints/$experiment/     
+            fi     
+        done
+    else
+        echo "file is already"
+    fi
+
+    # for experiment in $2 $3 $4; do
+    #     if [ -e checkpoints/$experiment/checkpoint_last.pt ] && \
+    #     [ $(ls checkpoints/$experiment/checkpoint.best_bleu_* 2>/dev/null | grep -c "^checkpoints/$experiment/checkpoint.best_bleu_.*") -eq 5 ]; then    
+    #         echo "All 6 checkpoint files exist"
+    #     else 
+    #         mkdir checkpoints/$experiment/
+    #         cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/
+    #         cp checkpoints/$1/checkpoint_last.pt checkpoints/$experiment/     
+    #     fi     
+    # done
+    
+    for experiment in $1 $2 $3 $4 ; do  
+        bash call_scripts/train_nat.sh -e $experiment \
+                                        --save-interval-updates 70000 --max-tokens 3072 \
+                                        --lm-start-step 75000 \
+                                        --task translation_ctcpmlm \
+                                        --arch nat_pretrained_model \
+                                        --criterion nat_ctc_loss \
+                                        --has-eos --max-update 100000 \
+                                        --hydra \
+                                        -g 1 --fp16        
+    done                                                                                                                                                
+
+}
+pair_experiment 2-2-1-1-H12-UR40T 2-2-1-1-N-UR40T 2-2-1-1-H4-UR40T 2-2-1-1-H7-UR40T
+pair_experiment 2-2-3-1-H12-UR40T 2-2-3-1-N-UR40T 2-2-3-1-H4-UR40T 2-2-3-1-H7-UR40T
 
 
