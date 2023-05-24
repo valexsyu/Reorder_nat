@@ -459,7 +459,7 @@ class NATPretrainedModel(BaseFairseqModel):
     def forward(
         self, src_tokens, src_lengths, tgt_tokens, alignments, update_num,
         pretrained_lm=None, lm_loss_layer=-1, **kwargs
-    ):          
+    ):       
         if self.lm_loss and update_num > self.lm_start_step :
             self.do_lm_loss = True
         else:
@@ -1143,7 +1143,6 @@ class NATPretrainedModel(BaseFairseqModel):
             max_source_positions = self.max_source_positions
         elif isinstance(self.max_source_positions, ListConfig):
             max_source_positions = self.max_source_positions[0]    
-            max_source_positions = 512 
         else :
             import pdb;pdb.set_trace()
             print("self.max_source_positions is not defined the type")   
@@ -1396,3 +1395,82 @@ def medium_architecture(args):
     args.encoder_ffn_embed_dim = safe_getattr(args, "encoder_ffn_embed_dim", 2048)
     args.encoder_attention_heads = safe_getattr(args, "encoder_attention_heads", 8)
     base_architecture(args)
+
+
+
+
+# @register_model("nat_pretrained_lm_lsa_model") 
+# class NATPretrainedLMLsaModel(NATPretrainedModel):
+#     def __init__(self, args, translator, src_dict, tgt_dict):
+#         super().__init__(args, translator, src_dict, tgt_dict)    
+#         if args.ctc_beam_decoding:
+#             self.blank_idx = (
+#                 tgt_dict.index(task.blank_symbol)
+#                 if hasattr(tgt_dict, "blank_symbol")
+#                 else tgt_dict.bos()
+#             )         
+    
+#     def compute_lm_loss(self, output_rep, lprobs, src_tokens, lm_loss_type, tgt_tokens, \
+#                        lm_rep=None, lm_lprobs=None, backpropagation=True):
+        
+#         def compute_lm_lsa_loss(self, output_rep, logits, src_tokens, tgt_tokens, tgt_output_rep, reduce=True):
+#             with torch.no_grad():    
+#                 bs, rep_seq_len ,_= output_rep.size()
+#                 _, tgt_seq_len = tgt_tokens.size()
+#                 target = tgt_tokens.repeat(1, rep_seq_len).view(bs, rep_seq_len, tgt_seq_len)
+#                 bipart_no_pad = target.ne(self.pad)
+#                 src_no_pad = src_tokens.ne(self.pad)
+#                 bipart_lprobs = lprobs
+#                 nll_loss = -bipart_lprobs.gather(dim=-1, index=target)#bs rep_seq_len tgt_seq_len
+#                 nll_loss = nll_loss * bipart_no_pad
+
+#                 nll_loss_numpy = nll_loss.detach()
+#                 tgt_output_rep = tgt_output_rep.detach()
+#             lm_loss = torch.zeros(1).to(src_tokens.device)
+#             for batch_id in range(bs):
+#                 no_pad_num = bipart_no_pad[batch_id, 0].sum()
+#                 src_no_pad_num = src_no_pad[batch_id].sum()
+#                 output_tokens = logits[batch_id].argmax(-1)
+#                 output_tokens_blank_mask = output_tokens.eq(self.src_dict.bos()).view(-1,1).repeat(1,tgt_seq_len)
+#                 nll_loss_numpy_line = nll_loss_numpy[batch_id]
+#                 nll_loss_numpy_line = nll_loss_numpy_line.masked_fill_(output_tokens_blank_mask, float(10^8))
+#                 raw_index, col_index = lsa(nll_loss_numpy_line[:src_no_pad_num, :no_pad_num].cpu().numpy())
+#                 lm_loss = ((1 - F.cosine_similarity(output_rep[batch_id][raw_index], tgt_output_rep[batch_id][col_index])).mean())+ lm_loss
+                
+#             return lm_loss/bs
+                     
+#         def compute_loss(output_rep, lprobs, src_tokens, lm_loss_type, tgt_tokens, \
+#                             lm_rep, lm_lprobs):
+#             with torch.no_grad():
+#                 bs, rep_seq_len ,_= output_rep.size()
+#                 _, tgt_seq_len = tgt_tokens.size()
+#                 target = tgt_tokens.repeat(1, rep_seq_len).view(bs, rep_seq_len, tgt_seq_len)
+#                 bipart_no_pad = target.ne(self.pad)
+#                 src_no_pad = src_tokens.ne(self.pad)
+#                 bipart_lprobs = lprobs
+#                 nll_loss = -bipart_lprobs.gather(dim=-1, index=target)#bs rep_seq_len tgt_seq_len
+#                 nll_loss = nll_loss * bipart_no_pad
+#                 match_index = nll_loss.argmin(1)
+            
+#             if lm_loss_type == "DIS" :
+#                 match_output_lprobs = bipart_lprobs[torch.arange(lprobs.shape[0]).unsqueeze(-1), match_index]
+#                 output_lm_loss = F.kl_div(match_output_lprobs, lm_lprobs.to(match_output_lprobs.device),
+#                                             reduction="batchmean", log_target=True) * 0.01
+#             elif lm_loss_type == "COS" :
+#                 match_output_rep = output_rep[torch.arange(output_rep.shape[0]).unsqueeze(-1), match_index]
+#                 output_lm_loss = 1 - F.cosine_similarity(match_output_rep, lm_rep, dim=2).mean()
+#             elif lm_loss_type == "MSE" :
+#                 match_output_rep = output_rep[torch.arange(output_rep.shape[0]).unsqueeze(-1), match_index]
+#                 output_lm_loss = F.mse_loss(match_output_rep,lm_rep,reduction='mean')
+#             else:
+#                 import pdb;pdb.set_trace()
+#                 raise NotImplementedError
+#             return output_lm_loss
+            
+#         if backpropagation :
+#             loss = compute_lm_lsa_loss(output_rep, lprobs, src_tokens, lm_loss_type, tgt_tokens, lm_rep, lm_lprobs)
+#         else:
+#             with torch.no_grad():         
+#                 loss = compute_lm_lsa_loss(output_rep, lprobs, src_tokens, lm_loss_type, tgt_tokens, lm_rep, lm_lprobs)   
+            
+#         return loss          
