@@ -5,8 +5,8 @@
 #       -d generate-test-2.txt -d generate-test-3.txt -d generate-test-4.txt \
 #       -t generate-test-2.txt -p m-B-1-1-N-UR20M-rate_select-divTGT-NEW-2/test/best_top5_20_1.bleu
 
-
-root_path=/home/valex/Documents/Study/battleship/Reorder_nat/checkpoints/
+root_path=/home/valexsyu/Doc/NMT/Reorder_nat/checkpoints/
+# root_path=/home/valex/Documents/Study/battleship/Reorder_nat/checkpoints/
 folder_path=sel_rate/m-B-1-1-N-UR20M-rate_sel-5k-rate_2_3_4/
 
 

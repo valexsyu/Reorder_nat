@@ -133,7 +133,9 @@ conda activate base
 #                         --arch ctcpmlm_rate_selection \
 #                         --task translation_ctcpmlm \
 #                         --criterion nat_ctc_sel_rate_loss \
-#                         -e m-B-1-1-N-UR20M-rate_select
+#                         --debug \
+#                         --avg-ck-turnoff \
+#                         -e m-B-1-1-N-UR20M-rate_avg
 
 
 # bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
@@ -145,54 +147,64 @@ conda activate base
 
 
 
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 10 \
+#                         --task translation_ctcpmlm \
+#                         --arch nat_pretrained_model \
+#                         --criterion nat_ctc_loss \
+#                         --avg-ck-turnoff \
+#                         -e 2-2-1-1-H12-UF20M \
+#                         -e 2-2-1-1-H12-UR40M \
+#                         -e 2-2-1-1-H4-UF20M \
+#                         -e 2-2-1-1-H7-UF20M \
+#                         -e 2-2-1-1-H7-UF20T \
+#                         -e 2-2-1-1-H7-UR40M \
+#                         -e 2-2-1-1-N-UF20M \
+#                         -e 2-2-1-1-N-UF20T \
+#                         -e 2-2-1-1-N-UR40M \
+#                         -e 2-2-3-1-H12-UF20M \
+#                         -e 2-2-3-1-H4-UF20M \
+#                         -e 2-2-3-1-H7-UF20M \
+#                         -e 2-2-3-1-N-UF20M \
+#                         -e 2-6-1-1-H12-UF20M \
+#                         -e 2-6-1-1-H12-UF20T \
+#                         -e 2-6-1-1-H7-UF20M \
+#                         -e 2-6-1-1-H7-UF20T \
+#                         -e 2-6-1-1-N-UF20M \
+#                         -e 2-6-1-1-N-UF20T \
+#                         -e J-2-1-1-H12-UF20M \
+#                         -e J-2-1-1-H12-UF20T \
+#                         -e J-2-1-1-H12-UR40M \
+#                         -e J-2-1-1-H7-UF20M \
+#                         -e J-2-1-1-H7-UF20T \
+#                         -e J-2-1-1-H7-UR40M \
+#                         -e J-2-1-1-N-UF20M \
+#                         -e J-2-1-1-N-UF20T \
+#                         -e J-2-1-1-N-UR40M \
+#                         -e J-6-1-1-H12-UF20M \
+#                         -e J-6-1-1-H7-UF20M \
+#                         -e J-6-1-1-H7-UF20T \
+#                         -e J-6-1-1-N-UF20M \
+#                         -e K-2-1-1-H12-UR40M \
+#                         -e K-2-1-1-H7-UR40M \
+#                         -e K-2-1-1-N-UR40M \
+#                         -e m-B-1-1-H12-UR20M \
+#                         -e m-B-1-1-N-UF20M-NEW \
+#                         -e m-B-1-1-N-UR20M \
+#                         -e m-B-1-1-N-UR30M-NEW \
+#                         -e m-B-1-1-N-UR40M-NEW \
+#                         -e m-B-3-1-H12-UF20M \
+#                         -e m-B-3-1-H12-UF30M \
+#                         -e m-B-3-1-H12-UF40M \
+#                         -e m-B-3-1-N-UF20M \
+#                         -e m-B-3-1-N-UF40M \
+
+
 bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        -b 10 \
+                        -b 20 \
                         --task translation_ctcpmlm \
                         --arch nat_pretrained_model \
                         --criterion nat_ctc_loss \
                         --avg-ck-turnoff \
-                        -e 2-2-1-1-H12-UF20M \
-                        -e 2-2-1-1-H12-UR40M \
-                        -e 2-2-1-1-H4-UF20M \
-                        -e 2-2-1-1-H7-UF20M \
-                        -e 2-2-1-1-H7-UF20T \
-                        -e 2-2-1-1-H7-UR40M \
-                        -e 2-2-1-1-N-UF20M \
-                        -e 2-2-1-1-N-UF20T \
-                        -e 2-2-1-1-N-UR40M \
-                        -e 2-2-3-1-H12-UF20M \
-                        -e 2-2-3-1-H4-UF20M \
-                        -e 2-2-3-1-H7-UF20M \
-                        -e 2-2-3-1-N-UF20M \
-                        -e 2-6-1-1-H12-UF20M \
-                        -e 2-6-1-1-H12-UF20T \
-                        -e 2-6-1-1-H7-UF20M \
-                        -e 2-6-1-1-H7-UF20T \
-                        -e 2-6-1-1-N-UF20M \
-                        -e 2-6-1-1-N-UF20T \
-                        -e J-2-1-1-H12-UF20M \
-                        -e J-2-1-1-H12-UF20T \
-                        -e J-2-1-1-H12-UR40M \
-                        -e J-2-1-1-H7-UF20M \
-                        -e J-2-1-1-H7-UF20T \
-                        -e J-2-1-1-H7-UR40M \
-                        -e J-2-1-1-N-UF20M \
-                        -e J-2-1-1-N-UF20T \
-                        -e J-2-1-1-N-UR40M \
-                        -e J-6-1-1-H12-UF20M \
-                        -e J-6-1-1-H7-UF20M \
-                        -e J-6-1-1-H7-UF20T \
-                        -e J-6-1-1-N-UF20M \
-                        -e K-2-1-1-H12-UR40M \
-                        -e K-2-1-1-H7-UR40M \
-                        -e K-2-1-1-N-UR40M \
-                        -e m-B-1-1-H12-UR20M \
-                        -e m-B-1-1-N-UF20M-NEW \
-                        -e m-B-1-1-N-UR20M \
-                        -e m-B-1-1-N-UR30M-NEW \
-                        -e m-B-1-1-N-UR40M-NEW \
-                        -e m-B-3-1-H12-UF20M \
-                        -e m-B-3-1-H12-UF30M \
-                        -e m-B-3-1-H12-UF40M \
-                        -e m-B-3-1-N-UF20M \
-                        -e m-B-3-1-N-UF40M \
+                        --debug \
+                        -e 2-2-1-1-H12-UR40M

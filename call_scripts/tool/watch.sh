@@ -38,12 +38,10 @@
 
 # # execute the two commands simultaneously
 bash call_scripts/tool/watch-test-polling.sh \
-    -b 50 \
     --arch ctcpmlm_rate_predictor \
     --task transaltion_ctcpmlm_rate \
     --criterion nat_ctc_pred_rate_loss \
-    -e m-B-1-1-N-UR20M-rate_predict_divTGT-NEW-detach-correct \
-    --sleep 10 &
-
-wait
+    -b 20 \
+    -e m-B-1-1-N-UR20M-predsel-rate \
+    --sleep 100
 

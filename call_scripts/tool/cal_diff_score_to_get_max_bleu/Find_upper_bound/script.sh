@@ -3,7 +3,6 @@
 #       -d generate-test-2.0.txt -d generate-test-3.0.txt -d generate-test-4.0.txt \
 #       -t generate-test-2.0.txt -p sel_rate/m-B-1-1-N-URXXM
 root_path=/home/valexsyu/Doc/NMT/Reorder_nat/checkpoints/
-# root_path=/home/valex/Documents/Study/battleship/Reorder_nat/checkpoints/
 folder_path=sel_rate/m-B-1-1-N-URXXM/
 
 VALID_ARGS=$(getopt -o d:t:p: -- "$@")
@@ -55,9 +54,11 @@ if [ "${#data_name_array[@]}" -gt 0 ]; then
         #             "$file_path/T-$tgt_name" "$file_path/D-$i" "$output_file"
     done
     
-    output_file="$file_path/bleu_scores.txt"  # Specify the output file path
+    output_bleu_file="$file_path/bleu_scores.txt"  # Specify the output file path
+    output_index_file="$file_path/max_index.txt"  # Specify the output file path
     python call_scripts/tool/cal_diff_score_to_get_max_bleu/Find_upper_bound/sentence_bleu.py \
-                --ref_path $file_path/T-$tgt_name \
-                --hypo_path ${parsing_data_array[@]} \
-                --out_path $output_file    
+                --ref-path $file_path/T-$tgt_name \
+                --hypo-path ${parsing_data_array[@]} \
+                --output-bleu-path $output_bleu_file \
+                --output-index-path $output_index_file 
 fi

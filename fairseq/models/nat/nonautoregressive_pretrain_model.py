@@ -664,31 +664,31 @@ class NATPretrainedModel(BaseFairseqModel):
 
             _scores, _tokens = F.log_softmax(logits, dim=-1).max(-1)         
 
-        if self.debug:
-            remove_duplicate_tokens = _tokens  
-        else :
-            if _tokens.size(1) > 0 :
-                unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
-                indices -= indices.min(dim=1, keepdims=True)[0]
-                remove_duplicate_tokens = torch.full_like(_tokens,self.pad)
-                # remove_duplicate_score = torch.full_like(_scores,self.pad)
-                # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
-                remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
-            else:
-                remove_duplicate_tokens = _tokens              
+        # if self.debug:
+        #     remove_duplicate_tokens = _tokens  
+        # else :
+        #     if _tokens.size(1) > 0 :
+        #         unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
+        #         indices -= indices.min(dim=1, keepdims=True)[0]
+        #         remove_duplicate_tokens = torch.full_like(_tokens,self.pad)
+        #         # remove_duplicate_score = torch.full_like(_scores,self.pad)
+        #         # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
+        #         remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
+        #     else:
+        #         remove_duplicate_tokens = _tokens              
 
 
 
         
-        # if _tokens.size(1) > 0 :
-        #     unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
-        #     indices -= indices.min(dim=1, keepdims=True)[0]
-        #     remove_duplicate_tokens = torch.full_like(_tokens,self.pad)
-        #     # remove_duplicate_score = torch.full_like(_scores,self.pad)
-        #     # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
-        #     remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
-        # else:
-        #     remove_duplicate_tokens = _tokens     
+        if _tokens.size(1) > 0 :
+            unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
+            indices -= indices.min(dim=1, keepdims=True)[0]
+            remove_duplicate_tokens = torch.full_like(_tokens,self.pad)
+            # remove_duplicate_score = torch.full_like(_scores,self.pad)
+            # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
+            remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
+        else:
+            remove_duplicate_tokens = _tokens     
  
 
         return DataOut(

@@ -505,7 +505,7 @@ class NatCTCSelRateLoss(NatEncoderCTCLoss):
         avg_tgt_lengths = sum_tgt_lengths/num_rate_list
         #leave some steps for checkpoint averaging
         time = update_num / (self.max_update - self.lmax_only_step)
-        curr_lambda = 3/3 ##2 use 2/3 and 3 use 3/3
+        curr_lambda = 1/3 ##2 use 2/3 and 3 use 3/3
         num_rate, bz = ctc_losses.size() # num_rate x bz size
         if time < curr_lambda:   
             t_1 = time / curr_lambda

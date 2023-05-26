@@ -234,13 +234,7 @@ class CTCPMLMRateSelection(NATPretrainedModel):
             B, L = tokens.size(1),tokens.size(2)
             rate_max_lprob, max_idx = torch.max(sentence_scores, dim = 0)
             _tokens = torch.gather(tokens, 0, max_idx.unsqueeze(0).unsqueeze(-1).expand(1,B,L)).squeeze(0)
-            _scores = torch.gather(scores, 0, max_idx.unsqueeze(0).unsqueeze(-1).expand(1,B,L)).squeeze(0)
-                
-            # logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, rate=self.num_upsampling_rate, **kwargs) 
-            # if self.voc_choosen == 2:
-            #     logits = self.output_projection_layer(output_hidden_states)            
-
-            # _scores, _tokens = F.log_softmax(logits, dim=-1).max(-1)         
+            _scores = torch.gather(scores, 0, max_idx.unsqueeze(0).unsqueeze(-1).expand(1,B,L)).squeeze(0)     
         
         
         if _tokens.size(1) > 0 :
