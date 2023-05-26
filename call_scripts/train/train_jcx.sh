@@ -27,7 +27,8 @@ function pair_experiment() {
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
-
+    cur_last=$(python call_scripts/tool/load_checkpoint_step.py checkpoints/$1/ last \
+                | awk -F':' '/last/{gsub(/[^0-9]/, "", $3); print $3}')
     if [ "$cur_last" -ge $relay_step ]; then
         if [ -e checkpoints/$1/top5_$relay_step/checkpoint_last.pt ] && \
         [ $(ls checkpoints/$1/top5_$relay_step/checkpoint.best_bleu_* 2>/dev/null \
