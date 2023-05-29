@@ -24,6 +24,7 @@ function pair_experiment_wmt14() {
                                         --criterion nat_ctc_loss \
                                         --has-eos --max-update $relay_step \
                                         --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
                                         --hydra \
                                         -g $GPU_NUM --fp16   
     else
@@ -69,9 +70,16 @@ function pair_experiment_wmt14() {
                                         --criterion nat_ctc_loss \
                                         --has-eos --max-update $MAX_UPDATE \
                                         --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
                                         --hydra \
                                         -g $GPU_NUM --fp16        
     done                                                                                                                                                
 
 }
 pair_experiment_wmt14 Z-2-3-1-N-UR40T
+
+
+
+# pair_experiment 2-2-3-1-H1-UF20M 2-2-3-1-H6-UF20M 2-2-3-1-H8-UF20M 2-2-3-1-H9-UF20M
+# pair_experiment 2-2-3-1-H1-UF20M 2-2-3-1-H10-UF20M 2-2-3-1-H11-UF20M 
+
