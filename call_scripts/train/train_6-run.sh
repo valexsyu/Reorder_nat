@@ -445,5 +445,6 @@ function pair_experiment() {
 }
 
 
-pair_experiment J-6-3-1-N-UF30T
-pair_experiment I-6-3-1-N-UF30T
+# pair_experiment J-6-3-1-N-UF30T
+# pair_experiment I-6-3-1-N-UF30T
+pair_experiment K-6-3-1-N-UF30T

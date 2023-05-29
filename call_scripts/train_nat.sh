@@ -855,6 +855,7 @@ cat > $CHECKPOINT/temp_hydra1.sh << 'endmsg'
     --voc-choosen $VOC_CHOOSEN \
     --lmax-only-step $LMAX_ONLY_STEP \
     --dropout $DROPOUT \
+    --warmup-updates $WARMUP_UPDATES \
     --distributed-world-size $GPU \
     --pretrained-lm-name $PRETRAINED_LM_NAME \
     --pretrained-model-name $PRETRAINED_MODEL_NAME \

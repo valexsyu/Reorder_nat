@@ -86,6 +86,8 @@ def parser_function():
     parser.add_argument('--max-update', help='max-update', default=None, type=int)
     parser.add_argument('--update-freq', help='update parameters every N_i batches, when in epoch i', default=None, type=int)
     
+    #lr_schedule
+    parser.add_argument('--warmup-updates', help='warmup_updates', default=None, type=int)
     
     #task  
     
@@ -219,7 +221,7 @@ def main():
     if args.task_name != 'transaltion_ctcpmlm_rate' : 
         del config[key1]
         add_config(config, key1 , '_name', 'inverse_sqrt') 
-        set_config(config, key1 , 'warmup_updates', 10000) 
+        set_config(config, key1 , 'warmup_updates', args.warmup_updates) 
         set_config(config, key1 , 'warmup_init_lr', 1e-07 )
         set_config(config, key1 , 'lr', [0.0002] )
      

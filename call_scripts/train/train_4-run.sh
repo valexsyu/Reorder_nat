@@ -271,63 +271,138 @@ function pair_experiment() {
 
 
 
-function pair_experiment() { 
-    bash call_scripts/train_nat.sh -e $1 \
-                                    --save-interval-updates 70000 --max-tokens 3072 \
-                                    --lm-start-step 75000 \
-                                    --task translation_ctcpmlm \
-                                    --arch nat_pretrained_model \
-                                    --criterion nat_ctc_loss \
-                                    --has-eos --max-update 70000 \
-                                    --hydra \
-                                    -g 1 --fp16   
+# function pair_experiment() { 
+#     bash call_scripts/train_nat.sh -e $1 \
+#                                     --save-interval-updates 70000 --max-tokens 3072 \
+#                                     --lm-start-step 75000 \
+#                                     --task translation_ctcpmlm \
+#                                     --arch nat_pretrained_model \
+#                                     --criterion nat_ctc_loss \
+#                                     --has-eos --max-update 70000 \
+#                                     --hydra \
+#                                     -g 1 --fp16   
 
-    for experiment in $2 $3 $4; do
-        if [ -e checkpoints/$experiment/checkpoint_last.pt ] && \
-        [ $(ls checkpoints/$experiment/checkpoint.best_bleu_* 2>/dev/null | grep -c "^checkpoints/$experiment/checkpoint.best_bleu_.*") -eq 5 ]; then    
-            echo "All 6 checkpoint files exist"
-        else 
-            mkdir checkpoints/$experiment/
-            cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/
-            cp checkpoints/$1/checkpoint_last.pt checkpoints/$experiment/     
-        fi     
-    done
+#     for experiment in $2 $3 $4; do
+#         if [ -e checkpoints/$experiment/checkpoint_last.pt ] && \
+#         [ $(ls checkpoints/$experiment/checkpoint.best_bleu_* 2>/dev/null | grep -c "^checkpoints/$experiment/checkpoint.best_bleu_.*") -eq 5 ]; then    
+#             echo "All 6 checkpoint files exist"
+#         else 
+#             mkdir checkpoints/$experiment/
+#             cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$experiment/
+#             cp checkpoints/$1/checkpoint_last.pt checkpoints/$experiment/     
+#         fi     
+#     done
     
-    for experiment in $1 $2 $3 $4; do
-        bash call_scripts/train_nat.sh -e $experiment \
-                                        --save-interval-updates 70000 --max-tokens 3072 \
-                                        --lm-start-step 75000 \
-                                        --task translation_ctcpmlm \
-                                        --arch nat_pretrained_model \
-                                        --criterion nat_ctc_loss \
-                                        --has-eos --max-update 100000 \
-                                        --hydra \
-                                        -g 1 --fp16        
-    done                                                                                                                                                
+#     for experiment in $1 $2 $3 $4; do
+#         bash call_scripts/train_nat.sh -e $experiment \
+#                                         --save-interval-updates 70000 --max-tokens 3072 \
+#                                         --lm-start-step 75000 \
+#                                         --task translation_ctcpmlm \
+#                                         --arch nat_pretrained_model \
+#                                         --criterion nat_ctc_loss \
+#                                         --has-eos --max-update 100000 \
+#                                         --hydra \
+#                                         -g 1 --fp16        
+#     done                                                                                                                                                
 
-}
-pair_experiment 2-2-1-1-H7-UF20T 2-2-1-1-N-UF20T
-pair_experiment J-2-1-1-H7-UF20M J-2-1-1-N-UF20M J-2-1-1-H12-UF20M
-pair_experiment J-2-1-1-H7-UF20T J-2-1-1-N-UF20T J-2-1-1-H12-UF20T
-
-
-
-
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-predsel-rate \
-                                --save-interval-updates 70000 --max-tokens 3072 \
-                                --arch ctcpmlm_rate_predictor \
-                                --task transaltion_ctcpmlm_rate \
-                                --criterion nat_ctc_predsel_rate_loss \
-                                --hydra \
-                                -g 1 --fp16   
+# }
+# pair_experiment 2-2-1-1-H7-UF20T 2-2-1-1-N-UF20T
+# pair_experiment J-2-1-1-H7-UF20M J-2-1-1-N-UF20M J-2-1-1-H12-UF20M
+# pair_experiment J-2-1-1-H7-UF20T J-2-1-1-N-UF20T J-2-1-1-H12-UF20T
 
 
 
-function pair_experiment() { 
+
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-predsel-rate \
+#                                 --save-interval-updates 70000 --max-tokens 3072 \
+#                                 --arch ctcpmlm_rate_predictor \
+#                                 --task transaltion_ctcpmlm_rate \
+#                                 --criterion nat_ctc_predsel_rate_loss \
+#                                 --hydra \
+#                                 -g 1 --fp16   
+
+
+
+# function pair_experiment() { 
+#     relay_step=30000
+#     LM_START_STEP=30000
+#     max_tokens=3072
+#     GPU_NUM=1
+#     MAX_UPDATE=50000
+#     if [ -e checkpoints/$1/checkpoint_last.pt ]; then
+#         echo "===========Loading $1 checkpoint_last step=============="
+#         cur_last=$(python call_scripts/tool/load_checkpoint_step.py checkpoints/$1/ last \
+#                   | awk -F':' '/last/{gsub(/[^0-9]/, "", $3); print $3}')
+#         echo "Currect step: $cur_last"
+#     else
+#         cur_last=0        
+#     fi
+
+#     if [ "$cur_last" -lt $relay_step ]; then    
+#         bash call_scripts/train_nat.sh -e $1 \
+#                                         --save-interval-updates $relay_step --max-tokens $max_tokens \
+#                                         --lm-start-step $LM_START_STEP \
+#                                         --task translation_ctcpmlm \
+#                                         --arch nat_pretrained_model \
+#                                         --criterion nat_ctc_loss \
+#                                         --has-eos --max-update $relay_step \
+#                                         --lm-start-step $LM_START_STEP \
+#                                         --hydra \
+#                                         -g $GPU_NUM --fp16   
+#     else
+#         echo "$1 last step is ge $relay_step"
+#     fi                                        
+
+#     if [ "$cur_last" -ge $relay_step ]; then
+#         if [ -e checkpoints/$1/top5_$relay_step/checkpoint_last.pt ] && \
+#         [ $(ls checkpoints/$1/top5_$relay_step/checkpoint.best_bleu_* 2>/dev/null \
+#                 | grep -c "^checkpoints/$1/top5_$relay_step/checkpoint.best_bleu_.*") -eq 5 ]; then  
+#             echo "$1 6 checkpoint in top5_$relay_step"
+#         else
+#             echo "save top 5 before $relay_step"
+#             mkdir checkpoints/$1/top5_$relay_step
+#             cp checkpoints/$1/checkpoint.best_bleu_* checkpoints/$1/top5_$relay_step
+#             cp checkpoints/$1/checkpoint_last.pt checkpoints/$1/top5_$relay_step
+#         fi
+#         for experiment in $2 $3 $4; do
+#             if [ -e checkpoints/$experiment/checkpoint_last.pt ] && \
+#             [ $(ls checkpoints/$experiment/checkpoint.best_bleu_* 2>/dev/null | grep -c "^checkpoints/$experiment/checkpoint.best_bleu_.*") -eq 5 ]; then    
+#                 echo "$experiment 6 checkpoint files exist"
+#             else 
+#                 mkdir checkpoints/$experiment/
+#                 cp checkpoints/$1/top5_$relay_step/checkpoint.best_bleu_* checkpoints/$experiment/
+#                 cp checkpoints/$1/top5_$relay_step/checkpoint_last.pt checkpoints/$experiment/     
+#             fi     
+#         done
+#     fi
+    
+#     for experiment in $1 $2 $3 $4; do
+#         bash call_scripts/train_nat.sh -e $experiment \
+#                                         --save-interval-updates $relay_step --max-tokens $max_tokens \
+#                                         --lm-start-step $LM_START_STEP \
+#                                         --task translation_ctcpmlm \
+#                                         --arch nat_pretrained_model \
+#                                         --criterion nat_ctc_loss \
+#                                         --has-eos --max-update $MAX_UPDATE \
+#                                         --hydra \
+#                                         -g $GPU_NUM --fp16        
+#     done                                                                                                                                                
+
+# }
+
+
+# #=========NEW==========
+
+# pair_experiment 2-2-3-1-N-UR40T 2-2-3-1-H12-UR40T
+
+
+function pair_experiment_iwslt14() { 
     relay_step=30000
     LM_START_STEP=30000
-    max_tokens=3072
-    GPU_NUM=1
+    MAX_TOKENS=1024
+    GPU_NUM=2
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
     MAX_UPDATE=50000
     if [ -e checkpoints/$1/checkpoint_last.pt ]; then
         echo "===========Loading $1 checkpoint_last step=============="
@@ -340,19 +415,26 @@ function pair_experiment() {
 
     if [ "$cur_last" -lt $relay_step ]; then    
         bash call_scripts/train_nat.sh -e $1 \
-                                        --save-interval-updates $relay_step --max-tokens $max_tokens \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
                                         --lm-start-step $LM_START_STEP \
                                         --task translation_ctcpmlm \
                                         --arch nat_pretrained_model \
                                         --criterion nat_ctc_loss \
                                         --has-eos --max-update $relay_step \
-                                        --lm-start-step $LM_START_STEP \
+                                        --warmup-updates $WARMUP_UPDATES \
                                         --hydra \
                                         -g $GPU_NUM --fp16   
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
-
+    if [ -e checkpoints/$1/checkpoint_last.pt ]; then
+        echo "===========Loading $1 checkpoint_last step=============="
+        cur_last=$(python call_scripts/tool/load_checkpoint_step.py checkpoints/$1/ last \
+                  | awk -F':' '/last/{gsub(/[^0-9]/, "", $3); print $3}')
+        echo "Currect step: $cur_last"
+    else
+        cur_last=0        
+    fi
     if [ "$cur_last" -ge $relay_step ]; then
         if [ -e checkpoints/$1/top5_$relay_step/checkpoint_last.pt ] && \
         [ $(ls checkpoints/$1/top5_$relay_step/checkpoint.best_bleu_* 2>/dev/null \
@@ -378,24 +460,19 @@ function pair_experiment() {
     
     for experiment in $1 $2 $3 $4; do
         bash call_scripts/train_nat.sh -e $experiment \
-                                        --save-interval-updates $relay_step --max-tokens $max_tokens \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
                                         --lm-start-step $LM_START_STEP \
                                         --task translation_ctcpmlm \
                                         --arch nat_pretrained_model \
                                         --criterion nat_ctc_loss \
                                         --has-eos --max-update $MAX_UPDATE \
+                                        --warmup-updates $WARMUP_UPDATES \
                                         --hydra \
                                         -g $GPU_NUM --fp16        
     done                                                                                                                                                
 
 }
-
-
-#=========NEW==========
-
-pair_experiment 2-2-3-1-N-UR40T 2-2-3-1-H12-UR40T
-
-
-
-
-
+pair_experiment_iwslt14 2-6-3-1-H12-UR40M
+pair_experiment_iwslt14 4-2-3-1-H12-UR40M
+pair_experiment_iwslt14 I-2-3-1-H12-UR40M
+pair_experiment_iwslt14 P-2-3-1-H12-UR40M
