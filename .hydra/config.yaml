@@ -89,7 +89,7 @@ dataset:
   _name: null
   num_workers: 4
   skip_invalid_size_inputs_valid_test: false
-  max_tokens: 1024
+  max_tokens: 2048
   batch_size: null
   required_batch_size_multiple: 8
   required_seq_len_multiple: 1
@@ -117,12 +117,12 @@ dataset:
 optimization:
   _name: null
   max_epoch: 0
-  max_update: 30000
+  max_update: 70000
   stop_time_hours: 0.0
   clip_norm: 0.0
   sentence_avg: false
   update_freq:
-  - 12
+  - 32
   lr:
   - 0.25
   stop_min_lr: 1.0e-09
@@ -130,7 +130,7 @@ optimization:
   skip_remainder_batch: false
 checkpoint:
   _name: null
-  save_dir: checkpoints/2-6-3-1-N-UF30T
+  save_dir: checkpoints/Z-6-3-1-N-UF30T
   restore_file: checkpoint_last.pt
   continue_once: null
   finetune_from_model: null
@@ -140,7 +140,7 @@ checkpoint:
   reset_optimizer: false
   optimizer_overrides: '{}'
   save_interval: 1
-  save_interval_updates: 30000
+  save_interval_updates: 70000
   keep_interval_updates: -1
   keep_interval_updates_pattern: -1
   keep_last_epochs: 5
@@ -229,7 +229,7 @@ model:
   lm_iter_num: 1
   lm_loss: false
   lm_loss_type: COS
-  lm_start_step: 30000
+  lm_start_step: 75000
   lmk_loss: false
   no_atten_mask: false
   num_upsampling_rate: 30
@@ -245,7 +245,7 @@ model:
 task:
   _name: translation_ctcpmlm
   align_position_pad_index: 513
-  data: /livingrooms/valexsyu/dataset/nat/iwslt14_de_en_bibertDist_bibert/de-en-databin
+  data: /livingrooms/valexsyu/dataset/nat/wmt14_clean_en_de_6kval_bibertDist_bibert/de-en-databin
   debug: false
   eval_bleu: true
   eval_bleu_print_samples: true

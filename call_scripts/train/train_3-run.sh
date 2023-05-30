@@ -604,7 +604,8 @@ conda activate base
 #     else
 #         echo "$1 last step is ge $relay_step"
 #     fi                                        
-
+#     cur_last=$(python call_scripts/tool/load_checkpoint_step.py checkpoints/$1/ last \
+#                 | awk -F':' '/last/{gsub(/[^0-9]/, "", $3); print $3}')
 #     if [ "$cur_last" -ge $relay_step ]; then
 #         if [ -e checkpoints/$1/top5_$relay_step/checkpoint_last.pt ] && \
 #         [ $(ls checkpoints/$1/top5_$relay_step/checkpoint.best_bleu_* 2>/dev/null \
@@ -643,6 +644,8 @@ conda activate base
 # }
 # pair_experiment K-2-3-1-N-UR40M K-2-3-1-H12-UR40M
 # pair_experiment K-2-3-1-N-UR40T K-2-3-1-H12-UR40T
+# pair_experiment 2-6-3-1-N-UR40T 2-6-3-1-H12-UR40T
+
 
 function pair_experiment_wmt14() { 
     relay_step=70000
@@ -670,6 +673,7 @@ function pair_experiment_wmt14() {
                                         --criterion nat_ctc_loss \
                                         --has-eos --max-update $relay_step \
                                         --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
                                         --hydra \
                                         -g $GPU_NUM --fp16   
     else
@@ -715,16 +719,13 @@ function pair_experiment_wmt14() {
                                         --criterion nat_ctc_loss \
                                         --has-eos --max-update $MAX_UPDATE \
                                         --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
                                         --hydra \
                                         -g $GPU_NUM --fp16        
     done                                                                                                                                                
 
 }
 pair_experiment_wmt14 Z-2-3-1-N-UF30T
-
-
-
-
 
 
 # pair_experiment 2-2-3-1-H1-UF20T 2-2-3-1-H2-UF20T 2-2-3-1-H3-UF20T 2-2-3-1-H5-UF20T 

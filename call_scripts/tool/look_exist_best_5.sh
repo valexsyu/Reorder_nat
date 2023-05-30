@@ -58,11 +58,13 @@ num_sleep=1
 while :
 do
 
+
+   echo "===================================================="
    for i in "${!exp_array[@]}"; do 
       experiment_id=${exp_array[$i]}
       CHECKPOINT=checkpoints/$experiment_id
       if [ ! -d "$CHECKPOINT" ]; then
-         echo "Folder is not exist"
+         echo "$experiment_id Folder is not exist"
          continue
       fi       
       score=$(tail -1 $CHECKPOINT/best_top5.test.record) 

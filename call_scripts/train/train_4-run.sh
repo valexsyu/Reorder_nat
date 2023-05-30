@@ -399,8 +399,8 @@ function pair_experiment() {
 function pair_experiment_iwslt14() { 
     relay_step=30000
     LM_START_STEP=30000
-    MAX_TOKENS=1024
-    GPU_NUM=2
+    MAX_TOKENS=3072
+    GPU_NUM=1
     BATCH_SIZE=12288
     WARMUP_UPDATES=10000
     MAX_UPDATE=50000
@@ -472,7 +472,7 @@ function pair_experiment_iwslt14() {
     done                                                                                                                                                
 
 }
-pair_experiment_iwslt14 2-6-3-1-H12-UR40M
+# pair_experiment_iwslt14 2-6-3-1-H12-UR40M
 pair_experiment_iwslt14 4-2-3-1-H12-UR40M
 pair_experiment_iwslt14 I-2-3-1-H12-UR40M
 pair_experiment_iwslt14 P-2-3-1-H12-UR40M

@@ -123,6 +123,7 @@ examples/
 data/
 call_scripts/generate/output_file/
 tmp_file*
+pytorch_model.bin
 
 # reranking
 /examples/reranking/rerank_data

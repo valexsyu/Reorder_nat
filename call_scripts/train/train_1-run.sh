@@ -609,8 +609,8 @@ conda activate base
 # function pair_experiment() { 
 #     relay_step=30000
 #     LM_START_STEP=30000
-#     max_tokens=1024
-#     GPU_NUM=1
+#     max_tokens=2048
+#     GPU_NUM=2
 #     MAX_UPDATE=50000
 #     if [ -e checkpoints/$1/checkpoint_last.pt ]; then
 #         echo "===========Loading $1 checkpoint_last step=============="
@@ -635,6 +635,8 @@ conda activate base
 #     else
 #         echo "$1 last step is ge $relay_step"
 #     fi                                        
+#     cur_last=$(python call_scripts/tool/load_checkpoint_step.py checkpoints/$1/ last \
+#             | awk -F':' '/last/{gsub(/[^0-9]/, "", $3); print $3}')
 
 #     if [ "$cur_last" -ge $relay_step ]; then
 #         if [ -e checkpoints/$1/top5_$relay_step/checkpoint_last.pt ] && \
@@ -674,6 +676,8 @@ conda activate base
 # }
 # pair_experiment 2-6-3-1-N-UF30T
 # pair_experiment 2-2-3-1-N-UF30T
+# pair_experiment J-6-3-1-N-UR40T J-6-3-1-H12-UR40T
+
 
 
 
@@ -703,6 +707,7 @@ function pair_experiment_wmt14() {
                                         --criterion nat_ctc_loss \
                                         --has-eos --max-update $relay_step \
                                         --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
                                         --hydra \
                                         -g $GPU_NUM --fp16   
     else
@@ -748,6 +753,7 @@ function pair_experiment_wmt14() {
                                         --criterion nat_ctc_loss \
                                         --has-eos --max-update $MAX_UPDATE \
                                         --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
                                         --hydra \
                                         -g $GPU_NUM --fp16        
     done                                                                                                                                                

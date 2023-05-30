@@ -38,13 +38,11 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
     -b 20 \
     --gpu_id 0 \
     -e Z-2-3-1-N-UR40T \
-    -e J-2-3-1-N-UR40T \
-    -e J-2-3-1-H12-UR40T \
-    -e Y-2-3-1-N-UR40T \
-    -e 2-6-3-1-H12-UR40M \
-    -e 4-2-3-1-H12-UR40M \
     -e I-2-3-1-H12-UR40M \
     -e P-2-3-1-H12-UR40M \
+    -e Z-6-3-1-N-UF30T \
+    -e m-B-3-1-H12-UR25M \
+    -e m-B-3-1-N-UR25M \
     --sleep 20" C-m
 
 
@@ -59,8 +57,9 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
     -b 20 \
     --gpu_id 1 \
     -e Z-2-3-1-N-UF30T \
-    -e K-6-3-1-N-UF30T \
-    -e J-6-3-1-H12-UR40M \
+    -e J-2-3-1-N-UR40T \
+    -e J-2-3-1-H12-UR40T \
+    -e b-6-3-1-N-UF30T \
     --sleep 5" C-m
 
 # Select the third window and execute the third script
@@ -71,13 +70,12 @@ tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
     -e J-2-3-1-N-UR40T \
     -e J-2-3-1-H12-UR40T \
     -e Z-2-3-1-N-UF30T \
-    -e K-6-3-1-N-UF30T \
-    -e J-6-3-1-H12-UR40M \
-    -e Y-2-3-1-N-UR40T \
-    -e 2-6-3-1-H12-UR40M \
-    -e 4-2-3-1-H12-UR40M \
     -e I-2-3-1-H12-UR40M \
     -e P-2-3-1-H12-UR40M \
+    -e Z-6-3-1-N-UF30T \
+    -e b-6-3-1-N-UF30T \
+    -e m-B-3-1-H12-UR25M \
+    -e m-B-3-1-N-UR25M \
     --sleep 120" C-m
 
 # Attach to the tmux session to view the windows
