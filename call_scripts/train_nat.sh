@@ -717,10 +717,15 @@ then
     BOOL_COMMAND+=" --watch-lm-loss"
 fi 
 
-if [ $(echo "$lm_mask_rate != -1"|bc ) -eq 1 ]
-then
-    BOOL_COMMAND+="  --lm-mask-rate  $lm_mask_rate"
-fi 
+# if [ $(echo "$lm_mask_rate != -1"|bc ) -eq 1 ]
+# then
+#     BOOL_COMMAND+="  --lm-mask-rate  $lm_mask_rate"
+# fi 
+
+if [ "$lm_mask_rate" -ne -1 ]; then
+    BOOL_COMMAND+="  --lm-mask-rate $lm_mask_rate"
+fi
+
 
 
 
