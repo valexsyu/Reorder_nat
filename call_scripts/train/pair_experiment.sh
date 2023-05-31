@@ -9,11 +9,12 @@ function ctcpmlm(){
                                     --task translation_ctcpmlm \
                                     --arch nat_pretrained_model \
                                     --criterion nat_ctc_loss \
-                                    --has-eos --max-update $2 \
+                                    --has-eos --max-update $7 \
                                     --warmup-updates $5 \
                                     --hydra \
                                     -g $6 --fp16       
 }
+
 
 # $cur_last=$(current_last_step $1)
 function current_last_step(){
@@ -72,7 +73,7 @@ function pair_experiment(){
 
     if [ "$cur_last" -lt $relay_step ]; then   
         ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
@@ -83,7 +84,7 @@ function pair_experiment(){
     
     for experiment in $1 $2 $3 $4; do
         ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM       
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE
     done                                                                                                                                                
 
 }
@@ -482,7 +483,7 @@ function pair_experiment_iwslt14_3080x1_768_50k() {
 
     if [ "$cur_last" -lt $relay_step ]; then   
         ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
@@ -493,7 +494,7 @@ function pair_experiment_iwslt14_3080x1_768_50k() {
     
     for experiment in $1 $2 $3 $4; do
         ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM       
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE
     done                                                                                                                                                  
 
 }
@@ -1018,7 +1019,7 @@ function pair_experiment_iwslt14_1_2048_50k() {
 
     if [ "$cur_last" -lt $relay_step ]; then   
         ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
@@ -1029,7 +1030,7 @@ function pair_experiment_iwslt14_1_2048_50k() {
     
     for experiment in $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 ; do 
         ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM       
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $MAX_UPDATE   
     done     
 }
 
