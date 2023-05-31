@@ -37,7 +37,7 @@ import random
 from scipy.optimize import linear_sum_assignment as lsa
 from fairseq.utils import new_arange
 
-from ctcdecode import CTCBeamDecoder
+# from ctcdecode import CTCBeamDecoder
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt   
