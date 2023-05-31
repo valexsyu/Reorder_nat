@@ -761,7 +761,8 @@ function pair_experiment_wmt14() {
 }
 pair_experiment_wmt14 Z-2-3-1-N-UR40T
 
-
+source call_scripts/train/pair_experiment.sh
+pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR40M-50k
 
 # pair_experiment 2-2-3-1-H1-UF20M 2-2-3-1-H6-UF20M 2-2-3-1-H8-UF20M 2-2-3-1-H9-UF20M
 # pair_experiment 2-2-3-1-H1-UF20M 2-2-3-1-H10-UF20M 2-2-3-1-H11-UF20M 

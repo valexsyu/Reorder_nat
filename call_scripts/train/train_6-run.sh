@@ -458,5 +458,5 @@ conda activate base
 # pair_experiment I-6-3-1-N-UF30T
 # pair_experiment K-6-3-1-N-UF30T
 
-source call_scripts/train/pair_experiment.sh
-pair_experiment_wmt14_3080x1 b-6-3-1-N-UF30T
+# source call_scripts/train/pair_experiment.sh
+# pair_experiment_wmt14_3080x1 b-6-3-1-N-UF30T
