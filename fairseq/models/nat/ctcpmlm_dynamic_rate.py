@@ -38,7 +38,7 @@ import random
 from scipy.optimize import linear_sum_assignment as lsa
 from fairseq.utils import new_arange
 
-from ctcdecode import CTCBeamDecoder
+# from ctcdecode import CTCBeamDecoder
 
 
 @register_model("ctcpmlm_rate_selection") 
