@@ -99,7 +99,7 @@ def parser_function():
     parser.add_argument( '--pretrained-lm-name', help='pretrained_lm_name', default=None, type=str)
     parser.add_argument('--pretrained-lm-path', help='pretrained-lm-path', default=None, type=str)
     parser.add_argument('--eval-bleu-remove-bpe', help='eval_bleu_remove_bpe', default=None, type=str)
-    
+    parser.add_argument('--twcc', help='twcc', action='store_true')
     
     
     args = parser.parse_args()    
@@ -235,6 +235,7 @@ def main():
     set_config(config, key1 ,'pretrained_lm_path', args.pretrained_lm_path) 
     set_config(config, key1 ,'eval_bleu_remove_bpe', args.eval_bleu_remove_bpe) 
     set_config(config, key1 ,'pretrained_model_path', args.pretrained_model_path)     
+    set_config(config, key1 ,'twcc', args.twcc)    
     
     
 

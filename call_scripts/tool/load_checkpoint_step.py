@@ -1,3 +1,6 @@
+
+
+# example python call_scripts/tool/load_checkpoint_step.py checkpoints/m-B-3-1-N-UR25M both
 import torch
 import os
 import sys

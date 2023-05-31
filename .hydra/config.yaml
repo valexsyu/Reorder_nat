@@ -89,7 +89,7 @@ dataset:
   _name: null
   num_workers: 4
   skip_invalid_size_inputs_valid_test: false
-  max_tokens: 2048
+  max_tokens: 768
   batch_size: null
   required_batch_size_multiple: 8
   required_seq_len_multiple: 1
@@ -122,7 +122,7 @@ optimization:
   clip_norm: 0.0
   sentence_avg: false
   update_freq:
-  - 32
+  - 85
   lr:
   - 0.25
   stop_min_lr: 1.0e-09
@@ -130,7 +130,7 @@ optimization:
   skip_remainder_batch: false
 checkpoint:
   _name: null
-  save_dir: checkpoints/Z-6-3-1-N-UF30T
+  save_dir: checkpoints/b-6-3-1-N-UF30T
   restore_file: checkpoint_last.pt
   continue_once: null
   finetune_from_model: null
@@ -245,7 +245,7 @@ model:
 task:
   _name: translation_ctcpmlm
   align_position_pad_index: 513
-  data: /livingrooms/valexsyu/dataset/nat/wmt14_clean_en_de_6kval_bibertDist_bibert/de-en-databin
+  data: /livingrooms/valexsyu/dataset/nat/wmt14_clean_en_de_6kval_bibert/de-en-databin
   debug: false
   eval_bleu: true
   eval_bleu_print_samples: true
