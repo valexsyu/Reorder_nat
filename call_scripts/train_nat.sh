@@ -876,7 +876,7 @@ if [ "$hydra" = "True" ]
 then
     bash $CHECKPOINT/hydra.sh
     # fairseq-hydra-train -r --config-dir $CHECKPOINT/  --config-name $experiment_id.yaml
-    python fairseq_cli/hydra-train.py -r --config-dir $CHECKPOINT/  --config-name $experiment_id.yaml
+    python fairseq_cli/hydra_train.py -r --config-dir $CHECKPOINT/  --config-name $experiment_id.yaml
 else
     bash $CHECKPOINT/scrip.sh
 fi 
