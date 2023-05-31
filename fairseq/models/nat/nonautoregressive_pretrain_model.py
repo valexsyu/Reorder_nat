@@ -40,7 +40,7 @@ from fairseq.utils import new_arange
 # from ctcdecode import CTCBeamDecoder
 # from sklearn.manifold import TSNE
 # from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt   
+# import matplotlib.pyplot as plt   
 from omegaconf import ListConfig
 
 @register_model("nat_pretrained_model") 
