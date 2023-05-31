@@ -1,8 +1,8 @@
 hydra:
   run:
-    dir: ./
+    dir: .
   sweep:
-    dir: /checkpoints/${env:PREFIX}/${hydra.job.config_name}/${hydra.job.override_dirname}
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
     subdir: ${hydra.job.num}
   hydra_logging:
     version: 1
@@ -111,17 +111,14 @@ hydra:
     override_dirname: ''
     id: ???
     num: ???
-    config_name: b-6-3-1-N-UF30T.yaml
+    config_name: config
     env_set: {}
     env_copy: []
     config:
       override_dirname:
-        kv_sep: ':'
-        item_sep: __
-        exclude_keys:
-        - run_config
-        - distributed_training.distributed_port
-        - common.user_dir
+        kv_sep: '='
+        item_sep: ','
+        exclude_keys: []
   runtime:
     version: 1.0.7
     cwd: /home/valexsyu/Doc/NMT/Reorder_nat
