@@ -23,7 +23,7 @@ echo "==============CCS_ID:$CCS_ID========================="
 
 ROOT_PATH=/work/valex1377/CTC_PLM/Reorder_nat
 
-echo "==============Nvidia-smi========================="
+echo "==============Nvidia-smi Info.========================="
 ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "/bin/bash --login -c nvidia-smi"
 wait
 echo "==============Conda deactivate==================="
