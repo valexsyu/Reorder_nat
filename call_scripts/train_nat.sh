@@ -1,6 +1,6 @@
 #!/bin/bash
-# source $HOME/.bashrc 
-# conda activate base
+source $HOME/.bashrc 
+conda activate base
 #---------Path Setting-------------------#
 # Model    Bibert Tr.   #Baseline Tr.
 # mbert       1            3
@@ -875,7 +875,8 @@ rm $CHECKPOINT/temp*
 if [ "$hydra" = "True" ]
 then
     bash $CHECKPOINT/hydra.sh
-    fairseq-hydra-train -r --config-dir $CHECKPOINT/  --config-name $experiment_id.yaml
+    # fairseq-hydra-train -r --config-dir $CHECKPOINT/  --config-name $experiment_id.yaml
+    python fairseq_cli/hydra-train.py -r --config-dir $CHECKPOINT/  --config-name $experiment_id.yaml
 else
     bash $CHECKPOINT/scrip.sh
 fi 

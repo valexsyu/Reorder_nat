@@ -22,12 +22,14 @@ echo "==============CCS_ID:$CCS_ID========================="
 # ssh-copy-id valex1377@$IP -p $PORT
 
 ROOT_PATH=/work/valex1377/CTC_PLM/Reorder_nat
-
 echo "==============Nvidia-smi Info.========================="
 ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "/bin/bash --login -c nvidia-smi"
 wait
 echo "==============Conda deactivate==================="
 ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "conda deactivate"
+wait
+echo "==============Conda Env.==================="
+ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "echo $CONDA_DEFAULT_ENV"
 wait
 if [ "$GIT_PULL" = "True" ]
 then
