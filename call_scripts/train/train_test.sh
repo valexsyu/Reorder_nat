@@ -100,7 +100,7 @@ conda activate base
 
 
 
-bash call_scripts/train_nat.sh -e 2-2-1-1-H12-UR40M-TTTTTTTTTTT  \
+bash call_scripts/train_nat.sh -e 2-2-1-1-H12-UR40M-TTTTTTTTTTTTTTGGGG  \
                                 --save-interval-updates 70000 --max-tokens 2048 \
                                 --task translation_ctcpmlm \
                                 --arch nat_pretrained_model \

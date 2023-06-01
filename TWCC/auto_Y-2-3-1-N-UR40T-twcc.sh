@@ -1,7 +1,7 @@
 # source $HOME/.bashrc 
 # conda activate base
 
-CCS_NAME=Y231-nur40t    ##  <-----------------------------------input
+CCS_NAME=y231-nur40t    ##  <-----------------------------------input
 RUN_FILE_NAME=Y-2-3-1-N-UR40T-twcc.sh    ##  <--------------------input
 GPU_NUM=2   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git

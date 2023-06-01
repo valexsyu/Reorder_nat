@@ -130,7 +130,7 @@ hydra:
           - distributed_training.distributed_port
           - common.user_dir
   run:
-    dir: ./
+    dir: ./${checkpoint.save_dir}
   sweep:
-    dir: /checkpoints/${env:PREFIX}/${hydra.job.config_name}/${hydra.job.override_dirname}
+    dir: ./checkpoints/${env:PREFIX}/${hydra.job.config_name}/${hydra.job.override_dirname}
     subdir: ${hydra.job.num}
