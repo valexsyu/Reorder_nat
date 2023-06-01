@@ -495,7 +495,7 @@ while [ : ]; do
       shift 2
       ;;          
     --twcc)
-      dataroot="../../../nat_data"
+      dataroot="../nat_data"
       twcc=True
       shift 1
       ;;      
