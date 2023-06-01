@@ -287,6 +287,7 @@ conda activate base
 
 
 source call_scripts/train/pair_experiment.sh
-pair_experiment_wmt14_1_2048_100k Z-6-3-1-N-UF30T
+# pair_experiment_wmt14_1_2048_100k Z-6-3-1-N-UF30T
+pair_experiment_iwslt14_3080x1_768_50k J-2-3-1-N-UR40T J-2-3-1-H12-UR40T
 
-#move to 3
+
