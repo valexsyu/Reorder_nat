@@ -29,7 +29,7 @@ function current_last_step(){
         cur_last=0       
     fi
     # Return the value of cur_last
-    return "$cur_last"    
+    return $cur_last  
 }
 
 
