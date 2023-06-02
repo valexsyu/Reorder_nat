@@ -1,8 +1,8 @@
 # source $HOME/.bashrc 
 # conda activate base
 
-CCS_NAME=a131-h12ur30m    ##  <-----------------------------------input
-RUN_FILE_NAME=A-1-3-1-H12-UR30M-twcc.sh    ##  <--------------------input
+CCS_NAME=watch-01    ##  <-----------------------------------input
+RUN_FILE_NAME=temp-twcc.sh    ##  <--------------------input
 GPU_NUM=8   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
 APIKEY=03d31964-e6c3-4f3e-a4c2-5d410f7c0433
