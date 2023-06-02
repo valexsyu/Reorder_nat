@@ -25,7 +25,7 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling-twcc.sh \
     -e a-2-3-1-H12-UR40M \
     -e b-2-3-1-H12-UR40M \
     -e Y-2-3-1-N-UR40T \
-    --sleep 100" C-m
+    --sleep 300" C-m
 
 tmux select-pane -t 1
 tmux send-keys "conda activate reorder_nat" C-m
