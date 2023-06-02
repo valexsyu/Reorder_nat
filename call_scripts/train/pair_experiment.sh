@@ -71,7 +71,7 @@ function pair_experiment(){
     WARMUP_UPDATES=10000
     MAX_UPDATE=50000
 
-    $cur_last=$(current_last_step $1)
+    cur_last=$(current_last_step $1)
 
     if [ "$cur_last" -lt $relay_step ]; then   
         ctcpmlm $1 $relay_step $MAX_TOKENS \
@@ -79,7 +79,7 @@ function pair_experiment(){
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
-    $cur_last=$(current_last_step $1)
+    cur_last=$(current_last_step $1)
 
     record_top5 $cur_last $relay_step $1 $2 $3 $4
 
@@ -1232,7 +1232,7 @@ function pair_experiment_wmt16_8_2048_30k_twcc() {
     WARMUP_UPDATES=3000
     MAX_UPDATE=30000
 
-    $cur_last=$(current_last_step $1)
+    cur_last=$(current_last_step $1)
 
     if [ "$cur_last" -lt $relay_step ]; then   
         ctcpmlm $1 $relay_step $MAX_TOKENS \
@@ -1240,7 +1240,7 @@ function pair_experiment_wmt16_8_2048_30k_twcc() {
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
-    $cur_last=$(current_last_step $1)
+    cur_last=$(current_last_step $1)
 
     record_top5 $cur_last $relay_step $1 $2 $3 $4
 
