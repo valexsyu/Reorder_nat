@@ -24,6 +24,7 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling-twcc.sh \
     -e N-2-3-1-H12-UR40M \
     -e a-2-3-1-H12-UR40M \
     -e b-2-3-1-H12-UR40M \
+    -e Y-2-3-1-N-UR40T \
     --sleep 100" C-m
 
 tmux select-pane -t 1
