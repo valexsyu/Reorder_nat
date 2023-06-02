@@ -60,5 +60,7 @@ if [ "${#data_name_array[@]}" -gt 0 ]; then
                 --ref-path $file_path/T-$tgt_name \
                 --hypo-path ${parsing_data_array[@]} \
                 --output-bleu-path $output_bleu_file \
-                --output-index-path $output_index_file 
+                --output-index-path $output_index_file \
+                --output-bleu-fig-path "$file_path/bleu.png" \
+                --output-index-fig-path "$file_path/index.png"
 fi

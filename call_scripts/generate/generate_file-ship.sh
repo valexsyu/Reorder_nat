@@ -1,5 +1,5 @@
-source $HOME/.bashrc 
-conda activate base
+# source $HOME/.bashrc 
+# conda activate base
 
 # #--------iwslt14 deen main table------
 # # --avg-ck-turnoff 

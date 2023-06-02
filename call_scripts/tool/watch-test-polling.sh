@@ -13,7 +13,7 @@ function default_setting() {
 }
 
 
-VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,sleep:,local,b \
+VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,sleep:,local \
                           --long task:,arch:,criterion:,gpu_id: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
@@ -28,7 +28,6 @@ while [ : ]; do
         experiment_ids="$2"     
         echo "$experiment_ids" 
         exp_array+=("$experiment_ids")
-
         shift 2
         ;;
     -b)

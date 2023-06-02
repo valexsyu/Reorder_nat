@@ -59,6 +59,11 @@ parser.add_argument('--output-bleu-path', metavar='FILE', type=str,
                     help='output max_sentence files')
 parser.add_argument('--output-index-path', metavar='FILE', type=str,
                     help='output index files')
+parser.add_argument('--output-bleu-fig-path', metavar='FILE', type=str,
+                    help='output index files')
+parser.add_argument('--output-index-fig-path', metavar='FILE', type=str,
+                    help='output index files')
+
 
 # Parse the arguments
 args = parser.parse_args()
@@ -90,8 +95,9 @@ def save_data(data_in, file_name):
 
 
 max_sentence=[]
-max_bleus=[]
+max_bleu_array=[]
 ref_data_flat=[]
+max_index_array=[]
 bleu_array=torch.empty((len(lines_data),len(lines_data[0])))
 for line_id, lines in tqdm(
                 enumerate(zip(*lines_data,ref_data)), 
@@ -112,17 +118,35 @@ for line_id, lines in tqdm(
     max_bleu = max(bleu)
     max_index = bleu.index(max_bleu)
        
-    max_bleus.append(max_bleu) 
+    max_bleu_array.append(max_bleu) 
     max_sentence.append(hypo_sents[max_index].rstrip("\n").split())
+    max_index_array.append(max_index)
 
 
 print('Upper Bound:{}'.format(corpus_bleu(ref_data_flat,max_sentence,weights=(0.25, 0.25, 0.25, 0.25))*100))
 
-max_values, max_index = torch.max(bleu_array, dim=0)
-  
+save_data(max_index_array, args.output_index_path)
+save_data(max_bleu_array, args.output_bleu_path)
 
 
 
+import matplotlib.pyplot as plt
 
+
+# Count the occurrences of each type
+rate2_num, rate3_num, rate4_num = max_index_array.count(0), max_index_array.count(1), max_index_array.count(2)
+counts = [rate2_num, rate3_num, rate4_num ]
+
+# Define the labels for the types
+labels = ['Rate 2', 'Rate 3', 'Rate 4']
+
+# Plot the distribution
+plt.bar(labels, counts)
+plt.xlabel('Rates')
+plt.ylabel('Count')
+plt.title('Distribution of Rates')
+plt.savefig(args.output_index_fig_path)
+
+print("Index count: Rate2: {} / Rate3: {} / Rate4:{}".format(rate2_num, rate3_num, rate4_num ))
 
 

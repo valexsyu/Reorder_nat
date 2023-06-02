@@ -1111,6 +1111,32 @@ function pair_experiment_iwslt14_1_2048_50k() {
     done     
 }
 
+function pair_experiment_iwslt14_2_2048_50k() { 
+    relay_step=30000
+    LM_START_STEP=30000
+    MAX_TOKENS=2048
+    GPU_NUM=2
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=50000
+    cur_last=$(current_last_step $1)
+
+    if [ "$cur_last" -lt $relay_step ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+
+    record_top5_11 $cur_last $relay_step $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11
+
+    
+    for experiment in $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 ; do 
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $MAX_UPDATE   
+    done     
+}
 
 
 
@@ -1195,6 +1221,35 @@ function pair_experiment_wmt14_2_3276_100k_twcc() {
     done                                                                                                                                                
 
 }
+function pair_experiment_wmt16_8_2048_30k_twcc() { 
+    relay_step=19000
+    LM_START_STEP=20000
+    MAX_TOKENS=2048
+    GPU_NUM=8
+    BATCH_SIZE=65536
+    WARMUP_UPDATES=3000
+    MAX_UPDATE=30000
+
+    $cur_last=$(current_last_step $1)
+
+    if [ "$cur_last" -lt $relay_step ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    $cur_last=$(current_last_step $1)
+
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE
+    done                                                                                                                                                   
+
+}
+
 
 
 

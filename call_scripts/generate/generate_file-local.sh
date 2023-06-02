@@ -282,13 +282,14 @@
 #                         -e m-B-1-1-N-UR20M-rate_select
 
 
-# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-#                         -b 10 --local \
-#                         --arch ctcpmlm_rate_predictor \
-#                         --task transaltion_ctcpmlm_rate \
-#                         --criterion nat_ctc_pred_rate_loss \
-#                         -e m-B-1-1-N-UR20M-rate_predict_divTGT \
-#                         -e m-B-1-1-N-UR20M-rate_predict 
+bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+                        -b 10 --local \
+                        --arch ctcpmlm_rate_predictor \
+                        --task transaltion_ctcpmlm_rate \
+                        --criterion nat_ctc_pred_rate_loss \
+                        --avg-ck-turnoff \
+                        --debug \
+                        -e m-B-1-1-N-UR20M-predsel-rate
 
 
 
@@ -303,12 +304,12 @@
 
 
 
-CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        -b 10 \
-                        --arch ctcpmlm_rate_selection \
-                        --task transaltion_ctcpmlm_rate \
-                        --criterion nat_ctc_pred_rate_loss \
-                        --local \
-                        --avg-ck-turnoff \
-                        -e 2-2-1-1-H12-UR40M \
-                        -e 2-2-1-1-H7-UF20M 
+# CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 10 \
+#                         --arch ctcpmlm_rate_selection \
+#                         --task transaltion_ctcpmlm_rate \
+#                         --criterion nat_ctc_pred_rate_loss \
+#                         --local \
+#                         --avg-ck-turnoff \
+#                         -e 2-2-1-1-H12-UR40M \
+#                         -e 2-2-1-1-H7-UF20M 
