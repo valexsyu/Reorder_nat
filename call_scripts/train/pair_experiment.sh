@@ -17,7 +17,7 @@ function ctcpmlm(){
 }
 
 
-# $cur_last=$(current_last_step $1)
+# cur_last=$(current_last_step $1)
 function current_last_step(){
     if [ -e checkpoints/$1/checkpoint_last.pt ]; then
         echo "===========Loading $1 checkpoint_last step=============="
@@ -26,11 +26,13 @@ function current_last_step(){
         echo "Currect step: $cur_last"
     else
         echo "===========No checkpoint_last.pt set cur_last=0=============="
-        cur_last=0        
+        cur_last=0       
     fi
     # Return the value of cur_last
-    echo "$cur_last"    
+    return "$cur_last"    
 }
+
+
 
 # record_top5 $cur_last $relay_step $1 $2 $3 $4
 function record_top5(){
