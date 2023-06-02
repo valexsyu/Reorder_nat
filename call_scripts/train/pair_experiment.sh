@@ -12,6 +12,7 @@ function ctcpmlm(){
                                     --has-eos --max-update $7 \
                                     --warmup-updates $5 \
                                     --hydra \
+                                    -b $8 \
                                     -g $6 --fp16       
 }
 
@@ -73,7 +74,7 @@ function pair_experiment(){
 
     if [ "$cur_last" -lt $relay_step ]; then   
         ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
@@ -84,7 +85,7 @@ function pair_experiment(){
     
     for experiment in $1 $2 $3 $4; do
         ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
     done                                                                                                                                                
 
 }
@@ -483,7 +484,7 @@ function pair_experiment_iwslt14_3080x1_768_50k() {
 
     if [ "$cur_last" -lt $relay_step ]; then   
         ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
@@ -494,7 +495,7 @@ function pair_experiment_iwslt14_3080x1_768_50k() {
     
     for experiment in $1 $2 $3 $4; do
         ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
     done                                                                                                                                                  
 
 }
@@ -1096,7 +1097,7 @@ function pair_experiment_iwslt14_1_2048_50k() {
 
     if [ "$cur_last" -lt $relay_step ]; then   
         ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
@@ -1107,7 +1108,7 @@ function pair_experiment_iwslt14_1_2048_50k() {
     
     for experiment in $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 ; do 
         ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $MAX_UPDATE   
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $MAX_UPDATE $BATCH_SIZE
     done     
 }
 
@@ -1123,7 +1124,7 @@ function pair_experiment_iwslt14_2_2048_50k() {
 
     if [ "$cur_last" -lt $relay_step ]; then   
         ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
@@ -1134,7 +1135,7 @@ function pair_experiment_iwslt14_2_2048_50k() {
     
     for experiment in $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 ; do 
         ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $MAX_UPDATE   
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $MAX_UPDATE $BATCH_SIZE
     done     
 }
 
@@ -1234,7 +1235,7 @@ function pair_experiment_wmt16_8_2048_30k_twcc() {
 
     if [ "$cur_last" -lt $relay_step ]; then   
         ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
     else
         echo "$1 last step is ge $relay_step"
     fi                                        
@@ -1245,7 +1246,7 @@ function pair_experiment_wmt16_8_2048_30k_twcc() {
     
     for experiment in $1 $2 $3 $4; do
         ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
     done                                                                                                                                                   
 
 }
