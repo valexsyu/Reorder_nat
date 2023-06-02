@@ -1,7 +1,7 @@
 # source $HOME/.bashrc 
 # conda activate base
 
-CCS_NAME=l531-nuf30t    ##  <-----------------------------------input
+CCS_NAME=ii531-nuf30t    ##  <-----------------------------------input
 RUN_FILE_NAME=L-5-3-1-N-UF30T-twcc.sh    ##  <--------------------input
 GPU_NUM=8   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
