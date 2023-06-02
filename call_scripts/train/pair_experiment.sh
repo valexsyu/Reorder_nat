@@ -25,6 +25,7 @@ function current_last_step(){
                   | awk -F':' '/last/{gsub(/[^0-9]/, "", $3); print $3}')
         echo "Currect step: $cur_last"
     else
+        echo "===========No checkpoint_last.pt set cur_last=0=============="
         cur_last=0        
     fi
     # Return the value of cur_last
