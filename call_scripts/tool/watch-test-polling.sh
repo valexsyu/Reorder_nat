@@ -104,7 +104,7 @@ do
         CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num      
       elif [ "$twcc" = "True" ]; then  
-        echo "Wait local Resource"   
+        echo "Wait twcc Resource"   
         CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num      
       else
