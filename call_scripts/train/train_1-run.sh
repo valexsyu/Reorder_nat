@@ -776,4 +776,12 @@ pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H2-UR40M 2-2-3-1-H3-
                                    2-2-3-1-H5-UR40M 2-2-3-1-H6-UR40M 2-2-3-1-H7-UR40M 2-2-3-1-H8-UR40M \
                                    2-2-3-1-H9-UR40M 2-2-3-1-H10-UR40M 2-2-3-1-H11-UR40M
 
-pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR40M-50k
+
+pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H5-UR40M 2-2-3-1-H6-UR40M 2-2-3-1-H7-UR40M \
+pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H8-UR40M 2-2-3-1-H9-UR40M 2-2-3-1-H10-UR40M \
+pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H11-UR40M
+pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR33M
+pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR40M
+pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR45M
+pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR50M
+

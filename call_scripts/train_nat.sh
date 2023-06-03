@@ -156,6 +156,9 @@ function get_dataset() {
         dataset="iwslt14_de_en_bibertDist_xlmr_pruned21785"     
     elif [ "$i" = "p" ]
     then
+        dataset="iwslt14_de_en_bibertDist_bibert_pruned43093"        
+    elif [ "$i" = "q" ]
+    then
         dataset="iwslt14_de_en_mbert_pruned26458"            
     else      
         echo "error dataset id "
@@ -242,7 +245,15 @@ function get_pretrain_model() {
         bpe="xlmr"    
         init_translator=False   
         pretrained_lm_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/ 
-        pretrained_model_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/                        
+        pretrained_model_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/        
+    elif [ "$i" = "D" ]
+    then
+        pretrained_model="bibert"
+        pretrained_model_name="jhu-clsp/bibert-ende"
+        bpe="bibert"    
+        init_translator=False   
+        pretrained_lm_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093/ 
+        pretrained_model_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093                         
     else
         echo "error pretrained model id "
         exit 1

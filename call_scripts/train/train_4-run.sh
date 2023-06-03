@@ -478,8 +478,10 @@ function pair_experiment_iwslt14() {
 # pair_experiment_iwslt14 P-2-3-1-H12-UR40M
 
 source call_scripts/train/pair_experiment.sh
-pair_experiment_iwslt14_1_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H2-UR40M 2-2-3-1-H3-UR40M 2-2-3-1-H4-UR40M \
-                                   2-2-3-1-H5-UR40M 2-2-3-1-H6-UR40M 2-2-3-1-H7-UR40M 2-2-3-1-H8-UR40M \
-                                   2-2-3-1-H9-UR40M 2-2-3-1-H10-UR40M 2-2-3-1-H11-UR40M
+# pair_experiment_iwslt14_1_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H2-UR40M 2-2-3-1-H3-UR40M 2-2-3-1-H4-UR40M \
+#                                    2-2-3-1-H5-UR40M 2-2-3-1-H6-UR40M 2-2-3-1-H7-UR40M 2-2-3-1-H8-UR40M \
+#                                    2-2-3-1-H9-UR40M 2-2-3-1-H10-UR40M 2-2-3-1-H11-UR40M
 
+
+# pair_experiment_iwslt14_1_2048_50k 1-1-3-1-H12-UR40M
 

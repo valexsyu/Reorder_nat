@@ -6,7 +6,7 @@ RUN_FILE_NAME=V-1-3-1-N-UF30T-twcc.sh    ##  <--------------------input
 GPU_NUM=8   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
 APIKEY=03d31964-e6c3-4f3e-a4c2-5d410f7c0433
-PROJECT_ID=GOV112004
+PROJECT_ID=MST111038
 RUN_FILE_PATH=call_scripts/train
 
 # twccli config init -pcode $PROJECT_ID --apikey $APIKEY

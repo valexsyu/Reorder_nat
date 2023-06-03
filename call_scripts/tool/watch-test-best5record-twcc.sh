@@ -88,8 +88,13 @@ do
   for i in "${!exp_array[@]}"; do 
       experiment_id=${exp_array[$i]}
       echo "=========transmission $experiment_id ============="
-      # rsync -avz --progress $username@xdata1.twcc.ai:/work/valex1377/CTC_PLM/Reorder_nat/checkpoints/$experiment_id/ checkpoints/$experiment_id/
-      rsync -avz --progress $username@xdata1.twcc.ai:/work/valex1377/CTC_PLM/Reorder_nat/checkpoints/$experiment_id/best_top5.test.record checkpoints/$experiment_id/best_top5.test.record
+      
+      if [ ! -d "checkpoints/$experiment_id" ]; then
+         
+        mkdir checkpoints/$experiment_id
+      fi
+      rsync -avz --progress $username@xdata1.twcc.ai:/work/valex1377/CTC_PLM/Reorder_nat/checkpoints/$experiment_id/ checkpoints/$experiment_id/
+      # rsync -avz --progress $username@xdata1.twcc.ai:/work/valex1377/CTC_PLM/Reorder_nat/checkpoints/$experiment_id/best_top5.test.record checkpoints/$experiment_id/best_top5.test.record
   done
   echo "Sleeping Now : $sleep_time s"
   sleep $sleep_time

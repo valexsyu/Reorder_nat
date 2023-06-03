@@ -730,6 +730,10 @@ pair_experiment_wmt14 Z-2-3-1-N-UF30T
 source call_scripts/train/pair_experiment.sh
 pair_experiment_wmt14_2_2048_100k Z-6-3-1-N-UF30T
 
+pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR22M
+pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR25M
+pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR30M
+
 
 # pair_experiment 2-2-3-1-H1-UF20T 2-2-3-1-H2-UF20T 2-2-3-1-H3-UF20T 2-2-3-1-H5-UF20T 
 # pair_experiment 2-2-3-1-H1-UF20T 2-2-3-1-H6-UF20T 2-2-3-1-H8-UF20T 2-2-3-1-H9-UF20T

@@ -42,7 +42,7 @@ ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "cd $ROOT_
 wait
 
 
-
+cp /home/valex/.twcc_data/credential_$PROJECT_ID /home/valex/.twcc_data/credential
 echo "==============Remove CCS========================="
 twccli rm ccs -f -s $CCS_ID
 rm $RUN_FILE_NAME.ccs_res.log
