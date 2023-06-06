@@ -1,7 +1,7 @@
 # source $HOME/.bashrc 
 # conda activate base
 
-CCS_NAME=1541-h12ur30m    ##  <-----------------------------------input
+CCS_NAME=x1541-h12ur30m    ##  <-----------------------------------input
 RUN_FILE_NAME=1-5-4-1-H12-UR30Mtwcc.sh    ##  <--------------------input
 GPU_NUM=2   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
