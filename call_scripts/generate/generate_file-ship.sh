@@ -199,12 +199,21 @@
 #                         -e m-B-3-1-N-UF20M \
 #                         -e m-B-3-1-N-UF40M \
 
+                        # --avg-ck-turnoff \
 
-bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+bash call_scripts/generate_nat.sh --data-subset valid --ck-types top \
                         -b 20 \
                         --task translation_ctcpmlm \
                         --arch nat_pretrained_model \
                         --criterion nat_ctc_loss \
                         --avg-ck-turnoff \
-                        --debug \
-                        -e 2-2-1-1-H12-UR40M
+                        --data-subset valid \
+                        -e 1-1-3-1-H12-UR15M \
+                        -e 1-1-3-1-H12-UR20M \
+                        -e 1-1-3-1-H12-UR22M \
+                        -e 1-1-3-1-H12-UR25M \
+                        -e 1-1-3-1-H12-UR30M \
+                        -e 1-1-3-1-H12-UR33M \
+                        -e 1-1-3-1-H12-UR40M \
+                        -e 1-1-3-1-H12-UR45M \
+                        -e 1-1-3-1-H12-UR50M 

@@ -265,13 +265,16 @@
 # CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh -b 20 --local --data-subset test \
 #                        --ck-types top --avg-speed 1 \
 #                         -e m-8-3-3-K12-UF20M-test --visualization
-# CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
-#                        --ck-types top --avg-speed 1 \
-#                         -b 50 \
-#                         --task translation_ctcpmlm \
-#                         --arch nat_pretrained_model \
-#                         --criterion nat_ctc_loss \
-#                         -e m-B-1-1-N-UR20M     
+
+
+CUDA_VISIBLE_DEVICES=1 bash call_scripts/generate_nat.sh --local --data-subset test \
+                       --ck-types top --avg-speed 1 \
+                        -b 10 \
+                        --task translation_ctcpmlm \
+                        --arch nat_pretrained_model \
+                        --criterion nat_ctc_loss \
+                        --local \
+                        -e Y-2-3-1-N-UR40T    
 
 
 # bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
@@ -282,14 +285,14 @@
 #                         -e m-B-1-1-N-UR20M-rate_select
 
 
-bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        -b 10 --local \
-                        --arch ctcpmlm_rate_predictor \
-                        --task transaltion_ctcpmlm_rate \
-                        --criterion nat_ctc_pred_rate_loss \
-                        --avg-ck-turnoff \
-                        --debug \
-                        -e m-B-1-1-N-UR20M-predsel-rate
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 10 --local \
+#                         --arch ctcpmlm_rate_predictor \
+#                         --task transaltion_ctcpmlm_rate \
+#                         --criterion nat_ctc_pred_rate_loss \
+#                         --avg-ck-turnoff \
+#                         --debug \
+#                         -e m-B-1-1-N-UR20M-predsel-rate
 
 
 
