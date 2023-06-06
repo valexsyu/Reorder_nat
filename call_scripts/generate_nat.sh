@@ -1,8 +1,8 @@
 #!/bin/bash
 # conda init bash
 
-# source $HOME/.bashrc 
-# conda activate base
+source $HOME/.bashrc 
+conda activate base
 
 #---------Path Setting-------------------#
 # Model    Bibert Tr.   #Baseline Tr.
