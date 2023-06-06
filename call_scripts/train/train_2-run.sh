@@ -487,8 +487,9 @@ source call_scripts/train/pair_experiment.sh
 # pair_experiment_wmt14_3080x1 b-6-3-1-N-UF30T
 # pair_experiment_wmt14_2_768_100k b-6-3-1-N-UF30T
 
-pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR15M
-pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR20M
+# pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR15M
+# pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR20M
+# pair_experiment_iwslt14_1_1024_50k 1-1-3-1-H12-UR50M
 
 
 

@@ -762,8 +762,8 @@ conda activate base
 # pair_experiment_wmt14 Z-2-3-1-N-UR40T
 
 source call_scripts/train/pair_experiment.sh
-pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR25M-50k
-pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR30M-50k
+# pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR25M-50k
+# pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR30M-50k
 # pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR20M-50k
 # pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR40M-50k
 # pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR35M-50k
@@ -772,16 +772,21 @@ pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR30M-50k
 # pair_experiment 2-2-3-1-H1-UF20M 2-2-3-1-H6-UF20M 2-2-3-1-H8-UF20M 2-2-3-1-H9-UF20M
 # pair_experiment 2-2-3-1-H1-UF20M 2-2-3-1-H10-UF20M 2-2-3-1-H11-UF20M 
 
-pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H2-UR40M 2-2-3-1-H3-UR40M 2-2-3-1-H4-UR40M \
-                                   2-2-3-1-H5-UR40M 2-2-3-1-H6-UR40M 2-2-3-1-H7-UR40M 2-2-3-1-H8-UR40M \
-                                   2-2-3-1-H9-UR40M 2-2-3-1-H10-UR40M 2-2-3-1-H11-UR40M
+# pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H2-UR40M 2-2-3-1-H3-UR40M 2-2-3-1-H4-UR40M \
+#                                    2-2-3-1-H5-UR40M 2-2-3-1-H6-UR40M 2-2-3-1-H7-UR40M 2-2-3-1-H8-UR40M \
+#                                    2-2-3-1-H9-UR40M 2-2-3-1-H10-UR40M 2-2-3-1-H11-UR40M
 
 
-pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H5-UR40M 2-2-3-1-H6-UR40M 2-2-3-1-H7-UR40M \
-pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H8-UR40M 2-2-3-1-H9-UR40M 2-2-3-1-H10-UR40M \
+# pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H5-UR40M 2-2-3-1-H6-UR40M 2-2-3-1-H7-UR40M
+pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H8-UR40M 2-2-3-1-H9-UR40M 2-2-3-1-H10-UR40M
 pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H11-UR40M
-pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR33M
-pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR40M
-pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR45M
-pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR50M
+# pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR40M
+pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR45M
+pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H11-UR40M
+pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR50M
+pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR20M
+pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H12-UR30M
+pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H12-UR20M
+
+
 
