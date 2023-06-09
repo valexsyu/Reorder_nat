@@ -1,13 +1,13 @@
 # source $HOME/.bashrc 
 # conda activate base
 
-CCS_NAME=watch-01    ##  <-----------------------------------input
-RUN_FILE_NAME=watch-twcc.sh    ##  <--------------------input
-GPU_NUM=1  ##  <--------------------------------------------------input
+CCS_NAME=mB31-nur30m-avg1    ##  <-----------------------------------input
+RUN_FILE_NAME=m-B-3-1-N-UR30M-rate_avg_1-twcc.sh    ##  <--------------------input
+GPU_NUM=4   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
 APIKEY=03d31964-e6c3-4f3e-a4c2-5d410f7c0433
 PROJECT_ID=GOV112004
-RUN_FILE_PATH=call_scripts/tool
+RUN_FILE_PATH=call_scripts/train
 
 # twccli config init -pcode $PROJECT_ID --apikey $APIKEY
 # twccli config init
