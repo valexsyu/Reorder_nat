@@ -13,9 +13,9 @@ tmux split-window -v
 
 # Set the size of each pane to be the same
 tmux resize-pane -t 0 -y 10%
-tmux resize-pane -t 0 -y 10%
-tmux resize-pane -t 0 -y 10%
-tmux resize-pane -t 1 -y 70%
+tmux resize-pane -t 1 -y 10%
+tmux resize-pane -t 2 -y 10%
+tmux resize-pane -t 3 -y 70%
 # tmux resize-pane -t 2 -y 70%
 
 Select the first window and execute the first script
@@ -55,19 +55,21 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
     -b 10 \
     --gpu_id 1 \
     -e m-B-3-1-N-UR20M \
+    -m m-B-3-1-N-UR25M \
     -e m-B-3-1-N-UR30M\
     -e m-B-3-1-N-UR40M \
     -e m-B-3-1-N-UR35M \    
     --sleep 120" C-m
 
 # Select the third window and execute the third script
-tmux select-pane -t 1
+tmux select-pane -t 3
 tmux send-keys "conda activate reorder_nat" C-m
 tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
     -e m-B-3-1-N-UR20M \
     -e m-B-3-1-N-UR30M\
     -e m-B-3-1-N-UR40M \
     -e m-B-3-1-N-UR35M \
+    -e m-B-3-1-N-UR25M \
     -e m-B-3-1-N-UR30M-rate_avg-33k\
     -e m-B-3-1-N-UR30M-rate_avg \
     -e m-B-3-1-N-UR30M-rate_avg_1 \

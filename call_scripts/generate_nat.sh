@@ -475,7 +475,8 @@ while [ : ]; do
         shift 2
         ;;
     --twcc)
-      dataroot="../nat_data"
+      dataroot="../dataset/nat"
+      modelroot="../dataset/model" 
       shift 1
       ;;     
     --local)
