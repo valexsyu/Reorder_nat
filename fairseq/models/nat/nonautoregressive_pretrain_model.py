@@ -37,8 +37,8 @@ import random
 from scipy.optimize import linear_sum_assignment as lsa
 from fairseq.utils import new_arange
 
-# from ctcdecode import CTCBeamDecoder
-# from sklearn.manifold import TSNE
+from ctcdecode import CTCBeamDecoder
+from sklearn.manifold import TSNE
 # from sklearn.decomposition import PCA
 # import matplotlib.pyplot as plt   
 from omegaconf import ListConfig
@@ -593,6 +593,8 @@ class NATPretrainedModel(BaseFairseqModel):
         
         if self.visualization :
             self.visualize(src_tokens,tgt_tokens,src_lengths)
+        
+
         
         if self.ctc_beam_decoding:
             # logits, output_hidden_states, rate, src_tokens_upsample = self.translation(src_tokens, src_lengths, **kwargs) 
