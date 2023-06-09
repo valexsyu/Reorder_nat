@@ -508,8 +508,8 @@ while [ : ]; do
       shift 2
       ;;          
     --twcc)
-      dataroot="../../dataset/nat"
-      modelroot="../../dataset/model" 
+      dataroot="../dataset/nat"
+      modelroot="../dataset/model" 
       twcc=True
       shift 1
       ;;      
