@@ -1899,10 +1899,10 @@ function pair_experiment_iwslt14_4_2048_100k_twcc(){
     done                                                                                                                                                 
 
 }
-function pair_experiment_iwslt14_4_2048_rate_avg_33k_twcc(){
+function pair_experiment_iwslt14_4_1536_rate_avg_33k_twcc(){
     relay_step=25000
     LM_START_STEP=25000
-    MAX_TOKENS=2048
+    MAX_TOKENS=1536
     GPU_NUM=4
     BATCH_SIZE=12288
     WARMUP_UPDATES=10000
@@ -1948,10 +1948,10 @@ function pair_experiment_iwslt14_4_2048_rate_avg_33k_twcc(){
     done                                                                                                                                                 
 
 }
-function pair_experiment_iwslt14_4_2048_rate_avg_twcc(){
+function pair_experiment_iwslt14_4_1536_rate_avg_twcc(){
     relay_step=70000
     LM_START_STEP=75000
-    MAX_TOKENS=2048
+    MAX_TOKENS=1536
     GPU_NUM=4
     BATCH_SIZE=12288
     WARMUP_UPDATES=10000
@@ -2051,7 +2051,7 @@ function pair_experiment_iwslt14_4_2048_rate_avg_1_twcc(){
 function pair_experiment_iwslt14_4_1536_rate_avg_1_twcc(){
     relay_step=70000
     LM_START_STEP=75000
-    MAX_TOKENS=2048
+    MAX_TOKENS=1536
     GPU_NUM=4
     BATCH_SIZE=12288
     WARMUP_UPDATES=10000
