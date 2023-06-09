@@ -2048,6 +2048,57 @@ function pair_experiment_iwslt14_4_2048_rate_avg_1_twcc(){
     done                                                                                                                                                 
 
 }
+function pair_experiment_iwslt14_4_1536_rate_avg_1_twcc(){
+    relay_step=70000
+    LM_START_STEP=75000
+    MAX_TOKENS=2048
+    GPU_NUM=4
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=100000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt $relay_step ]; then    
+        CUDA_VISIBLE_DEVICES=0,1,2,3 bash call_scripts/train_nat.sh -e $1 \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --arch ctcpmlm_rate_selection \
+                                        --task translation_ctcpmlm \
+                                        --criterion nat_ctc_avg_rate_loss \
+                                        --has-eos --max-update $relay_step \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --twcc \
+                                        --rate-list 1 \
+                                        -g $GPU_NUM --fp16   
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                         
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        CUDA_VISIBLE_DEVICES=0,1,2,3 bash call_scripts/train_nat.sh -e $experiment \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --arch ctcpmlm_rate_selection \
+                                        --task translation_ctcpmlm \
+                                        --criterion nat_ctc_avg_rate_loss \
+                                        --has-eos --max-update $MAX_UPDATE \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --twcc \
+                                        --rate-list 1 \
+                                        -g $GPU_NUM --fp16        
+    done                                                                                                                                                 
+
+}
 #================local==================
 
 function pair_experiment_iwslt14_3080x1_768_50k_loacl() { 
