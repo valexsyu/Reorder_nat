@@ -4,7 +4,7 @@
 source call_scripts/train/pair_experiment.sh
 experiment=m-B-3-1-N-UR20M
 
-pair_experiment_iwslt14_2_4096_100k_twcc $experiment       
+pair_experiment_iwslt14_2_3072_100k_twcc $experiment       
 
 CUDA_VISIBLE_DEVICES=0,1 bash call_scripts/generate_nat.sh -b 1 --twcc --data-subset test --ck-types top --avg-speed 1 \
                     -e $experiment   \
