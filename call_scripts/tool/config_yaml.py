@@ -100,6 +100,8 @@ def parser_function():
     parser.add_argument('--pretrained-lm-path', help='pretrained-lm-path', default=None, type=str)
     parser.add_argument('--eval-bleu-remove-bpe', help='eval_bleu_remove_bpe', default=None, type=str)
     parser.add_argument('--twcc', help='twcc', action='store_true')
+    parser.add_argument('--rate-list', help='rate_list', default=None, type=int)
+    
     
     
     args = parser.parse_args()    
@@ -132,6 +134,24 @@ def del_config(config, key1 , key2):
          
 # def del_config(config, key1 , key2):
 #     del config[key1][key2]   
+
+def rate_list(config, rate_list_choosen):
+    if rate_list_choosen == 0:
+        key1='task'
+        set_config(config, key1 ,'rate_list',[2,3,4])
+        key1='model'
+        set_config(config, key1 ,'rate_list',[2,3,4])        
+    elif rate_list_choosen == 1:
+        key1='task'
+        set_config(config, key1 ,'rate_list',[2, 2.5, 3, 3.5, 4])
+        key1='model'
+        set_config(config, key1 ,'rate_list',[2, 2.5, 3, 3.5, 4])        
+    else:
+        key1='task'
+        set_config(config, key1 ,'rate_list',[2,3,4])
+        key1='model'
+        set_config(config, key1 ,'rate_list',[2,3,4])   
+    
 
 def main():
     
@@ -236,6 +256,7 @@ def main():
     set_config(config, key1 ,'eval_bleu_remove_bpe', args.eval_bleu_remove_bpe) 
     set_config(config, key1 ,'pretrained_model_path', args.pretrained_model_path)     
     set_config(config, key1 ,'twcc', args.twcc)    
+    rate_list(config, args.rate_list)
     
     
 

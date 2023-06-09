@@ -100,13 +100,25 @@ conda activate base
 
 
 
-bash call_scripts/train_nat.sh -e 2-2-1-1-H12-UR40M-TTTTTTTTTTTTTTGGGG  \
-                                --save-interval-updates 70000 --max-tokens 2048 \
+# bash call_scripts/train_nat.sh -e 2-2-1-1-H12-UR40M-TTTTTTTTTTTTTTGGGG  \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --task translation_ctcpmlm \
+#                                 --arch nat_pretrained_model \
+#                                 --criterion nat_ctc_loss \
+#                                 --no-atten-mask \
+#                                 --debug \
+#                                 --hydra \
+#                                 --valid-set
+#                                 # -g 1 --fp16  
+
+
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_TTTTTTTTTTTTTTTTTTT \
+                                --save-interval-updates 70000 --max-tokens 1024 \
+                                --arch ctcpmlm_rate_selection \
                                 --task translation_ctcpmlm \
-                                --arch nat_pretrained_model \
-                                --criterion nat_ctc_loss \
-                                --no-atten-mask \
-                                --debug \
+                                --criterion nat_ctc_avg_rate_loss \
+                                --has-eos --max-update 50000 \
                                 --hydra \
-                                --valid-set
-                                # -g 1 --fp16  
+                                --rate-list 1 \
+                                --dryrun \
+                                -g 4 --fp16  

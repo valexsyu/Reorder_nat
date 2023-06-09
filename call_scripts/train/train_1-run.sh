@@ -778,15 +778,45 @@ source call_scripts/train/pair_experiment.sh
 
 
 # pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H5-UR40M 2-2-3-1-H6-UR40M 2-2-3-1-H7-UR40M
-pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H8-UR40M 2-2-3-1-H9-UR40M 2-2-3-1-H10-UR40M
-pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H11-UR40M
-# pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR40M
-pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR45M
-pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H11-UR40M
-pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR50M
-pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR20M
-pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H12-UR30M
-pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H12-UR20M
+# pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H8-UR40M 2-2-3-1-H9-UR40M 2-2-3-1-H10-UR40M
+# pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H11-UR40M
+# # pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR40M
+# pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR45M
+# pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H1-UR40M 2-2-3-1-H11-UR40M
+# pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR50M
+# pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR20M
+# pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H12-UR30M
+# pair_experiment_iwslt14_2_2048_50k 2-2-3-1-H12-UR20M
 
+
+
+bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_avg-50k \
+                                --save-interval-updates 70000 --max-tokens 1536 \
+                                --arch ctcpmlm_rate_selection \
+                                --task translation_ctcpmlm \
+                                --criterion nat_ctc_avg_rate_loss \
+                                --has-eos --max-update 50000 \
+                                --hydra \
+                                -g 2 --fp16
+
+
+bash call_scripts/train_nat.sh -e m-B-3-1-N-UR20M-rate_avg-50k \
+                                --save-interval-updates 70000 --max-tokens 1536 \
+                                --arch ctcpmlm_rate_selection \
+                                --task translation_ctcpmlm \
+                                --criterion nat_ctc_avg_rate_loss \
+                                --has-eos --max-update 50000 \
+                                --hydra \
+                                -g 2 --fp16
+
+bash call_scripts/train_nat.sh -e m-B-3-1-N-UR20M-rate_avg_1-50k \
+                                --save-interval-updates 30000 --max-tokens 1536 \
+                                --arch ctcpmlm_rate_selection \
+                                --task translation_ctcpmlm \
+                                --criterion nat_ctc_avg_rate_loss \
+                                --has-eos --max-update 50000 \
+                                --hydra \
+                                --rate-list 1 \
+                                -g 2 --fp16
 
 

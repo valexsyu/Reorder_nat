@@ -736,7 +736,7 @@ source call_scripts/train/pair_experiment.sh
 # pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR25M
 # pair_experiment_iwslt14_2_2048_50k 1-1-3-1-H12-UR30M JCX
 # pair_experiment_iwslt14_2_1024_50k 1-1-3-1-H12-UR33M JCX
-pair_experiment_iwslt14_1_1024_50k 2-2-3-1-H1-UR40M 2-2-3-1-H11-UR40M
+# pair_experiment_iwslt14_1_1024_50k 2-2-3-1-H1-UR40M 2-2-3-1-H11-UR40M
 # pair_experiment_iwslt14_1_1024_50k 1-1-3-1-H12-UR20M
 
 

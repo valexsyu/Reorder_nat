@@ -201,13 +201,62 @@
 
                         # --avg-ck-turnoff \
 
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 2 \
+#                         --task translation_ctcpmlm \
+#                         --arch nat_pretrained_model \
+#                         --criterion nat_ctc_loss \
+#                         --avg-ck-turnoff \
+#                         -e 8-4-3-1-H12-UR30M \
+#                         -e 7-4-3-1-H12-UR30M
+
+
+
+
+# BEAM_SIZE=20
+# KENLM_PATH=None
+# # KENLM_PATH=checkpoints/2-2-3-1-H12-UR40M/LM.target_lang
+# ALPHA=0.3
+# BETA=0.9
+#                         --kenlm-path $KENLM_PATH \
+#                         --alpha $ALPHA \
+#                         --beta $BETA \
+                        # --ctc-beam-decoding \
+                        # --beam-size $BEAM_SIZE \
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b 10 \
+#                         --avg-ck-turnoff \
+#                         --debug \
+#                         -e 2-2-1-1-N-UF20T
+
+BEAM_SIZE=20
+KENLM_PATH=None
+ALPHA=0.3
+BETA=0.9
+                        # --kenlm-path $KENLM_PATH \
+                        # --alpha $ALPHA \
+                        # --beta $BETA \
+                        # --ctc-beam-decoding \
+                        # --beam-size $BEAM_SIZE \
 bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
                         -b 10 \
                         --task translation_ctcpmlm \
                         --arch nat_pretrained_model \
                         --criterion nat_ctc_loss \
                         --avg-ck-turnoff \
-                        -e 8-4-3-1-H12-UR30M \
-                        -e 7-4-3-1-H12-UR30M
-
-
+                        -e K-2-3-1-H12-UR40M \
+                        -e 2-2-3-1-H12-UR40M \
+                        -e Z-2-3-1-H12-UR40M \
+                        -e Y-2-3-1-H12-UR40M \
+                        -e P-2-3-1-H12-UR40M \
+                        -e 4-2-3-1-H12-UR40M \
+                        -e I-2-3-1-H12-UR40M \
+                        -e J-2-3-1-H12-UR40M \
+                        -e N-2-3-1-H12-UR40M \
+                        -e O-2-3-1-H12-UR40M \
+                        -e b-2-3-1-H12-UR40M\
+                        -e a-2-3-1-H12-UR40M \
+                        -e A-1-3-1-H12-UR30M\
+                        -e B-1-3-1-H12-UR30M \
+                        -e M-1-3-1-H12-UR30M \
+                        -e L-1-3-1-H12-UR30M 

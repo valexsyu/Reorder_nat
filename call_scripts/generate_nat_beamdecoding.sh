@@ -3,6 +3,8 @@
 
 source $HOME/.bashrc 
 conda activate base
+# source $HOME/.zshrc 2> /dev/null
+# conda activate pruned_reordernat
 
 #---------Path Setting-------------------#
 # Model    Bibert Tr.   #Baseline Tr.
@@ -159,10 +161,7 @@ function get_dataset() {
         dataset="iwslt14_de_en_bibertDist_xlmr_pruned21785"
     elif [ "$i" = "p" ]
     then
-        dataset="iwslt14_de_en_bibertDist_bibert_pruned43093"        
-    elif [ "$i" = "q" ]
-    then
-        dataset="iwslt14_de_en_mbert_pruned26458"                                                                
+        dataset="iwslt14_de_en_mbert_pruned26458"                                                               
     else        
         echo "error dataset id "
         exit 1
@@ -233,15 +232,7 @@ function get_pretrain_model() {
         pretrained_model_name="xlm-roberta-base"
         bpe="xlmr"    
         pretrained_lm_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/ 
-        pretrained_model_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/        
-    elif [ "$i" = "D" ]
-    then
-        pretrained_model="bibert"
-        pretrained_model_name="jhu-clsp/bibert-ende"
-        bpe="bibert"    
-        init_translator=False   
-        pretrained_lm_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093/ 
-        pretrained_model_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093                                
+        pretrained_model_path=$modelroot/xlmr/pruned_models_BertForMaskedLM/pruned_21785/                             
     else
         echo "error pretrained model id "
         exit 1
@@ -434,7 +425,7 @@ function default_setting() {
     beam_size=1
     kenlm_path=None
     alpha=0.0
-    beta=0.0    
+    beta=0.0
     
 }
 
@@ -479,8 +470,8 @@ while [ : ]; do
       shift 1
       ;;     
     --local)
-      dataroot="../../dataset/nat"
-      modelroot="../../dataset/model"
+      dataroot="../data"
+      modelroot="../data/pruned_model"
       local=True
       shift 1
       ;;       
@@ -614,7 +605,7 @@ while [ : ]; do
                 exit 1    
         esac
       shift 2
-      ;;                 
+      ;;         
     --ctc-beam-decoding)
       ctc_beam_decoding=True
       shift 1
@@ -773,6 +764,7 @@ if [ "$load_exist_bleu" = "False" ]; then
         then
             BOOL_COMMAND+=" --ctc-beam-decoding"
         fi
+
         if [ "$avg_ck_turnoff" = "False" ]; then
             avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
             # avg_lastk_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_last$TOPK.pt
@@ -818,10 +810,14 @@ PRETRAINED_MODEL_NAME=$pretrained_model_name
 PRETRAINED_LM_NAME=$pretrained_model_name
 PRETRAINED_LM_PATH=$pretrained_lm_path
 PRETRAINED_MODEL_PATH=$pretrained_model_path
+
 BEAM_SIZE=$beam_size
-KENLM_PATH=$dataroot/$dataset/LM.target_lang
+KENLM_PATH=None
+
+
 ALPHA=$alpha
 BETA=$beta
+
 "  > $CHECKPOINT/temp.sh
                 
                 cat > $CHECKPOINT/temp1.sh << 'endmsg'
@@ -847,6 +843,7 @@ BETA=$beta
         --num-upsampling-rate $NUM_UPSAMPLING_RATE \
         --pretrained-bpe ${PRETRAINED_MODEL_NAME} --pretrained-bpe-src ${PRETRAINED_MODEL_NAME} \
         --remove-bpe \
+        --upsample-fill-mask \
         --batch-size $BATCH_SIZE \
         --max-source-positions 512 \
         --pretrained-lm-path $PRETRAINED_LM_PATH --pretrained-model-path $PRETRAINED_MODEL_PATH \
@@ -868,6 +865,7 @@ endmsg
         done
     done
 fi
+# KENLM_PATH=$dataroot/$dataset/LM.target_lang
 
 #======================Load and Save File==============================
 mkdir -p call_scripts/generate/output_file/all_${no_atten_postfix}
@@ -957,3 +955,4 @@ if [ "${#no_exp_array[@]}" -gt 0 ]; then
         echo -e "\t$i"
     done
 fi
+

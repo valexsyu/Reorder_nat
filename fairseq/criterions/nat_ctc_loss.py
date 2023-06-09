@@ -820,6 +820,7 @@ class NatCTCAvgRateLoss(NatEncoderCTCLoss):
         ctc_losses = []
         ce_losses = []
         others_losses = []
+        
         for upsampling_rate in self.rate_list :             
             outputs = model(src_tokens, src_lengths, tgt_tokens, alignments, update_num, 
                             pretrained_lm, lm_loss_layer, upsampling_rate)

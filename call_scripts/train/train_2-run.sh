@@ -494,6 +494,13 @@ source call_scripts/train/pair_experiment.sh
 
 
 
-
+bash call_scripts/train_nat.sh -e m-B-3-1-N-UR20M-rate_predict1 \
+                                --save-interval-updates 70000 --max-tokens 1536 \
+                                --arch ctcpmlm_rate_predictor \
+                                --task transaltion_ctcpmlm_rate \
+                                --criterion nat_ctc_pred_rate_loss \
+                                --hydra \
+                                --rate-list 1 \
+                                -g 2 --fp16  
 
 
