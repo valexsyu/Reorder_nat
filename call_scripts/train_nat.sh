@@ -454,6 +454,7 @@ function default_setting() {
     lmax_only_step=5000
     hydra=False
     bpe_symbo="@@ "
+    rate_list=-1
     
 }
 
@@ -465,6 +466,7 @@ VALID_ARGS=$(getopt \
             --long save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:, \
             --long reset-dataloader,reset-optimizer,debug,has-eos,wandb-team-id:,lm-iter-num:,watch-lm-loss,lm-mask-rate:, \
             --long reset-meters,reset-lr-scheduler,arch:,criterion:,lmax-only-step:,task:,hydra \
+            --long rate-list: \
              -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
@@ -571,7 +573,11 @@ while [ : ]; do
     --lmax-only-step)
       lmax_only_step="$2"
       shift 2
-      ;;                                              
+      ;;    
+    --rate-list)
+      rate_list="$2"
+      shift 2
+      ;;                                                    
     --no-atten-mask)
       no_atten_mask=True
       shift 1
@@ -736,7 +742,9 @@ fi
 if [ "$lm_mask_rate" -ne -1 ]; then
     BOOL_COMMAND+="  --lm-mask-rate $lm_mask_rate"
 fi
-
+if [ "$rate_list" -ne -1 ]; then
+    BOOL_COMMAND+="  --rate-list $rate_list"
+fi
 
 
 
