@@ -1555,10 +1555,10 @@ function pair_experiment_wmt14_4_3276_100k_twcc() {
     done                                                                                                                                                
 
 }
-function pair_experiment_wmt14_8_2048_rate_avg_33k_twcc(){
+function pair_experiment_wmt14_8_1638_rate_avg_33k_twcc(){
     relay_step=25000
     LM_START_STEP=25000
-    MAX_TOKENS=2048
+    MAX_TOKENS=1638
     GPU_NUM=8
     BATCH_SIZE=65536
     WARMUP_UPDATES=10000

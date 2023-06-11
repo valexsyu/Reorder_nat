@@ -14,7 +14,7 @@ function default_setting() {
 
 
 VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,sleep:,local \
-                          --long task:,arch:,criterion:,gpu_id: -- "$@")
+                          --long task:,arch:,criterion:,gpu_id,cpu: -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -57,6 +57,10 @@ while [ : ]; do
     --local)
       local="True"
       shift 1
+    --cpu)
+      cpu="True"
+      shift 1
+      ;;       
       ;;              
     --sleep)
       sleep_time=$2
@@ -101,11 +105,19 @@ do
 
       if [ "$local" = "True" ]; then  
         echo "Wait local Resource"   
-        CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local \
+        if $cpu :
+            bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local --cpu \
+                                          --arch $arch --task $task --criterion $criterion > tmp_file_$random_num         
+        else:
+            CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num      
       elif [ "$twcc" = "True" ]; then  
         echo "Wait twcc Resource"   
-        CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc \
+        if $cpu :
+            bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc --cpu \
+                                          --arch $arch --task $task --criterion $criterion > tmp_file_$random_num   
+        else
+            CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num      
       else
         echo "Wait Battleship Resource"

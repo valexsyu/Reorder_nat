@@ -1,5 +1,7 @@
 source $HOME/.bashrc 
 conda activate base
+source call_scripts/train/pair_experiment.sh
+
 # bash call_scripts/train_nat.sh -e 2-6-1-1-N-UF30T --fp16 --save-interval-updates 70000 --max-tokens 2048 --no-atten-mask
 # bash call_scripts/train_nat.sh -e K-2-1-1-H12-UD25M --fp16 --save-interval-updates 70000 --max-tokens 2048 --no-atten-mask
 # bash call_scripts/train_nat.sh -e F-2-1-1-H12-UD25M --fp16 -g 1 --save-interval-updates 32500 --max-update 200000 --lm-start-step 130000 --max-tokens 3276 -b 65520 --no-atten-mask
@@ -761,7 +763,6 @@ conda activate base
 # }
 # pair_experiment_wmt14 Z-2-3-1-N-UR40T
 
-source call_scripts/train/pair_experiment.sh
 # pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR25M-50k
 # pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR30M-50k
 # pair_experiment_iwslt14_2_2048_50k m-B-3-1-H12-UR20M-50k
@@ -790,33 +791,42 @@ source call_scripts/train/pair_experiment.sh
 
 
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_avg-50k \
+# bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_avg-50k \
+#                                 --save-interval-updates 70000 --max-tokens 1536 \
+#                                 --arch ctcpmlm_rate_selection \
+#                                 --task translation_ctcpmlm \
+#                                 --criterion nat_ctc_avg_rate_loss \
+#                                 --has-eos --max-update 50000 \
+#                                 --hydra \
+#                                 -g 2 --fp16
+
+
+# bash call_scripts/train_nat.sh -e m-B-3-1-N-UR20M-rate_avg-50k \
+#                                 --save-interval-updates 70000 --max-tokens 1536 \
+#                                 --arch ctcpmlm_rate_selection \
+#                                 --task translation_ctcpmlm \
+#                                 --criterion nat_ctc_avg_rate_loss \
+#                                 --has-eos --max-update 50000 \
+#                                 --hydra \
+#                                 -g 2 --fp16
+
+# bash call_scripts/train_nat.sh -e m-B-3-1-N-UR20M-rate_avg_1-50k \
+#                                 --save-interval-updates 30000 --max-tokens 1536 \
+#                                 --arch ctcpmlm_rate_selection \
+#                                 --task translation_ctcpmlm \
+#                                 --criterion nat_ctc_avg_rate_loss \
+#                                 --has-eos --max-update 50000 \
+#                                 --hydra \
+#                                 --rate-list 1 \
+#                                 -g 2 --fp16
+
+
+bash call_scripts/train_nat.sh -e r-E-3-1-N-UR20M \
                                 --save-interval-updates 70000 --max-tokens 1536 \
                                 --arch ctcpmlm_rate_selection \
                                 --task translation_ctcpmlm \
                                 --criterion nat_ctc_avg_rate_loss \
-                                --has-eos --max-update 50000 \
+                                --has-eos --max-update 100000 \
                                 --hydra \
                                 -g 2 --fp16
-
-
-bash call_scripts/train_nat.sh -e m-B-3-1-N-UR20M-rate_avg-50k \
-                                --save-interval-updates 70000 --max-tokens 1536 \
-                                --arch ctcpmlm_rate_selection \
-                                --task translation_ctcpmlm \
-                                --criterion nat_ctc_avg_rate_loss \
-                                --has-eos --max-update 50000 \
-                                --hydra \
-                                -g 2 --fp16
-
-bash call_scripts/train_nat.sh -e m-B-3-1-N-UR20M-rate_avg_1-50k \
-                                --save-interval-updates 30000 --max-tokens 1536 \
-                                --arch ctcpmlm_rate_selection \
-                                --task translation_ctcpmlm \
-                                --criterion nat_ctc_avg_rate_loss \
-                                --has-eos --max-update 50000 \
-                                --hydra \
-                                --rate-list 1 \
-                                -g 2 --fp16
-
 
