@@ -159,7 +159,13 @@ function get_dataset() {
         dataset="iwslt14_de_en_bibertDist_bibert_pruned43093"        
     elif [ "$i" = "q" ]
     then
-        dataset="iwslt14_de_en_mbert_pruned26458"            
+        dataset="iwslt14_de_en_mbert_pruned26458"      
+    elif [ "$i" = "r" ]
+    then
+        dataset="wmt14_clean_de_en_6kval_BlDist_cased_mbert_pruned57959"  
+    elif [ "$i" = "s" ]
+    then
+        dataset="wmt14_clean_en_de_6kval_BlDist_cased_mbert_pruned58003"                        
     else      
         echo "error dataset id "
         echo $1
@@ -253,7 +259,21 @@ function get_pretrain_model() {
         bpe="bibert"    
         init_translator=False   
         pretrained_lm_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093/ 
-        pretrained_model_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093                         
+        pretrained_model_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093     
+    elif [ "$i" = "E" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/wmt14deen_pruned_V57959/ 
+        pretrained_model_path=$modelroot/mbert/wmt14deen_pruned_V57959/    
+    elif [ "$i" = "F" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/wmt14ende_pruned_V58003/ 
+        pretrained_model_path=$modelroot/mbert/wmt14ende_pruned_V58003/                             
     else
         echo "error pretrained model id "
         exit 1
@@ -455,6 +475,7 @@ function default_setting() {
     hydra=False
     bpe_symbo="@@ "
     rate_list=-1
+    debug_value=0
     
 }
 
@@ -464,7 +485,7 @@ VALID_ARGS=$(getopt \
             -o e:g:b:s: \
             --long experiment:,gpu:,batch-size:,dryrun,max-tokens:,max-epoch:,max-update:,twcc,local,fp16,valid-set,\
             --long save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:, \
-            --long reset-dataloader,reset-optimizer,debug,has-eos,wandb-team-id:,lm-iter-num:,watch-lm-loss,lm-mask-rate:, \
+            --long reset-dataloader,reset-optimizer,debug,debug_value,has-eos,wandb-team-id:,lm-iter-num:,watch-lm-loss,lm-mask-rate:, \
             --long reset-meters,reset-lr-scheduler,arch:,criterion:,lmax-only-step:,task:,hydra \
             --long rate-list: \
              -- "$@")
@@ -602,7 +623,11 @@ while [ : ]; do
     --debug)
       debug=True   
       shift 1
-      ;;          
+      ;;     
+    --debug-value)
+      debug_value=$2
+      shift 2
+      ;;             
     --has-eos)
       has_eos=True
       shift 1

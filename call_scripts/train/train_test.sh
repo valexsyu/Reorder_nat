@@ -112,13 +112,13 @@ conda activate base
 #                                 # -g 1 --fp16  
 
 
-bash call_scripts/train_nat.sh -e m-B-1-1-N-UR20M-rate_TTTTTTTTTTTTTTTTTTT \
+bash call_scripts/train_nat.sh -e r-E-3-1-N-UR20M-rate_TTTTTTTTTTTTTTTTTTT \
                                 --save-interval-updates 70000 --max-tokens 1024 \
-                                --arch ctcpmlm_rate_selection \
+                                --arch nat_pretrained_model \
                                 --task translation_ctcpmlm \
-                                --criterion nat_ctc_avg_rate_loss \
-                                --has-eos --max-update 50000 \
+                                --criterion nat_ctc_loss \
+                                --has-eos --max-update 100000 \
+                                -b 65536 \
                                 --hydra \
-                                --rate-list 1 \
                                 --dryrun \
-                                -g 4 --fp16  
+                                -g 2 --fp16  

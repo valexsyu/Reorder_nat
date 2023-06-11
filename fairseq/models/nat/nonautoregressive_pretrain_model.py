@@ -74,6 +74,8 @@ class NATPretrainedModel(BaseFairseqModel):
         self.dynamic_upsampling = args.dynamic_upsampling 
         self.dynamic_rate=args.dynamic_rate
         self.debug = args.debug
+        if self.debug :
+            self.debug_value = args.debug_value
         self.has_eos = args.has_eos
         if self.dynamic_rate :
             self.dynamic_upsampling = True
@@ -441,6 +443,8 @@ class NATPretrainedModel(BaseFairseqModel):
         vars(args)['no_atten_mask'] = task.cfg.no_atten_mask  
         vars(args)['debug'] = task.cfg.debug   
         vars(args)['visualization'] = task.cfg.visualization
+        if task.cfg.debug  :
+            vars(args)['debug_value'] = task.cfg.debug_value 
 
 
         if task.cfg.ctc_beam_decoding:
@@ -594,7 +598,7 @@ class NATPretrainedModel(BaseFairseqModel):
         if self.visualization :
             self.visualize(src_tokens,tgt_tokens,src_lengths)
         
-
+        upsampling_rate = self.num_upsampling_rate
         
         if self.ctc_beam_decoding:
             # logits, output_hidden_states, rate, src_tokens_upsample = self.translation(src_tokens, src_lengths, **kwargs) 
@@ -602,7 +606,7 @@ class NATPretrainedModel(BaseFairseqModel):
             ### jcx ###
 
             # logits, output_hidden_states, rate, src_tokens_upsample = self.translation(src_tokens, src_lengths, **kwargs) 
-            logits, output_hidden_states, rate, src_tokens_upsample, attention_mask = self.translation(src_tokens, src_lengths, rate=self.num_upsampling_rate, **kwargs) 
+            logits, output_hidden_states, rate, src_tokens_upsample, attention_mask = self.translation(src_tokens, src_lengths, rate=upsampling_rate, **kwargs) 
             ### jcx ###
             if self.voc_choosen == 2:
                 logits = self.output_projection_layer(output_hidden_states)            
@@ -659,8 +663,9 @@ class NATPretrainedModel(BaseFairseqModel):
             # extra["padding_mask"] = new_arange(_tokens, *_tokens.size()) >= out_lens[:, :1]
 
             #########################################
-        else:               
-            logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, rate=self.num_upsampling_rate, **kwargs) 
+        else:         
+                         
+            logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, rate=upsampling_rate, **kwargs) 
             if self.voc_choosen == 2:
                 logits = self.output_projection_layer(output_hidden_states)            
 

@@ -162,7 +162,13 @@ function get_dataset() {
         dataset="iwslt14_de_en_bibertDist_bibert_pruned43093"        
     elif [ "$i" = "q" ]
     then
-        dataset="iwslt14_de_en_mbert_pruned26458"                                                                
+        dataset="iwslt14_de_en_mbert_pruned26458"    
+    elif [ "$i" = "r" ]
+    then
+        dataset="wmt14_clean_de_en_6kval_BlDist_cased_mbert_pruned57959"  
+    elif [ "$i" = "s" ]
+    then
+        dataset="wmt14_clean_en_de_6kval_BlDist_cased_mbert_pruned58003"                                                                       
     else        
         echo "error dataset id "
         exit 1
@@ -241,7 +247,21 @@ function get_pretrain_model() {
         bpe="bibert"    
         init_translator=False   
         pretrained_lm_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093/ 
-        pretrained_model_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093                                
+        pretrained_model_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093         
+    elif [ "$i" = "E" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/wmt14deen_pruned_V57959/ 
+        pretrained_model_path=$modelroot/mbert/wmt14deen_pruned_V57959/    
+    elif [ "$i" = "F" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/wmt14ende_pruned_V58003/ 
+        pretrained_model_path=$modelroot/mbert/wmt14ende_pruned_V58003/                                           
     else
         echo "error pretrained model id "
         exit 1
@@ -435,6 +455,7 @@ function default_setting() {
     kenlm_path=None
     alpha=0.0
     beta=0.0    
+    debug_value=0
     
 }
 
@@ -455,7 +476,7 @@ function avg_lastk_checkpoints(){
 default_setting
 
 VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-subset:, \
-                             --long debug,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,\
+                             --long debug,debug-value:,load-exist-bleu,ck-types:,avg-ck-turnoff,no-atten-mask,\
                              --long skip-exist-genfile,avg-speed:,skip-load-step-num,sacrebleu,\
                              --long ctc-beam-decoding,beam-size:,kenlm-path:,alpha:,beta:,\
                              --long task:,arch:,criterion:,visualization, -- "$@")
@@ -497,6 +518,10 @@ while [ : ]; do
       debug=True
       shift 1
       ;;  
+    --debug-value)
+      debug_value=$2
+      shift 2
+      ;;        
     --sacrebleu)
       sacrebleu=True
       shift 1
@@ -746,6 +771,8 @@ if [ "$load_exist_bleu" = "False" ]; then
         if [ "$debug" = "True" ]
         then
             BOOL_COMMAND+=" --debug"
+            BOOL_COMMAND+=" --debug-value"
+            BOOL_COMMAND+=" $debug_value"            
         fi  
         if [ "$sacrebleu" = "True" ]
         then

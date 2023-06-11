@@ -30,7 +30,8 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
         self.pad_idx = task.target_dictionary.pad()
         self.eos_idx = task.target_dictionary.eos()    
         self.bos_idx = task.target_dictionary.bos()
-        self.debug = task.cfg.debug   
+        self.debug = task.cfg.debug  
+
         if task.cfg.blank_use_mask :
             if '[MASK]' in task.target_dictionary.symbols :
                 self.blank_idx = task.target_dictionary.indices['[MASK]']

@@ -37,6 +37,7 @@ task:
   prepend_bos: False
   lmax_only_step: 5000
   debug: True
+  debug_value: 0
   rate_list: [2,3,4]
   max_source_positions: 512
   eval_bleu_remove_bpe: "@@ "

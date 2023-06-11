@@ -73,6 +73,13 @@ lines_data=[]
 for id , path in enumerate(args.hypo_path) :
     with open(str(path), encoding="utf-8") as f:
         lines_data.append(f.readlines())
+print("===========List of experiment=======")
+# Extract the values
+values = [os.path.basename(path).split('-')[3][:-4] for path in args.hypo_path]
+num_experiment=len(values)
+print("Number:5 , the rate_list is {}".format(values))
+
+
 
 ref_data=[]
 with open(args.ref_path[0], encoding="utf-8") as f:
@@ -132,21 +139,30 @@ save_data(max_bleu_array, args.output_bleu_path)
 
 import matplotlib.pyplot as plt
 
+rate_counts=[]
+for i in range(num_experiment) :
+    rate_counts.append(max_index_array.count(i))
+# print("Index count: Rate2: {} / Rate3: {} / Rate4:{}".format(rate_counts[0], rate_counts[1], rate_counts[2] ))
 
-# Count the occurrences of each type
-rate2_num, rate3_num, rate4_num = max_index_array.count(0), max_index_array.count(1), max_index_array.count(2)
-counts = [rate2_num, rate3_num, rate4_num ]
 
-# Define the labels for the types
-labels = ['Rate 2', 'Rate 3', 'Rate 4']
+# Print index counts
+index_count_str = "Index count: "
+labels=[]
+for i, count in enumerate(rate_counts):
+    index_count_str += "Rate{}: {} / ".format( values[i], count)
+    labels.append("Rate{}".format(values[i]))
+index_count_str = index_count_str.rstrip(" / ")  # Remove trailing " / "
+print(index_count_str)
+
+    
+# # Define the labels for the types
 
 # Plot the distribution
-plt.bar(labels, counts)
+plt.bar(labels, rate_counts)
 plt.xlabel('Rates')
 plt.ylabel('Count')
 plt.title('Distribution of Rates')
 plt.savefig(args.output_index_fig_path)
 
-print("Index count: Rate2: {} / Rate3: {} / Rate4:{}".format(rate2_num, rate3_num, rate4_num ))
 
 

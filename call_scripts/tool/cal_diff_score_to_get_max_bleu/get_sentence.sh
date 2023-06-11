@@ -2,8 +2,8 @@
 #!/bin/bash
 # get_sentence -d file2.0.txt -d file3.0.txt -d file4.0.txt -t file2.0.txt -p c
 # e.g. bash call_scripts/tool/cal_diff_score_to_get_max_bleu/get_sentence.sh \
-#       -d generate-test-2.txt -d generate-test-3.txt -d generate-test-4.txt \
-#       -t generate-test-2.txt -p m-B-1-1-N-UR20M-rate_select-divTGT-NEW-2/test/best_top5_20_1.bleu
+#       -d generate-test-2.0.txt -d generate-test-3.0.txt -d generate-test-4.0.txt \
+#       -t generate-test-2.0.txt -p m-B-3-1-N-UR30M-rate_avg/test/best_top5_10_1.bleu
 
 root_path=/home/valexsyu/Doc/NMT/Reorder_nat/checkpoints/
 # root_path=/home/valex/Documents/Study/battleship/Reorder_nat/checkpoints/

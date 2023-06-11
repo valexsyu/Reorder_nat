@@ -10,7 +10,10 @@ def main():
     parser.add_argument('--output', type=str, required=True, help='output file')
     parser.add_argument('--pretrained_model', type=str, required=True, help='pretrained language model')  
     args = parser.parse_args()
-    tokenizer = PreTrainedTokenizerFast.from_pretrained(args.pretrained_model)
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(args.pretrained_model)
+    except:
+        tokenizer = BertTokenizer.from_pretrained(args.pretrained_model)
     fo = open(args.input, encoding="utf-8")
     fw = open(args.output, "w", encoding="utf-8")
     lines =  [line[:-1].strip() for line in fo.readlines()]
