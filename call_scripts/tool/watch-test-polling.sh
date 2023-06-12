@@ -106,20 +106,22 @@ do
 
       if [ "$local" = "True" ]; then  
         echo "Wait local Resource"   
-        if $cpu :
+        if  [ "$cpu" = "True" ]; then
             bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local --cpu \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num         
-        else:
+        else
             CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local \
-                                          --arch $arch --task $task --criterion $criterion > tmp_file_$random_num      
+                                          --arch $arch --task $task --criterion $criterion > tmp_file_$random_num   
+        fi                                          
       elif [ "$twcc" = "True" ]; then  
         echo "Wait twcc Resource"   
-        if $cpu :
+        if  [ "$cpu" = "True" ]; then
             bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc --cpu \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num   
         else
             CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc \
-                                          --arch $arch --task $task --criterion $criterion > tmp_file_$random_num      
+                                          --arch $arch --task $task --criterion $criterion > tmp_file_$random_num     
+        fi 
       else
         echo "Wait Battleship Resource"
         bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top \
