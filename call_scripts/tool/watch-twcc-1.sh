@@ -7,7 +7,7 @@ bash call_scripts/tool/watch-test-polling.sh \
     --criterion nat_ctc_avg_rate_loss \
     -b 10 \
     --cpu \
-    -e F-3-1-N-UR30M-rate_avg-33k \
+    -e s-F-3-1-N-UR30M-rate_avg-33k \
     --sleep 10
 
 # while :
