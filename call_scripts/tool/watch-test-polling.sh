@@ -15,7 +15,7 @@ function default_setting() {
 
 
 VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,sleep:,local \
-                          --long task:,arch:,criterion:,gpu_id,cpu -- "$@")
+                          --long task:,arch:,criterion:,gpu_id:,cpu -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi

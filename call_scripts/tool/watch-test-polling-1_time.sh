@@ -13,9 +13,8 @@ function default_setting() {
     
 }
 
-
 VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,sleep:,local \
-                          --long task:,arch:,criterion:,gpu_id,cpu -- "$@")
+                          --long task:,arch:,criterion:,gpu_id:,cpu -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -71,67 +70,66 @@ while [ : ]; do
         break
   esac
 done
+  
+for i in "${!exp_array[@]}"; do 
+  experiment_id=${exp_array[$i]}
+  CHECKPOINT=checkpoints/$experiment_id
+  if [ ! -d "$CHECKPOINT" ]; then
+      echo "Folder $CHECKPOINT is not exist"
+      continue
+  fi       
+  
+  ## To reduce generation time, 
+  ## skip iterations where the generated output exceeds 100,000 tokens 
+  ## or when the last generated value remains unchanged
+  pervious_value=$(tail -1 $CHECKPOINT/best_top5.test.record | grep -oE "last:[0-9]+" | grep -oE "[0-9]+")
+  if [ -n "$pervious_value" ] && [ "$pervious_value" -ge 100000 ]; then
+      echo "The $CHECKPOINT : Last value is equal to or greater than 100,000"
+      score_array+=$(tail -1 $CHECKPOINT/best_top5.test.record) 
+      continue
+  else
+      echo "Last Value Loading....."
+      last_value=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT last | grep -oE "last:[0-9]+" | grep -oE "[0-9]+")
+      if [ "$last_value" = "$previous_value" ]; then
+      echo "The $CHECKPOINT : last generated value remains unchanged"
+          continue
+      fi
+  fi
+  
+  dt=$(date)
+  random_num=$RANDOM  # while runing 2 watch in the same time to avoid write the same temp file. 
 
-
-  for i in "${!exp_array[@]}"; do 
-    experiment_id=${exp_array[$i]}
-    CHECKPOINT=checkpoints/$experiment_id
-    if [ ! -d "$CHECKPOINT" ]; then
-        echo "Folder $CHECKPOINT is not exist"
-        continue
-    fi       
-    
-    ## To reduce generation time, 
-    ## skip iterations where the generated output exceeds 100,000 tokens 
-    ## or when the last generated value remains unchanged
-    pervious_value=$(tail -1 $CHECKPOINT/best_top5.test.record | grep -oE "last:[0-9]+" | grep -oE "[0-9]+")
-    if [ -n "$pervious_value" ] && [ "$pervious_value" -ge 100000 ]; then
-        echo "The $CHECKPOINT : Last value is equal to or greater than 100,000"
-        score_array+=$(tail -1 $CHECKPOINT/best_top5.test.record) 
-        continue
+  if [ "$local" = "True" ]; then  
+    echo "Wait local Resource"   
+    if  [ "$cpu" = "True" ]; then
+        bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local --cpu \
+                                      --arch $arch --task $task --criterion $criterion > tmp_file_$random_num         
     else
-        echo "Last Value Loading....."
-        last_value=$(python call_scripts/tool/load_checkpoint_step.py $CHECKPOINT last | grep -oE "last:[0-9]+" | grep -oE "[0-9]+")
-        if [ "$last_value" = "$previous_value" ]; then
-        echo "The $CHECKPOINT : last generated value remains unchanged"
-            continue
-        fi
-    fi
-
-    dt=$(date)
-    random_num=$RANDOM  # while runing 2 watch in the same time to avoid write the same temp file. 
-
-    if [ "$local" = "True" ]; then  
-      echo "Wait local Resource"   
-      if  [ "$cpu" = "True" ]; then
-          bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local --cpu \
-                                        --arch $arch --task $task --criterion $criterion > tmp_file_$random_num         
-      else
-          CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local \
-                                        --arch $arch --task $task --criterion $criterion > tmp_file_$random_num   
-      fi                                          
-    elif [ "$twcc" = "True" ]; then  
-      echo "Wait twcc Resource"   
-      if  [ "$cpu" = "True" ]; then
-          bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc --cpu \
-                                        --arch $arch --task $task --criterion $criterion > tmp_file_$random_num   
-      else
-          CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc \
-                                        --arch $arch --task $task --criterion $criterion > tmp_file_$random_num     
-      fi 
+        CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local \
+                                      --arch $arch --task $task --criterion $criterion > tmp_file_$random_num   
+    fi                                          
+  elif [ "$twcc" = "True" ]; then  
+    echo "Wait twcc Resource"   
+    if  [ "$cpu" = "True" ]; then
+        bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc --cpu \
+                                      --arch $arch --task $task --criterion $criterion > tmp_file_$random_num   
     else
-      echo "Wait Battleship Resource"
-      bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top \
-                                        --arch $arch --task $task --criterion $criterion > tmp_file_$random_num
-    fi
-    score=$(tail -1 tmp_file_$random_num) 
-    score_array+=("$experiment_id : $score")
-    echo $dt ': ' $'\t' $score >> $CHECKPOINT/best_top5.test.record
-    rm tmp_file_$random_num
-  done
-  date
-  printf '%s\n' "${score_array[@]}"
-  echo "Sleeping Now : $sleep_time s"
-  score_array=()
-  sleep $sleep_time
+        CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc \
+                                      --arch $arch --task $task --criterion $criterion > tmp_file_$random_num     
+    fi 
+  else
+    echo "Wait Battleship Resource"
+    bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top \
+                                      --arch $arch --task $task --criterion $criterion > tmp_file_$random_num
+  fi
+  score=$(tail -1 tmp_file_$random_num) 
+  score_array+=("$experiment_id : $score")
+  echo $dt ': ' $'\t' $score >> $CHECKPOINT/best_top5.test.record
+  rm tmp_file_$random_num
+done
+date
+printf '%s\n' "${score_array[@]}"
+echo "Sleeping Now : $sleep_time s"
+score_array=()
+sleep $sleep_time
 

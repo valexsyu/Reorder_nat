@@ -201,13 +201,13 @@
 
                         # --avg-ck-turnoff \
 
-# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-#                         -b 10 \
-#                         --task translation_ctcpmlm \
-#                         --arch nat_pretrained_model \
-#                         --criterion nat_ctc_loss \
-#                         --avg-ck-turnoff \
-#                         -e 8-4-3-1-H12-UR30M \
+bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+                        -b 10 \
+                        --task translation_ctcpmlm \
+                        --arch nat_pretrained_model \
+                        --criterion nat_ctc_loss \
+                        --avg-ck-turnoff \
+                        -e m-B-3-1-N-UR30M 
 #                         -e 7-4-3-1-H12-UR30M
 
 
