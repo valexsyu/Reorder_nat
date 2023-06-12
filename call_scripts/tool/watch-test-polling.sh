@@ -57,11 +57,11 @@ while [ : ]; do
     --local)
       local="True"
       shift 1
+      ;;
     --cpu)
       cpu="True"
       shift 1
-      ;;       
-      ;;              
+      ;;                     
     --sleep)
       sleep_time=$2
       shift 2
