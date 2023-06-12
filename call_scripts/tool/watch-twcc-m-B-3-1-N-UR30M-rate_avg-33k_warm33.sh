@@ -5,10 +5,10 @@ bash call_scripts/tool/watch-test-polling.sh \
     --arch ctcpmlm_rate_selection \
     --task translation_ctcpmlm \
     --criterion nat_ctc_avg_rate_loss \
-    -b 10 \
+    -b 50 \
     --cpu \
     -e m-B-3-1-N-UR30M-rate_avg-33k_warm33\
-    --sleep 50
+    --sleep 10
 
 # while :
 # do

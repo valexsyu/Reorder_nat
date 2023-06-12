@@ -5,10 +5,10 @@ bash call_scripts/tool/watch-test-polling.sh \
     --task translation_ctcpmlm \
     --arch nat_pretrained_model \
     --criterion nat_ctc_loss \
-    -b 10 \
+    -b 50 \
     --cpu \
     -e r-E-3-1-N-UR30M \
-    --sleep 50
+    --sleep 10
 
 # while :
 # do

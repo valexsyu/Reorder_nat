@@ -24,7 +24,7 @@ tmux send-keys "bash call_scripts/tool/watch-test-best5record-twcc.sh \
     -e r-E-3-1-N-UR20M \
     -e r-E-3-1-N-UR30M \
     -e r-E-3-1-N-UR40M \
-    -e B-3-1-N-UR30M-rate_avg-33k_warm33\
+    -e m-B-3-1-N-UR30M-rate_avg-33k_warm33\
     --sleep 120" C-m
 
 # tmux select-pane -t 1
@@ -61,7 +61,7 @@ tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
     -e r-E-3-1-N-UR20M \
     -e r-E-3-1-N-UR30M \
     -e r-E-3-1-N-UR40M \
-    -e B-3-1-N-UR30M-rate_avg-33k_warm33\
+    -e m-B-3-1-N-UR30M-rate_avg-33k_warm33\
     --sleep 120" C-m
 
 # Attach to the tmux session to view the windows
