@@ -822,11 +822,11 @@ source call_scripts/train/pair_experiment.sh
 
 
 bash call_scripts/train_nat.sh -e r-E-3-1-N-UR20M \
-                                --save-interval-updates 70000 --max-tokens 1536 \
+                                --save-interval-updates 70000 --max-tokens 1024 \
                                 --arch ctcpmlm_rate_selection \
                                 --task translation_ctcpmlm \
                                 --criterion nat_ctc_avg_rate_loss \
-                                --has-eos --max-update 100000 \
+                                -b 65536 --has-eos --max-update 100000 \
                                 --hydra \
                                 -g 2 --fp16
 
