@@ -4,6 +4,8 @@ import sys
 from tqdm import tqdm
 import numpy as np
 import torch
+import matplotlib.pyplot as plt
+
 
 # ref_path = sys.argv[1]
 # hypo_path = sys.argv[2]
@@ -77,7 +79,7 @@ print("===========List of experiment=======")
 # Extract the values
 values = [os.path.basename(path).split('-')[3][:-4] for path in args.hypo_path]
 num_experiment=len(values)
-print("Number:5 , the rate_list is {}".format(values))
+print("Number:{} , the rate_list is {}".format(len(values),values))
 
 
 
@@ -137,7 +139,6 @@ save_data(max_bleu_array, args.output_bleu_path)
 
 
 
-import matplotlib.pyplot as plt
 
 rate_counts=[]
 for i in range(num_experiment) :

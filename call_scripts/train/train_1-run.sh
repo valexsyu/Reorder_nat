@@ -828,5 +828,9 @@ bash call_scripts/train_nat.sh -e r-E-3-1-N-UR20M \
                                 --criterion nat_ctc_avg_rate_loss \
                                 -b 65536 --has-eos --max-update 100000 \
                                 --hydra \
-                                -g 2 --fp16
+                                -g 4 --fp16
+
+
+
+
 

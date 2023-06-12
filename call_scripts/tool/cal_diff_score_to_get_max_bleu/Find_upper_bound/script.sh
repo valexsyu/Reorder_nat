@@ -2,6 +2,10 @@
 # bash call_scripts/tool/cal_diff_score_to_get_max_bleu/Find_upper_bound/script.sh \
 #       -d generate-test-2.0.txt -d generate-test-3.0.txt -d generate-test-4.0.txt \
 #       -t generate-test-2.0.txt -p sel_rate/m-B-1-1-N-URXXM
+# bash call_scripts/tool/cal_diff_score_to_get_max_bleu/Find_upper_bound/script.sh \
+#       -d generate-test-2.0.txt -d generate-test-3.0.txt -d generate-test-4.0.txt \
+#       -t generate-test-2.0.txt -p sel_rate/out.wmt14.de-en.alg1
+
 root_path=/home/valexsyu/Doc/NMT/Reorder_nat/checkpoints/
 folder_path=sel_rate/m-B-1-1-N-URXXM/
 
