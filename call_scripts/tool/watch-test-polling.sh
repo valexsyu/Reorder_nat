@@ -9,12 +9,13 @@ function default_setting() {
     local=False
     bz=50
     gpu_id=0
+    cpu=False
     
 }
 
 
 VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,sleep:,local \
-                          --long task:,arch:,criterion:,gpu_id,cpu: -- "$@")
+                          --long task:,arch:,criterion:,gpu_id,cpu -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
