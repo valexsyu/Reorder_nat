@@ -107,9 +107,11 @@ do
       if [ "$local" = "True" ]; then  
         echo "Wait local Resource"   
         if  [ "$cpu" = "True" ]; then
+            echo "cpu model"
             bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local --cpu \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num         
         else
+            echo "GPU model"
             CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --local \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num   
         fi                                          
