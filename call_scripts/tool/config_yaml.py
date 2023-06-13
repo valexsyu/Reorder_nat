@@ -52,6 +52,9 @@ def parser_function():
     parser.add_argument('--wandb-entity', help='no reocde in wandb', default=None, type=str)
     parser.add_argument('--wandb-project', help='no reocde in wandb', default=None, type=str)
     parser.add_argument('--fp16',help='use fp16', action='store_true')
+    #checkpoint
+    parser.add_argument('--reset-meters',help='reset_meters', action='store_true')
+    
     #criterion
     parser.add_argument('-c', '--criterion-name', help='criterion name', default=None, type=str)
     #dataset
@@ -177,6 +180,11 @@ def main():
     set_config(config, key1 ,'wandb_entity', args.wandb_entity)
     set_config(config, key1 ,'wandb_project', args.wandb_project)
     set_config(config, key1 ,'fp16', args.fp16)
+
+#checkpoint
+    key1='checkpoint'
+    set_config(config, key1 ,'reset_meters', args.reset_meters)
+    
     
     
 #criterion

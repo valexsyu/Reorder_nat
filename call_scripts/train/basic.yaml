@@ -18,6 +18,7 @@ checkpoint:
   keep_best_checkpoints: 5 
   save_dir: checkpoints/m-B-1-1-N-UR20M-Unassigned
   maximize_best_checkpoint_metric: True
+  reset_meters: False
 
 distributed_training:
   ddp_backend: legacy_ddp
