@@ -6,7 +6,7 @@ conda activate base
 # 2. Textprune and gc.json and vc.json
 
 model_name=mBert          #-----input model name {xlmr, mBert}
-dataset=wmt14_deen      #-----input dataset path {iwset_deen, wmt14_deen}
+dataset=wmt16_enro      #-----input dataset path {iwset_deen, wmt14_deen, wmt16_roen, wmt16_enro, wmt16_roen}
 download_model=False      #-----if True, download model from huggingface
 cat_file_bool=True             #-----if True, cat the file form dataset path
 
@@ -28,15 +28,33 @@ case $dataset in
     iwslt14_deen)
         distilled_dataset_path="data/nat_position_reorder/awesome/Bibert_detoken_distill_iwslt14_de_en/demose"
         raw_data_path="data/nat_position_reorder/awesome/iwslt14_en_de_detoken"
+        src=de
+        tgt=en
         ;;
     wmt14_deen)
         distilled_dataset_path="data/nat_position_reorder/awesome/wmt14_clean_de_en_6kval_BlDist_cased_detoken"
         raw_data_path="data/nat_position_reorder/awesome/wmt14_clean_en_de_detoken" # without wmt14_clean_de_en_detoken
+        src=de
+        tgt=en     
         ;;
     wmt14_ende)
         distilled_dataset_path="data/nat_position_reorder/awesome/wmt14_clean_en_de_6kval_BlDist_cased_detoken"
         raw_data_path="data/nat_position_reorder/awesome/wmt14_clean_en_de_detoken"
+        src=en
+        tgt=de        
         ;;        
+    wmt16_roen)
+        distilled_dataset_path="data/nat_position_reorder/awesome/baseline_detoken_distilled_ro-en/demose"
+        raw_data_path="data/nat_position_reorder/awesome/wmt16_en_ro_detoken/demose"
+        src=ro
+        tgt=en        
+        ;;           
+    wmt16_enro)
+        distilled_dataset_path="data/nat_position_reorder/awesome/baseline_detoken_distilled_en-ro/demose"
+        raw_data_path="data/nat_position_reorder/awesome/wmt16_en_ro_detoken/demose"
+        src=en
+        tgt=ro        
+        ;;           
     *)
         echo "Invalid dataset"
         exit 1
@@ -72,10 +90,10 @@ fi
 
 if [ "$cat_file_bool" = "True" ]; then
 #===================cat file=======================#
-    cat $distilled_dataset_path/train.en $distilled_dataset_path/train.de \
-        $distilled_dataset_path/valid.en $distilled_dataset_path/valid.de \
-        $raw_data_path/train.en $raw_data_path/train.de \
-        $raw_data_path/valid.en $raw_data_path/valid.de > $cat_file/cat_distill-train-valid_raw-train-valid.txt
+    cat $distilled_dataset_path/train.$src $distilled_dataset_path/train.$tgt \
+        $distilled_dataset_path/valid.$src $distilled_dataset_path/valid.$tgt \
+        $raw_data_path/train.$src $raw_data_path/train.$tgt \
+        $raw_data_path/valid.$src $raw_data_path/valid.$tgt > $cat_file/cat_distill-train-valid_raw-train-valid.txt
     
     echo "cat demose datat is done"
 fi
