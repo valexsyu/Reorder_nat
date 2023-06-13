@@ -6,7 +6,7 @@
 #       -d generate-test-2.0.txt -d generate-test-3.0.txt -d generate-test-4.0.txt \
 #       -t generate-test-2.0.txt -p sel_rate/out.wmt14.de-en.alg1
 
-root_path=/home/valexsyu/Doc/NMT/Reorder_nat/checkpoints/
+root_path=/home/valexsyu/Doc/NMT/Reorder_nat/
 folder_path=sel_rate/m-B-1-1-N-URXXM/
 
 VALID_ARGS=$(getopt -o d:t:p: -- "$@")

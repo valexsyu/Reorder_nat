@@ -5,7 +5,7 @@
 #       -d generate-test-2.0.txt -d generate-test-3.0.txt -d generate-test-4.0.txt \
 #       -t generate-test-2.0.txt -p m-B-3-1-N-UR30M-rate_avg/test/best_top5_10_1.bleu
 
-root_path=/home/valexsyu/Doc/NMT/Reorder_nat/checkpoints/
+root_path=/home/valexsyu/Doc/NMT/Reorder_nat/
 # root_path=/home/valex/Documents/Study/battleship/Reorder_nat/checkpoints/
 folder_path=sel_rate/m-B-1-1-N-UR20M-rate_sel-5k-rate_2_3_4/
 
