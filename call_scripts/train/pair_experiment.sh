@@ -17,6 +17,20 @@ function ctcpmlm(){
 }
 
 
+function ctcpmlm_rate_avg(){
+    bash call_scripts/train_nat.sh -e $1 \
+                                    --save-interval-updates $2 --max-tokens $3 \
+                                    --lm-start-step $4 \
+                                    --arch ctcpmlm_rate_selection \
+                                    --task translation_ctcpmlm \
+                                    --criterion nat_ctc_avg_rate_loss \
+                                    --has-eos --max-update $7 \
+                                    --warmup-updates $5 \
+                                    --hydra \
+                                    -b $8 \
+                                    -g $6 --fp16       
+}
+
 # cur_last=$(current_last_step $1)
 function current_last_step(){
     if [ -e checkpoints/$1/checkpoint_last.pt ]; then
@@ -93,6 +107,65 @@ function pair_experiment(){
 
 }
 
+
+function pair_experiment_iwslt14_1_1638_rate_avg_33k(){
+    relay_step=25000
+    LM_START_STEP=25000
+    MAX_TOKENS=1536
+    GPU_NUM=1
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=33333
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm_rate_avg $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm_rate_avg $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                                
+
+}
+function pair_experiment_iwslt14_2_1638_rate_avg_33k(){
+    relay_step=25000
+    LM_START_STEP=25000
+    MAX_TOKENS=1536
+    GPU_NUM=2
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=33333
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm_rate_avg $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm_rate_avg $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                                
+
+}
 
 function pair_experiment_iwslt14() { 
     relay_step=30000
@@ -1812,6 +1885,8 @@ function pair_experiment_wmt14_8_1638_rate_avg_33k_warm33_twcc(){
     done                                                                                                                                                 
 
 }
+
+
 
 
 function pair_experiment_iwslt14_2_3072_50k_twcc(){

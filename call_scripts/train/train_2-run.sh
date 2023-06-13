@@ -1,5 +1,7 @@
 source $HOME/.bashrc 
 conda activate base
+source call_scripts/train/pair_experiment.sh
+
 # bash call_scripts/train_nat.sh -e  b-2-1-1-H12-UR40M --fp16 -g 1 --save-interval-updates 10000 --max-update 100000 \
 #                                                      --lm-start-step 75000 --max-tokens 2048 -b 65536 --no-atten-mask --has-eos
 # hrun -s -N s01 -GGGG -c 12 -m 30 -t 3-0 bash call_scripts/train_nat.sh \
@@ -482,7 +484,6 @@ conda activate base
 
 # }
 # pair_experiment_iwslt14 J-6-3-1-N-UR40M J-6-3-1-H12-UR40M
-source call_scripts/train/pair_experiment.sh
 # pair_experiment_iwslt14_3080x1_768_50k J-2-3-1-N-UR40T J-2-3-1-H12-UR40T
 # pair_experiment_wmt14_3080x1 b-6-3-1-N-UF30T
 # pair_experiment_wmt14_2_768_100k b-6-3-1-N-UF30T
@@ -494,13 +495,9 @@ source call_scripts/train/pair_experiment.sh
 
 
 
-bash call_scripts/train_nat.sh -e m-B-3-1-N-UR20M-rate_predict1 \
-                                --save-interval-updates 70000 --max-tokens 1536 \
-                                --arch ctcpmlm_rate_predictor \
-                                --task transaltion_ctcpmlm_rate \
-                                --criterion nat_ctc_pred_rate_loss \
-                                --hydra \
-                                --rate-list 1 \
-                                -g 2 --fp16  
+
+experiment=2-2-3-1-N-UR30M-rate_avg-33k
+pair_experiment_iwslt14_2_1638_rate_avg_33k $experiment  
+
 
 
