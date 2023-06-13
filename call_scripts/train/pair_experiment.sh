@@ -1953,7 +1953,7 @@ function pair_experiment_wmt16_8_2048_rate_avg_33k_twcc(){
     relay_step=25000
     LM_START_STEP=25000
     MAX_TOKENS=2048
-    GPU_NUM=2
+    GPU_NUM=8
     BATCH_SIZE=65536
     WARMUP_UPDATES=3000
     MAX_UPDATE=33333
