@@ -263,6 +263,7 @@ function get_pretrain_model() {
         pretrained_model="bibert"
         pretrained_model_name="jhu-clsp/bibert-ende"
         bpe="bibert"    
+        bpe_symbo="@@ "
         init_translator=False   
         pretrained_lm_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093/ 
         pretrained_model_path=$modelroot/bibert/pruned_models_RobertaForMaskedLM/pruned_V43093     
@@ -270,21 +271,24 @@ function get_pretrain_model() {
     then
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
-        bpe="bibert"    
+        bpe="bibert"   
+        bpe_symbo="## " 
         pretrained_lm_path=$modelroot/mbert/wmt14deen_pruned_V57959/ 
         pretrained_model_path=$modelroot/mbert/wmt14deen_pruned_V57959/    
     elif [ "$i" = "F" ]
     then
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
-        bpe="bibert"    
+        bpe="bibert"   
+        bpe_symbo="## " 
         pretrained_lm_path=$modelroot/mbert/wmt14ende_pruned_V58003/ 
         pretrained_model_path=$modelroot/mbert/wmt14ende_pruned_V58003/            
     elif [ "$i" = "G" ]
     then
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
-        bpe="bibert"    
+        bpe="bibert"   
+        bpe_symbo="## " 
         pretrained_lm_path=$modelroot/mbert/wmt16roen_pruned_V29271/
         pretrained_model_path=$modelroot/mbert/wmt16roen_pruned_V29271/        
     elif [ "$i" = "H" ]
@@ -292,6 +296,7 @@ function get_pretrain_model() {
         pretrained_model="mbert"
         pretrained_model_name="bert-base-multilingual-uncased"
         bpe="bibert"    
+        bpe_symbo="## "
         pretrained_lm_path=$modelroot/mbert/wmt16enro_pruned_V29287/ 
         pretrained_model_path=$modelroot/mbert/wmt16enro_pruned_V29287/                                         
     else
