@@ -2836,3 +2836,57 @@ function pair_experiment_wmt14_8_2048_100k_twcc_reset_meter() {
     done                                                                                                                                                
 
 }
+function pair_experiment_wmt14_8_4095_100k_twcc_reset_meter() { 
+    relay_step=70000
+    LM_START_STEP=75000
+    MAX_TOKENS=4095
+    GPU_NUM=8
+    BATCH_SIZE=65520
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=100000
+    if [ -e checkpoints/$1/checkpoint_last.pt ]; then
+        echo "===========Loading $1 checkpoint_last step=============="
+        cur_last=$(python call_scripts/tool/load_checkpoint_step.py checkpoints/$1/ last \
+                  | awk -F':' '/last/{gsub(/[^0-9]/, "", $3); print $3}')
+        echo "Currect step: $cur_last"
+    else
+        cur_last=0        
+    fi
+
+    if [ "$cur_last" -lt $relay_step ]; then    
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $1 \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --task translation_ctcpmlm \
+                                        --arch nat_pretrained_model \
+                                        --criterion nat_ctc_loss \
+                                        --has-eos --max-update $relay_step \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --twcc \
+                                        --reset-meter \
+                                        -g $GPU_NUM --fp16   
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+    
+    for experiment in $1 $2 $3 $4; do
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $experiment \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --task translation_ctcpmlm \
+                                        --arch nat_pretrained_model \
+                                        --criterion nat_ctc_loss \
+                                        --has-eos --max-update $MAX_UPDATE \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --twcc \
+                                        -g $GPU_NUM --fp16        
+    done                                                                                                                                                
+
+}
