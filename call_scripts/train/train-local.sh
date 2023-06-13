@@ -90,3 +90,19 @@
 # source call_scripts/train/pair_experiment.sh
 # pair_experiment_iwslt14_3080x1_768_50k_loacl J-2-3-1-N-UR40T J-2-3-1-H12-UR40T
 
+
+
+
+
+
+CUDA_VISIBLE_DEVICES=1 bash call_scripts/train_nat.sh -e t-G-3-1-N-UR20M-rate_TTTTTTTTTTTTTTTTTTT \
+                                --save-interval-updates 70000 --max-tokens 1024 \
+                                --arch nat_pretrained_model \
+                                --task translation_ctcpmlm \
+                                --criterion nat_ctc_loss \
+                                --has-eos --max-update 100000 \
+                                -b 65536 \
+                                --hydra \
+                                --local 
+                                # -g 2 --fp16  
+

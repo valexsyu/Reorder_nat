@@ -821,14 +821,11 @@ source call_scripts/train/pair_experiment.sh
 #                                 -g 2 --fp16
 
 
-bash call_scripts/train_nat.sh -e r-E-3-1-N-UR20M \
-                                --save-interval-updates 70000 --max-tokens 1024 \
-                                --arch ctcpmlm_rate_selection \
-                                --task translation_ctcpmlm \
-                                --criterion nat_ctc_avg_rate_loss \
-                                -b 65536 --has-eos --max-update 100000 \
-                                --hydra \
-                                -g 4 --fp16
+
+
+experiment=t-G-3-1-N-UR30M
+pair_experiment_wmt16roen_2_4096_100k $experiment
+
 
 
 

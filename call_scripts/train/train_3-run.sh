@@ -748,8 +748,6 @@ source call_scripts/train/pair_experiment.sh
 
 
 
-experiment=K-2-3-1-N-UR20M-rate_avg-33k
-pair_experiment_iwslt14_1_1638_rate_avg_33k $experiment  
 
 
 
