@@ -168,7 +168,13 @@ function get_dataset() {
         dataset="wmt14_clean_de_en_6kval_BlDist_cased_mbert_pruned57959"  
     elif [ "$i" = "s" ]
     then
-        dataset="wmt14_clean_en_de_6kval_BlDist_cased_mbert_pruned58003"                                                                       
+        dataset="wmt14_clean_en_de_6kval_BlDist_cased_mbert_pruned58003"     
+    elif [ "$i" = "t" ]
+    then
+        dataset="wmt16_ro_en_BlDist_cased_mbert_pruned29271"    
+    elif [ "$i" = "u" ]
+    then
+        dataset="wmt16_en_ro_BlDist_cased_mbert_pruned29287"                                                                              
     else        
         echo "error dataset id "
         exit 1
@@ -261,7 +267,21 @@ function get_pretrain_model() {
         pretrained_model_name="bert-base-multilingual-uncased"
         bpe="bibert"    
         pretrained_lm_path=$modelroot/mbert/wmt14ende_pruned_V58003/ 
-        pretrained_model_path=$modelroot/mbert/wmt14ende_pruned_V58003/                                           
+        pretrained_model_path=$modelroot/mbert/wmt14ende_pruned_V58003/          
+    elif [ "$i" = "G" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/wmt16roen_pruned_V29271/
+        pretrained_model_path=$modelroot/mbert/wmt16roen_pruned_V29271/        
+    elif [ "$i" = "H" ]
+    then
+        pretrained_model="mbert"
+        pretrained_model_name="bert-base-multilingual-uncased"
+        bpe="bibert"    
+        pretrained_lm_path=$modelroot/mbert/wmt16enro_pruned_V29287/ 
+        pretrained_model_path=$modelroot/mbert/wmt16enro_pruned_V29287/                                                 
     else
         echo "error pretrained model id "
         exit 1
