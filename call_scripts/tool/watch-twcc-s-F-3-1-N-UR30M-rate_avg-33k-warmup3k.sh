@@ -8,7 +8,8 @@ bash call_scripts/tool/watch-test-polling.sh \
     -b 50 \
     --cpu \
     -e s-F-3-1-N-UR30M-rate_avg-33k-warmup3k \
-    --sleep 10
+    --sleep 20
+
 
 # while :
 # do
