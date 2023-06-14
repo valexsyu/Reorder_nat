@@ -514,7 +514,7 @@ VALID_ARGS=$(getopt -o e:,b: --long experiment:,twcc,local,batch-size:,cpu,data-
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
-
+ 
 eval set -- "$VALID_ARGS"
 
 while [ : ]; do
