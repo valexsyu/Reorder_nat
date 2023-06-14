@@ -5,7 +5,7 @@ conda activate base
 
 SRC=ro
 TGT=en
-#===================Use the Pruned model 2023/06/11 =================
+#===================Use the Pruned model 2023/06/11  Baseline distilled dataset =================
 DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/baseline_detoken_distilled_ro-en/demose
 TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt16_ro_en_BlDist_cased_mbert_pruned29271
 MODEL_NAME=/home/valexsyu/Doc/NMT/Reorder_nat/data/pruned_model/mBert/pruned_models/wmt16roen_pruned_V29271

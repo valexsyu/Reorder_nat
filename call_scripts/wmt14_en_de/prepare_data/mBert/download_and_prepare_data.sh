@@ -23,7 +23,7 @@ conda activate base
 
 
 
-#===================Use the Pruned model 2023/06/11 =================
+#===================Use the Pruned model 2023/06/11  Baseline distilled dataset =================
 DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_en_de_6kval_BlDist_cased_detoken
 TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_en_de_6kval_BlDist_cased_mbert_pruned58003
 MODEL_NAME=/home/valexsyu/Doc/NMT/Reorder_nat/data/pruned_model/mBert/pruned_models/wmt14ende_pruned_V58003

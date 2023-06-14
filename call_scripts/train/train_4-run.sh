@@ -503,3 +503,7 @@ pair_experiment_iwslt14_2_1638_rate_avg_33k $experiment
 experiment=u-H-3-1-N-UR20M
 pair_experiment_wmt16roen_2_4096_100k $experiment
 
+
+experiment=v-I-3-1-N-UR30M
+pair_experiment_iwslt14_2_3072_100k $experiment
+

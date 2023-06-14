@@ -6,7 +6,7 @@ conda activate base
 # 2. Textprune and gc.json and vc.json
 
 model_name=mBert          #-----input model name {xlmr, mBert}
-dataset=wmt16_enro      #-----input dataset path {iwset_deen, wmt14_deen, wmt16_roen, wmt16_enro, wmt16_roen}
+dataset=iwslt14_deen      #-----input dataset path {iwslt14_deen, wmt14_deen, wmt16_roen, wmt16_enro, wmt16_roen}
 download_model=False      #-----if True, download model from huggingface
 cat_file_bool=True             #-----if True, cat the file form dataset path
 
@@ -26,7 +26,8 @@ vc_file=data/pruned_model/textpurned_config/$model_name/$dataset/vc.json
 
 case $dataset in
     iwslt14_deen)
-        distilled_dataset_path="data/nat_position_reorder/awesome/Bibert_detoken_distill_iwslt14_de_en/demose"
+        # distilled_dataset_path="data/nat_position_reorder/awesome/Bibert_detoken_distill_iwslt14_de_en/demose"
+        distilled_dataset_path="data/nat_position_reorder/awesome/baseline_detoken_distill_iwslt14_de_en"
         raw_data_path="data/nat_position_reorder/awesome/iwslt14_en_de_detoken"
         src=de
         tgt=en

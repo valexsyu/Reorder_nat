@@ -41,7 +41,7 @@ conda activate base
 # cp $TOKEN_PATH/src_vocab.txt $TOKEN_PATH/tgt_vocab.txt
 
 
-#===================Use the Pruned model 2023/06/11 =================
+#===================Use the Pruned model 2023/06/11  Baseline distilled dataset =================
 DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_de_en_6kval_BlDist_cased_detoken
 TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_de_en_6kval_BlDist_cased_mbert_pruned57959
 MODEL_NAME=/home/valexsyu/Doc/NMT/Reorder_nat/data/pruned_model/mBert/pruned_models/wmt14deen_pruned_V57959
