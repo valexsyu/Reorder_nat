@@ -2,15 +2,15 @@
 
 while :
 do
-    # bash call_scripts/tool/watch-test-polling-1_time.sh \
-    #     --twcc \
-    #     --arch ctcpmlm_rate_selection \
-    #     --task translation_ctcpmlm \
-    #     --criterion nat_ctc_avg_rate_loss \
-    #     --gpu_id 0 \
-    #     -b 50 \
-    #     -e t-G-3-1-N-UR30M-rate_avg-33k \
-    #     --sleep 10
+    bash call_scripts/tool/watch-test-polling-1_time.sh \
+        --twcc \
+        --arch ctcpmlm_rate_selection \
+        --task translation_ctcpmlm \
+        --criterion nat_ctc_avg_rate_loss \
+        --gpu_id 0 \
+        -b 50 \
+        -e s-F-3-1-N-UR30M-rate_avg-33k-warmup3k \
+        --sleep 10
 
     bash call_scripts/tool/watch-test-polling-1_time.sh \
         --twcc \
