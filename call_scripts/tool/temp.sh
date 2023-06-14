@@ -34,8 +34,6 @@ tmux resize-pane -t 2 -y 70%
 Select the first window and execute the first script
 tmux select-pane -t 0
 tmux send-keys "bash call_scripts/tool/watch-test-best5record-twcc.sh \
-    -e t-G-3-1-N-UR30M-rate_avg-33k \
-    -e s-F-3-1-N-UR30M \
     -e s-F-3-1-N-UR40M \
     -e t-G-3-1-N-UR40M \
     -e u-H-3-1-N-UR30M \
@@ -73,8 +71,6 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
 tmux select-pane -t 2
 tmux send-keys "conda activate reorder_nat" C-m
 tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
-    -e t-G-3-1-N-UR30M-rate_avg-33k \
-    -e s-F-3-1-N-UR30M \
     -e s-F-3-1-N-UR40M \
     -e t-G-3-1-N-UR20M \
     -e t-G-3-1-N-UR30M \

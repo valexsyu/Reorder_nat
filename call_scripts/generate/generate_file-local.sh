@@ -1,5 +1,5 @@
-# source $HOME/.bashrc 
-# conda activate base
+source $HOME/.bashrc 
+conda activate base
 
 # #--skip-exist-genfile --load-exist-bleu 
 # CUDA_VISIBLE_DEVICES=1 bash call_scripts/generate_nat.sh -b 50 --local --data-subset valid --ck-types top --avg-speed 1 --no-atten-mask --avg-ck-turnoff --load-exist-bleu \
@@ -340,20 +340,54 @@
 # done  
 
 
-for debug_value in 2.0 3.0 4.0; do
-    batch_size=10
-    experiment_id=m-B-3-1-N-UR30M-rate_avg-33k_warm33
-    echo "debug_value = $debug_value"
-    CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
-                        --ck-types top --avg-speed 1 \
-                            -b $batch_size \
-                            --arch ctcpmlm_rate_selection \
-                            --task translation_ctcpmlm \
-                            --criterion nat_ctc_avg_rate_loss \
-                            --avg-ck-turnoff \
-                            --debug \
-                            --debug-value $debug_value \
-                            -e $experiment_id
-    mv checkpoints/$experiment_id/test/best_top5_${batch_size}_1.bleu/generate-test.txt \
-    checkpoints/$experiment_id/test/best_top5_${batch_size}_1.bleu/generate-test-$debug_value.txt 
-done  
+                        
+         
+# for i in t-G-3-1-N-UR30M-rate_avg-33k; do
+#     for debug_value in 2.0 3.0 4.0; do
+#         echo "=============================================="
+#         echo "=====  $i with Rate: $debug  ========="
+#         echo "=============================================="
+#         batch_size=10
+#         experiment_id=$i
+#         # experiment_id=m-B-3-1-N-UR30M-rate_avg-33k_warm33
+#         echo "debug_value = $debug_value"
+#         CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
+#                             --ck-types top --avg-speed 1 \
+#                                 -b $batch_size \
+#                                 --arch ctcpmlm_rate_selection \
+#                                 --task translation_ctcpmlm \
+#                                 --criterion nat_ctc_avg_rate_loss \
+#                                 --avg-ck-turnoff \
+#                                 --debug \
+#                                 --skip-load-step-num \
+#                                 --debug-value $debug_value \
+#                                 -e $experiment_id
+#         mv checkpoints/$experiment_id/test/best_top5_${batch_size}_1.bleu/generate-test.txt \
+#         checkpoints/$experiment_id/test/best_top5_${batch_size}_1.bleu/generate-test-$debug_value.txt 
+#     done  
+# done
+
+
+
+# CUDA_VISIBLE_DEVICES=1 bash call_scripts/generate_nat.sh --local --data-subset test \
+#                        --ck-types top --avg-speed 1 \
+#                         -b 11 \
+#                         --arch ctcpmlm_rate_selection \
+#                         --task translation_ctcpmlm \
+#                         --criterion nat_ctc_avg_rate_loss \
+#                         --avg-ck-turnoff \
+#                         --skip-load-step-num \
+#                         --local \
+#                         -e s-F-3-1-N-UR20M  
+
+
+CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
+                       --ck-types top --avg-speed 1 \
+                        -b 11 \
+                        --arch ctcpmlm_rate_selection \
+                        --task translation_ctcpmlm \
+                        --criterion nat_ctc_avg_rate_loss \
+                        --avg-ck-turnoff \
+                        --skip-load-step-num \
+                        --local \
+                        -e t-G-3-1-N-UR30M-rate_avg-33k 
