@@ -824,7 +824,7 @@ source call_scripts/train/pair_experiment.sh
 
 
 experiment=t-G-3-1-N-UR30M
-pair_experiment_wmt16roen_2_4096_100k $experiment
+pair_experiment_wmt16roen_2_4096_100k_reset_meter $experiment
 
 
 
