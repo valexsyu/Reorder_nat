@@ -118,9 +118,11 @@ do
       elif [ "$twcc" = "True" ]; then  
         echo "Wait twcc Resource"   
         if  [ "$cpu" = "True" ]; then
-            bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc --cpu \
+            echo "cpu model"
+            bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num   
         else
+            echo "GPU model"
             CUDA_VISIBLE_DEVICES=$gpu_id bash call_scripts/generate_nat.sh -e $experiment_id -b $bz --ck-types last-top --twcc \
                                           --arch $arch --task $task --criterion $criterion > tmp_file_$random_num     
         fi 
