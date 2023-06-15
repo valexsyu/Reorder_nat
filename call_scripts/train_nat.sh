@@ -824,6 +824,21 @@ CHECKPOINT=checkpoints/$experiment_id
 DATA_BIN=$dataroot/$dataset/de-en-databin
 
 
+#===============special experiment================
+if [ "$experiment_id" = "s-F-3-1-N-UR30M-rate_avg-33k-50k-NEW" ]; then
+    echo "=============================WARINING=============================================="
+    echo " No Setting --no-epoch-checkpoints in special Experiment_ID : $experiment_id "
+    echo " bpe_symbo="@@ " "
+    echo "==================================================================================="
+    bpe_symbo="@@ "
+    
+else
+    BOOL_COMMAND+=" --no-epoch-checkpoints"
+fi
+
+
+
+
 ##----------RUN  Bash-----------------------------
 mkdir $CHECKPOINT
 mkdir $CHECKPOINT/tensorboard
@@ -889,7 +904,6 @@ cat > $CHECKPOINT/temp1.sh << 'endmsg'
 	--arch $ARCH \
     --tensorboard-logdir $CHECKPOINT/tensorboard \
     --noise no_noise \
-    --no-epoch-checkpoints \
     --save-interval 1 \
     --left-pad-source \
     --prepend-bos \

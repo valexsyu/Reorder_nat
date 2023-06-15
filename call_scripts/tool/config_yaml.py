@@ -54,6 +54,7 @@ def parser_function():
     parser.add_argument('--fp16',help='use fp16', action='store_true')
     #checkpoint
     parser.add_argument('--reset-meters',help='reset_meters', action='store_true')
+    parser.add_argument('--no-epoch-checkpoints',help='no_epoch_checkpoints', action='store_true')
     
     #criterion
     parser.add_argument('-c', '--criterion-name', help='criterion name', default=None, type=str)
@@ -184,6 +185,7 @@ def main():
 #checkpoint
     key1='checkpoint'
     set_config(config, key1 ,'reset_meters', args.reset_meters)
+    set_config(config, key1 ,'no_epoch_checkpoints', args.no_epoch_checkpoints)
     
     
     

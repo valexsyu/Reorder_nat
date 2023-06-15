@@ -3188,7 +3188,7 @@ function pair_experiment_wmt14_8_1638_rate_avg_33k_50k_twcc(){
 
 
     cur_last=$(current_last_step $1)
-    cp -r checkpoints/s-F-3-1-N-UR30M-rate_avg-33k checkpoints/s-F-3-1-N-UR30M-rate_avg-33k-50k
+    cp -r checkpoints/s-F-3-1-N-UR30M-rate_avg-33k checkpoints/s-F-3-1-N-UR30M-rate_avg-33k-50k-NEW
     echo "Currect step: $cur_last ;  copy done "    
 
 

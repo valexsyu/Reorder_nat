@@ -2,7 +2,7 @@
 # source $HOME/.bashrc 
 # conda activate base
 source call_scripts/train/pair_experiment.sh
-experiment=s-F-3-1-N-UR30M-rate_avg-33k-50k
+experiment=s-F-3-1-N-UR30M-rate_avg-33k-50k-NEW
 
 pair_experiment_wmt14_8_1638_rate_avg_33k_50k_twcc $experiment       
 
