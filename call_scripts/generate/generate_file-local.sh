@@ -322,7 +322,7 @@ conda activate base
 
 
 # "2-2-3-1-N-UR30M-rate_avg-33k" "K-2-3-1-N-UR20M-rate_avg-33k"
-experiments=("r-E-3-1-N-UR30M-rate_avg-33k")
+experiments=("s-F-3-1-N-UR30M-rate_avg-33k-warmup3k")
 rate_list=(2.0 3.0 4.0)
 # --avg-ck-turnoff \
 for i in "${experiments[@]}"; do
@@ -351,18 +351,6 @@ done
 
 
 
-# CUDA_VISIBLE_DEVICES=1 bash call_scripts/generate_nat.sh --local --data-subset test \
-#                        --ck-types top --avg-speed 1 \
-#                         -b 10 \
-#                         --arch ctcpmlm_rate_selection \
-#                         --task translation_ctcpmlm \
-#                         --criterion nat_ctc_avg_rate_loss \
-#                         --avg-ck-turnoff \
-#                         --skip-load-step-num \
-#                         --local \
-#                         -e s-F-3-1-N-UR20M  
-
-
 CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
                        --ck-types top --avg-speed 1 \
                         -b 10 \
@@ -372,6 +360,18 @@ CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset t
                         --avg-ck-turnoff \
                         --skip-load-step-num \
                         --local \
-                        -e 2-2-3-1-N-UR30M-rate_avg-33k \
-                        -e K-2-3-1-N-UR20M-rate_avg-33k 
+                        -e u-H-3-1-N-UR30M \
+                        -e u-H-3-1-N-UR40M \
+                        -e s-F-3-1-N-UR40M 
 
+
+# CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
+#                        --ck-types top --avg-speed 1 \
+#                         -b 10 \
+#                         --arch ctcpmlm_rate_selection \
+#                         --task translation_ctcpmlm \
+#                         --criterion nat_ctc_avg_rate_loss \
+#                         --avg-ck-turnoff \
+#                         --skip-load-step-num \
+#                         --local \
+#                         -e s-F-3-1-N-UR30M-rate_avg-33k-warmup3k

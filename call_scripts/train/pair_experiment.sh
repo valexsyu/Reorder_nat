@@ -3175,3 +3175,37 @@ function pair_experiment_iwslt14_2_3072_100k(){
     done                                                                                                                                                
 
 }
+
+function pair_experiment_wmt14_8_1638_rate_avg_33k_50k_twcc(){
+    relay_step=25000
+    LM_START_STEP=25000
+    MAX_TOKENS=1638
+    GPU_NUM=8
+    BATCH_SIZE=65536
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=50000
+
+
+
+    cur_last=$(current_last_step $1)
+    cp -r checkpoints/s-F-3-1-N-UR30M-rate_avg-33k checkpoints/s-F-3-1-N-UR30M-rate_avg-33k-50k
+    echo "Currect step: $cur_last ;  copy done "    
+
+
+
+    for experiment in $1 $2 $3 $4; do
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $experiment \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --arch ctcpmlm_rate_selection \
+                                        --task translation_ctcpmlm \
+                                        --criterion nat_ctc_avg_rate_loss \
+                                        --has-eos --max-update $MAX_UPDATE \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --twcc \
+                                        -g $GPU_NUM --fp16        
+    done                                                                                                                                                 
+
+}
