@@ -823,8 +823,8 @@ source call_scripts/train/pair_experiment.sh
 
 
 
-experiment=t-G-3-1-N-UR30M
-pair_experiment_wmt16roen_2_4096_100k_reset_meter $experiment
+# experiment=t-G-3-1-N-UR30M
+# pair_experiment_wmt16roen_2_4096_100k_reset_meter $experiment
 experiment=v-I-3-1-N-UR30M-rate_avg-33k
 pair_experiment_iwslt14_2_1536_rate_avg_33k $experiment
 

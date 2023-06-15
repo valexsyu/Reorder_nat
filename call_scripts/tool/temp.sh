@@ -32,26 +32,26 @@ tmux resize-pane -t 2 -y 70%
 
 
 Select the first window and execute the first script
-tmux select-pane -t 0
-tmux send-keys "bash call_scripts/tool/watch-test-best5record-twcc.sh \
-    -e s-F-3-1-N-UR30M-rate_avg-33k-warmup3k \
-    -e s-F-3-1-N-UR40M \
-    -e t-G-3-1-N-UR40M \
-    -e u-H-3-1-N-UR30M \
-    -e u-H-3-1-N-UR40M \
-    --sleep 120" C-m
+# tmux select-pane -t 0
+# tmux send-keys "bash call_scripts/tool/watch-test-best5record-twcc.sh \
+#     -e s-F-3-1-N-UR30M-rate_avg-33k-warmup3k \
+#     -e s-F-3-1-N-UR40M \
+#     -e t-G-3-1-N-UR40M \
+#     -e u-H-3-1-N-UR30M \
+#     -e u-H-3-1-N-UR40M \
+#     --sleep 120" C-m
 
-# tmux select-pane -t 1
-# tmux send-keys "conda activate reorder_nat" C-m
-# tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
-#     --local \
-#     --task translation_ctcpmlm \
-#     --arch nat_pretrained_model \
-#     --criterion nat_ctc_loss \
-#     -b 10 \
-#     --gpu_id 0 \
-#     -e K-2-3-1-N-UR20M-rate_avg-33k \
-#     --sleep 360" C-m
+tmux select-pane -t 0
+tmux send-keys "conda activate reorder_nat" C-m
+tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
+    --local \
+    --task translation_ctcpmlm \
+    --arch nat_pretrained_model \
+    --criterion nat_ctc_loss \
+    -b 10 \
+    --gpu_id 0 \
+    -e v-I-3-1-N-UR30M-rate_avg-33k \
+    --sleep 360" C-m
 
 # Select the second window and execute the second script
 tmux select-pane -t 1
@@ -63,23 +63,17 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
     --criterion nat_ctc_loss \
     -b 10 \
     --gpu_id 1 \
-    -e t-G-3-1-N-UR20M \
-    -e t-G-3-1-N-UR30M \
-    -e u-H-3-1-N-UR20M \
+    -e v-I-3-1-N-UR30M \
+    -e v-I-3-1-N-UR20M \
     --sleep 120" C-m
 
 # Select the third window and execute the third script
 tmux select-pane -t 2
 tmux send-keys "conda activate reorder_nat" C-m
 tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
-    -e s-F-3-1-N-UR30M-rate_avg-33k-warmup3k \
-    -e s-F-3-1-N-UR40M \
-    -e t-G-3-1-N-UR20M \
-    -e t-G-3-1-N-UR30M \
-    -e u-H-3-1-N-UR20M \
-    -e t-G-3-1-N-UR40M \
-    -e u-H-3-1-N-UR30M \
-    -e u-H-3-1-N-UR40M \
+    -e v-I-3-1-N-UR30M-rate_avg-33k \
+    -e v-I-3-1-N-UR30M \
+    -e v-I-3-1-N-UR20M \
     --sleep 120" C-m
 
 # Attach to the tmux session to view the windows

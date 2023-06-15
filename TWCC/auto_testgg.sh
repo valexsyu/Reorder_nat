@@ -1,12 +1,12 @@
 # source $HOME/.bashrc 
 # conda activate base
 
-CCS_NAME=sf31-nur30m-avg    ##  <-----------------------------------input
-RUN_FILE_NAME=s-F-3-1-N-UR30M-rate_avg-33k-twcc.sh    ##  <--------------------input
-GPU_NUM=8   ##  <--------------------------------------------------input
+CCS_NAME=testgg   ##  <-----------------------------------input
+RUN_FILE_NAME=testgg.sh    ##  <--------------------input
+GPU_NUM=1   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
 APIKEY=03d31964-e6c3-4f3e-a4c2-5d410f7c0433
-PROJECT_ID=GOV112004
+PROJECT_ID=MST111038
 RUN_FILE_PATH=call_scripts/train
 
 # twccli config init -pcode $PROJECT_ID --apikey $APIKEY
@@ -31,28 +31,17 @@ wait
 echo "==============Conda deactivate==================="
 ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "conda deactivate"
 wait
-echo "==============Conda deactivate==================="
+echo "==============Conda activate ctcplm==================="
 ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "conda activate ctcplm"
 wait
 echo "==============Conda Env.==================="
-ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "echo $CONDA_DEFAULT_ENV"
-wait
-if [ "$GIT_PULL" = "True" ]
-then
-    echo "==============GIT PULL============================"
-    ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "cd $ROOT_PATH; git pull"
-fi
-wait
-echo "==============Run job============================"
-ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "cd $ROOT_PATH; bash $RUN_FILE_PATH/$RUN_FILE_NAME"
+ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` 'echo $CONDA_DEFAULT_ENV'
 wait
 
+sleep 600
 
+echo "==============Checking CCS 檢視容器狀態==========="
 cp /home/valex/.twcc_data/credential_$PROJECT_ID /home/valex/.twcc_data/credential
 echo "==============Remove CCS========================="
 twccli rm ccs -f -s $CCS_ID
-rm $RUN_FILE_NAME.ccs_res.log
-wait
-
-echo "==============Checking CCS 檢視容器狀態==========="
 twccli ls ccs

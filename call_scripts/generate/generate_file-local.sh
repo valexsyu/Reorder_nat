@@ -357,22 +357,16 @@ conda activate base
 # done
 #=======================================================================================
 
-
+# --avg-ck-turnoff \
 CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
                        --ck-types top --avg-speed 1 \
                         -b 10 \
                         --task translation_ctcpmlm \
                         --arch nat_pretrained_model \
                         --criterion nat_ctc_loss \
-                        --avg-ck-turnoff \
                         --skip-load-step-num \
                         --local \
-                        -e m-B-3-1-N-UR30M \
-                        -e m-B-3-1-N-UR40M \
-                        -e m-B-3-1-N-UR20M \
-                        -e u-H-3-1-N-UR30M \
-                        -e u-H-3-1-N-UR40M \
-                        -e s-F-3-1-N-UR40M                         
+                        -e t-G-3-1-N-UR20M           
 
 
 

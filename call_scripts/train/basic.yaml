@@ -12,7 +12,7 @@ common:
 checkpoint:
   save_interval: 1
   save_interval_updates: 25000
-  no_epoch_checkpoints: True
+  no_epoch_checkpoints: False
   keep_last_epochs: 5
   best_checkpoint_metric: bleu
   keep_best_checkpoints: 5 

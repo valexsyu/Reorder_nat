@@ -31,6 +31,9 @@ wait
 echo "==============Conda deactivate==================="
 ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "conda deactivate"
 wait
+echo "==============Conda activate ctcplm==================="
+ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "conda activate ctcplm"
+wait
 echo "==============Conda Env.==================="
 ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "echo $CONDA_DEFAULT_ENV"
 wait
