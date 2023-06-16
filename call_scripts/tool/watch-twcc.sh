@@ -11,6 +11,7 @@ do
         -b 50 \
         -e r-E-3-1-N-UR30M-rate_avg-33k \
         -e m-B-3-1-N-UR30M-rate_avg-33k-w1 \
+        -e m-B-3-1-N-UR30M-rate_avg-33k-w2 \
         --sleep 10
 
     bash call_scripts/tool/watch-test-polling-1_time.sh \

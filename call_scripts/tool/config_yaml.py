@@ -149,6 +149,8 @@ def rate_list(config, rate_list_choosen, rate_weight_choosen):
             set_config(config, key1 ,'rate_weight_list',[1,1,1])
         elif rate_weight_choosen == 1:
             set_config(config, key1 ,'rate_weight_list',[2,1,1])
+        elif rate_weight_choosen == 2:
+            set_config(config, key1 ,'rate_weight_list',[3,1,1])            
         else:
             set_config(config, key1 ,'rate_weight_list',[1,1,1])
         
@@ -162,6 +164,8 @@ def rate_list(config, rate_list_choosen, rate_weight_choosen):
             set_config(config, key1 ,'rate_weight_list',[1,1,1,1,1])
         elif rate_weight_choosen == 1:
             set_config(config, key1 ,'rate_weight_list',[2,1,1,1,1])
+        elif rate_weight_choosen == 2:
+            set_config(config, key1 ,'rate_weight_list',[3,1,1,1,1])
         else:
             set_config(config, key1 ,'rate_weight_list',[1,1,1,1,1])        
         key1='model'

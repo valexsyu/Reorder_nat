@@ -121,6 +121,7 @@ bash call_scripts/train_nat.sh -e m-B-3-1-N-UR30M-rate_avg_33k_w1_TTTTTT \
                                 -b 12288 \
                                 --hydra \
                                 --valid-set \
-                                --rate-weight-list 1
+                                --debug \
+                                --rate-weight-list 2
 
                                 # -g 2 --fp16  

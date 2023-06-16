@@ -825,6 +825,8 @@ class NatCTCAvgRateLoss(NatEncoderCTCLoss):
         ctc_losses = []
         ce_losses = []
         others_losses = []
+        if self.debug :
+            import pdb;pdb.set_trace()
         for i , rate_and_weight in enumerate(zip(self.rate_list, self.rate_weight_list)) :   
             upsampling_rate = rate_and_weight[0]
             factor = rate_and_weight[1]       
