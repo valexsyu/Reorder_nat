@@ -9,7 +9,6 @@ do
         --criterion nat_ctc_avg_rate_loss \
         --gpu_id 0 \
         -b 50 \
-        -e s-F-3-1-N-UR30M-rate_avg-33k \
         -e r-E-3-1-N-UR30M-rate_avg-33k \
         -e m-B-3-1-N-UR30M-rate_avg-33k-w1 \
         --sleep 10
