@@ -6,7 +6,7 @@ RUN_FILE_NAME=s-F-3-1-N-UR30M-rate_avg-33k-twcc.sh    ##  <--------------------i
 GPU_NUM=8   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
 APIKEY=03d31964-e6c3-4f3e-a4c2-5d410f7c0433
-PROJECT_ID=GOV112004
+PROJECT_ID=MST111038
 RUN_FILE_PATH=call_scripts/train
 
 # twccli config init -pcode $PROJECT_ID --apikey $APIKEY
@@ -31,7 +31,7 @@ wait
 echo "==============Conda deactivate==================="
 ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "conda deactivate"
 wait
-echo "==============Conda deactivate==================="
+echo "==============Conda ctcplm==================="
 ssh -t -o "StrictHostKeyChecking=no" `twccli ls ccs -gssh -s $CCS_ID` "conda activate ctcplm"
 wait
 echo "==============Conda Env.==================="

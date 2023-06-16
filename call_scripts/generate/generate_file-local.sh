@@ -357,28 +357,26 @@ conda activate base
 # done
 #=======================================================================================
 
+# # --avg-ck-turnoff \
+# CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
+#                        --ck-types top --avg-speed 1 \
+#                         -b 10 \
+#                         --task translation_ctcpmlm \
+#                         --arch nat_pretrained_model \
+#                         --criterion nat_ctc_loss \
+#                         --skip-load-step-num \
+#                         --local \
+#                         -e t-G-3-1-N-UR20M           
+
 # --avg-ck-turnoff \
 CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
                        --ck-types top --avg-speed 1 \
                         -b 10 \
+                        --arch ctcpmlm_rate_selection \
                         --task translation_ctcpmlm \
-                        --arch nat_pretrained_model \
-                        --criterion nat_ctc_loss \
+                        --criterion nat_ctc_avg_rate_loss \
                         --skip-load-step-num \
                         --local \
-                        -e t-G-3-1-N-UR20M           
+                        -e s-F-3-1-N-UR30M-rate_avg-33k-50k-NEW
 
 
-
-
-
-# CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --local --data-subset test \
-#                        --ck-types top --avg-speed 1 \
-#                         -b 10 \
-#                         --arch ctcpmlm_rate_selection \
-#                         --task translation_ctcpmlm \
-#                         --criterion nat_ctc_avg_rate_loss \
-#                         --avg-ck-turnoff \
-#                         --skip-load-step-num \
-#                         --local \
-#                         -e s-F-3-1-N-UR30M-rate_avg-33k-warmup3k

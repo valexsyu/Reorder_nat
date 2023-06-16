@@ -9,21 +9,21 @@ do
         --criterion nat_ctc_avg_rate_loss \
         --gpu_id 0 \
         -b 50 \
-        -e s-F-3-1-N-UR30M-rate_avg-33k-warmup3k \
+        -e s-F-3-1-N-UR30M-rate_avg-33k \
+        -e r-E-3-1-N-UR30M-rate_avg-33k \
         --sleep 10
 
-    # bash call_scripts/tool/watch-test-polling-1_time.sh \
-    #     --twcc \
-    #     --task translation_ctcpmlm \
-    #     --arch nat_pretrained_model \
-    #     --criterion nat_ctc_loss \
-    #     -b 50 \
-    #     --gpu_id 0 \
-    #     -e s-F-3-1-N-UR40M \
-    #     -e t-G-3-1-N-UR40M \
-    #     -e u-H-3-1-N-UR30M \
-    #     -e u-H-3-1-N-UR40M \
-    #     --sleep 10
+    bash call_scripts/tool/watch-test-polling-1_time.sh \
+        --twcc \
+        --task translation_ctcpmlm \
+        --arch nat_pretrained_model \
+        --criterion nat_ctc_loss \
+        -b 50 \
+        --gpu_id 0 \
+        -e r-E-3-1-N-UR20M \
+        -e r-E-3-1-N-UR30M \
+        -e r-E-3-1-N-UR40M \
+        --sleep 10
 done
 
 # while :

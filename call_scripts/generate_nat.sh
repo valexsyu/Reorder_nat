@@ -834,7 +834,7 @@ if [ "$load_exist_bleu" = "False" ]; then
         fi
         if [ "$avg_ck_turnoff" = "False" ]; then
             avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
-            # avg_lastk_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_last$TOPK.pt
+            avg_lastk_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_last$TOPK.pt
         fi
         
 
