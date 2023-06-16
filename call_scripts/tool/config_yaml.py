@@ -104,7 +104,9 @@ def parser_function():
     parser.add_argument('--pretrained-lm-path', help='pretrained-lm-path', default=None, type=str)
     parser.add_argument('--eval-bleu-remove-bpe', help='eval_bleu_remove_bpe', default=None, type=str)
     parser.add_argument('--twcc', help='twcc', action='store_true')
-    parser.add_argument('--rate-list', help='rate_list', default=None, type=int)
+    parser.add_argument('--rate-list', help='rate_list', default=0, type=int)
+    parser.add_argument('--rate-weight-list', help='rate_weight_list', default=0, type=int)
+    
     
     
     
@@ -139,15 +141,29 @@ def del_config(config, key1 , key2):
 # def del_config(config, key1 , key2):
 #     del config[key1][key2]   
 
-def rate_list(config, rate_list_choosen):
+def rate_list(config, rate_list_choosen, rate_weight_choosen):
     if rate_list_choosen == 0:
         key1='task'
         set_config(config, key1 ,'rate_list',[2,3,4])
+        if rate_weight_choosen == 0:
+            set_config(config, key1 ,'rate_weight_list',[1,1,1])
+        elif rate_weight_choosen == 1:
+            set_config(config, key1 ,'rate_weight_list',[2,1,1])
+        else:
+            set_config(config, key1 ,'rate_weight_list',[1,1,1])
+        
+            
         key1='model'
         set_config(config, key1 ,'rate_list',[2,3,4])        
     elif rate_list_choosen == 1:
         key1='task'
         set_config(config, key1 ,'rate_list',[2, 2.5, 3, 3.5, 4])
+        if rate_weight_choosen == 0:
+            set_config(config, key1 ,'rate_weight_list',[1,1,1,1,1])
+        elif rate_weight_choosen == 1:
+            set_config(config, key1 ,'rate_weight_list',[2,1,1,1,1])
+        else:
+            set_config(config, key1 ,'rate_weight_list',[1,1,1,1,1])        
         key1='model'
         set_config(config, key1 ,'rate_list',[2, 2.5, 3, 3.5, 4])        
     else:
@@ -266,7 +282,7 @@ def main():
     set_config(config, key1 ,'eval_bleu_remove_bpe', args.eval_bleu_remove_bpe) 
     set_config(config, key1 ,'pretrained_model_path', args.pretrained_model_path)     
     set_config(config, key1 ,'twcc', args.twcc)    
-    rate_list(config, args.rate_list)
+    rate_list(config, args.rate_list, args.rate_weight_list)
     
     
 

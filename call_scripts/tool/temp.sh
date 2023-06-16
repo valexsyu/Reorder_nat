@@ -6,17 +6,17 @@ tmux new-session -d -s mysession
 # Split the window vertically
 tmux split-window -v
 
-#=============2==================
-#Set the size of each pane to be the same
-tmux resize-pane -t 0 -y 20%
-tmux resize-pane -t 1 -y 80%
+# #=============2==================
+# #Set the size of each pane to be the same
+# tmux resize-pane -t 0 -y 20%
+# tmux resize-pane -t 1 -y 80%
 
-# # #==========3==================
-# # Split the second window vertically
-# tmux split-window -v
-# tmux resize-pane -t 0 -y 10%
-# tmux resize-pane -t 1 -y 10%
-# tmux resize-pane -t 2 -y 70%
+# #==========3==================
+# Split the second window vertically
+tmux split-window -v
+tmux resize-pane -t 0 -y 10%
+tmux resize-pane -t 1 -y 10%
+tmux resize-pane -t 2 -y 70%
 
 # #============4==================
 # # Split the second window vertically
@@ -32,16 +32,16 @@ tmux resize-pane -t 1 -y 80%
 
 
 Select the first window and execute the first script
-# tmux select-pane -t 0
-# tmux send-keys "bash call_scripts/tool/watch-test-best5record-twcc.sh \
-#     -e s-F-3-1-N-UR30M-rate_avg-33k-warmup3k \
-#     -e s-F-3-1-N-UR40M \
-#     -e t-G-3-1-N-UR40M \
-#     -e u-H-3-1-N-UR30M \
-#     -e u-H-3-1-N-UR40M \
-#     --sleep 120" C-m
-
 tmux select-pane -t 0
+tmux send-keys "bash call_scripts/tool/watch-test-best5record-twcc.sh \
+    -e s-F-3-1-N-UR30M-rate_avg-33k \
+    -e r-E-3-1-N-UR30M-rate_avg-33k \
+    -e r-E-3-1-N-UR20M \
+    -e r-E-3-1-N-UR30M \
+    -e r-E-3-1-N-UR40M \
+    --sleep 120" C-m
+
+tmux select-pane -t 1
 tmux send-keys "conda activate reorder_nat" C-m
 tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
     --local \
@@ -51,6 +51,9 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
     -b 10 \
     --gpu_id 1 \
     -e v-I-3-1-N-UR30M-rate_avg-33k \
+    -e K-2-3-1-N-UR30M-rate_avg-100k \
+    -e 2-2-3-1-N-UR30M-rate_avg-100k \
+    -e v-I-3-1-N-UR40M \
     --sleep 360" C-m
 
 # Select the second window and execute the second script
@@ -69,10 +72,18 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
 #     --sleep 120" C-m
 
 # Select the third window and execute the third script
-tmux select-pane -t 1
+tmux select-pane -t 2
 tmux send-keys "conda activate reorder_nat" C-m
 tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
     -e v-I-3-1-N-UR30M-rate_avg-33k \
+    -e K-2-3-1-N-UR30M-rate_avg-100k \
+    -e 2-2-3-1-N-UR30M-rate_avg-100k \
+    -e v-I-3-1-N-UR40M \
+    -e s-F-3-1-N-UR30M-rate_avg-33k \
+    -e r-E-3-1-N-UR30M-rate_avg-33k \
+    -e r-E-3-1-N-UR20M \
+    -e r-E-3-1-N-UR30M \
+    -e r-E-3-1-N-UR40M \
     --sleep 120" C-m
 
 # Attach to the tmux session to view the windows

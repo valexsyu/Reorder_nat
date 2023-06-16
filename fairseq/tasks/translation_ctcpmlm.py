@@ -128,6 +128,12 @@ class TranslationCTCPMLMConfig(TranslationConfig):
     debug_value: float = field(
         default=0, metadata={"help": "debug_value for testing"},
     )    
+    
+    rate_weight_list: List[float] = field(
+        default_factory=list, metadata={"help": "visualize the hidden representation"},
+    )  
+              
+              
               
 
 # @register_task("translation_align_reorder", dataclass=TranslationAlignReorderConfig)

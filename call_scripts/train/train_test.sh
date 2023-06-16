@@ -112,13 +112,15 @@ conda activate base
 #                                 # -g 1 --fp16  
 
 
-bash call_scripts/train_nat.sh -e v-I-3-1-N-UR20M-rate_TTTTTTTTTTTTTTTTTTT \
+bash call_scripts/train_nat.sh -e m-B-3-1-N-UR30M-rate_avg_33k_w1_TTTTTT \
                                 --save-interval-updates 70000 --max-tokens 2048 \
-                                --arch nat_pretrained_model \
+                                --arch ctcpmlm_rate_selection \
                                 --task translation_ctcpmlm \
-                                --criterion nat_ctc_loss \
+                                --criterion nat_ctc_avg_rate_loss \
                                 --has-eos --max-update 100000 \
                                 -b 12288 \
                                 --hydra \
-                                --valid-set
+                                --valid-set \
+                                --rate-weight-list 1
+
                                 # -g 2 --fp16  

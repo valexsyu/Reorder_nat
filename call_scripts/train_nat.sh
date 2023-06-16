@@ -511,6 +511,7 @@ function default_setting() {
     hydra=False
     bpe_symbo="@@ "
     rate_list=-1
+    rate_weight_list=-1
     debug_value=0
     
 }
@@ -523,7 +524,7 @@ VALID_ARGS=$(getopt \
             --long save-interval-updates:,dropout:,lm-start-step:,no-atten-mask,watch-test-bleu,warmup-updates:, \
             --long reset-dataloader,reset-optimizer,debug,debug_value,has-eos,wandb-team-id:,lm-iter-num:,watch-lm-loss,lm-mask-rate:, \
             --long reset-meters,reset-lr-scheduler,arch:,criterion:,lmax-only-step:,task:,hydra \
-            --long rate-list: \
+            --long rate-list:,rate-weight-list: \
              -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
@@ -635,7 +636,11 @@ while [ : ]; do
     --rate-list)
       rate_list="$2"
       shift 2
-      ;;                                                    
+      ;;           
+    --rate-weight-list)
+      rate_weight_list="$2"
+      shift 2
+      ;;                                                   
     --no-atten-mask)
       no_atten_mask=True
       shift 1
@@ -807,7 +812,9 @@ fi
 if [ "$rate_list" -ne -1 ]; then
     BOOL_COMMAND+="  --rate-list $rate_list"
 fi
-
+if [ "$rate_weight_list" -ne -1 ]; then
+    BOOL_COMMAND+="  --rate-weight-list $rate_weight_list"
+fi
 
 
 if [ ! -d "checkpoints" ]; then

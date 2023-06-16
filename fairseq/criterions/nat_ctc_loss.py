@@ -45,7 +45,9 @@ class NatEncoderCTCLoss(LabelSmoothedDualImitationCriterion):
                 task.target_dictionary.index(task.blank_symbol)
                 if hasattr(task, "blank_symbol")
                 else self.bos_idx
-            )        
+            )  
+            
+        
         
     @classmethod
     def add_args(cls, parser):
@@ -351,6 +353,7 @@ class NatCTCSelRateLoss(NatEncoderCTCLoss):
     def __init__(self, task, label_smoothing):
         super().__init__(task, label_smoothing)
         self.rate_list = task.cfg.rate_list
+        
         self.max_update = task.cfg.max_update
         self.lmax_only_step = task.cfg.lmax_only_step
     def _compute_ctc_loss(  #valex
@@ -685,6 +688,7 @@ class NatCTCAvgRateLoss(NatEncoderCTCLoss):
     def __init__(self, task, label_smoothing):
         super().__init__(task, label_smoothing)
         self.rate_list = task.cfg.rate_list
+        self.rate_weight_list = task.cfg.rate_weight_list
         self.max_update = task.cfg.max_update
         self.lmax_only_step = task.cfg.lmax_only_step
     def _compute_ctc_loss(  #valex
@@ -748,7 +752,7 @@ class NatCTCAvgRateLoss(NatEncoderCTCLoss):
         
         return {"name": name, "loss": loss, "nll_loss": nll_loss, "factor": factor, "tgt_lengths":target_lengths}
     
-    def loss_collection(self, model_out, pve_losses, collection_name, sample, ctc_losses, ce_losses, others_losses): 
+    def loss_collection(self, model_out, pve_losses, collection_name, sample, ctc_losses, ce_losses, others_losses, factor=1): 
         losses = []
         for obj in model_out:
             if model_out[obj].get("loss_type", "CTC") == "CTC":
@@ -758,7 +762,7 @@ class NatCTCAvgRateLoss(NatEncoderCTCLoss):
                     model_out[obj].get("mask", None),
                     model_out[obj].get("num_upsampling_rate", 2), 
                     name=obj + "-loss",
-                    factor=1.0,
+                    factor=factor,
                     sample=sample,
                     reduction='none',
                 )   
@@ -821,15 +825,16 @@ class NatCTCAvgRateLoss(NatEncoderCTCLoss):
         ctc_losses = []
         ce_losses = []
         others_losses = []
-        
-        for upsampling_rate in self.rate_list :             
+        for i , rate_and_weight in enumerate(zip(self.rate_list, self.rate_weight_list)) :   
+            upsampling_rate = rate_and_weight[0]
+            factor = rate_and_weight[1]       
             outputs = model(src_tokens, src_lengths, tgt_tokens, alignments, update_num, 
                             pretrained_lm, lm_loss_layer, upsampling_rate)
             
             ## ex : collect_losses = {2:[{ctc-loss},{ce-loss}], 3:[{},{}], 4[{},{}] }
             collection_name = "r-" + str(upsampling_rate)
             collect_losses, ctc_losses, _ , others_losses = self.loss_collection(outputs, collect_losses, collection_name, sample, 
-                                                                   ctc_losses, ce_losses, others_losses) 
+                                                                   ctc_losses, ce_losses, others_losses, factor) 
         if len(ctc_losses) > 0 :
             ctc_losses = torch.stack(ctc_losses)
         if len(others_losses) > 0 :

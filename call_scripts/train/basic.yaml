@@ -43,6 +43,7 @@ task:
   max_source_positions: 512
   eval_bleu_remove_bpe: "@@ "
   twcc: False
+  rate_weight_list: [1,1,1]
 
 
 
