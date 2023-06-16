@@ -3234,7 +3234,7 @@ function pair_experiment_iwslt14_8_1536_rate_avg_33k_w1_twcc(){
                                         -b $BATCH_SIZE \
                                         --hydra \
                                         --twcc \
-                                        --rate-weight-list 1
+                                        --rate-weight-list 1 \
                                         -g $GPU_NUM --fp16   
     else
         echo "$1 last step is ge $relay_step"
@@ -3256,7 +3256,7 @@ function pair_experiment_iwslt14_8_1536_rate_avg_33k_w1_twcc(){
                                         -b $BATCH_SIZE \
                                         --hydra \
                                         --twcc \
-                                        --rate-weight-list 1
+                                        --rate-weight-list 1 \
                                         -g $GPU_NUM --fp16        
     done                                                                                                                                                 
 

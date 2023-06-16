@@ -53,6 +53,7 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
     -e v-I-3-1-N-UR30M-rate_avg-33k \
     -e K-2-3-1-N-UR30M-rate_avg-100k \
     -e 2-2-3-1-N-UR30M-rate_avg-100k \
+    -e m-B-3-1-N-UR30M-rate_avg-33k-w1 \
     -e v-I-3-1-N-UR40M \
     --sleep 360" C-m
 
@@ -78,6 +79,7 @@ tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
     -e v-I-3-1-N-UR30M-rate_avg-33k \
     -e K-2-3-1-N-UR30M-rate_avg-100k \
     -e 2-2-3-1-N-UR30M-rate_avg-100k \
+    -e m-B-3-1-N-UR30M-rate_avg-33k-w1 \
     -e v-I-3-1-N-UR40M \
     -e s-F-3-1-N-UR30M-rate_avg-33k \
     -e r-E-3-1-N-UR30M-rate_avg-33k \
