@@ -1,7 +1,7 @@
 # source $HOME/.bashrc 
 # conda activate base
 
-CCS_NAME=mb31-nur30m-avgw3    ##  <-----------------------------------input
+CCS_NAME=mb31-nur30m-avw3    ##  <-----------------------------------input
 RUN_FILE_NAME=m-B-3-1-N-UR30M-rate_avg-33k-w2-twcc.sh    ##  <--------------------input
 GPU_NUM=8   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
