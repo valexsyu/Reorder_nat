@@ -840,7 +840,8 @@ if [ "$experiment_id" = "s-F-3-1-N-UR30M-rate_avg-33k-50k-NEW" ]; then
     bpe_symbo="@@ "
     
 else
-    BOOL_COMMAND+=" --no-epoch-checkpoints"
+    # BOOL_COMMAND+=" --no-epoch-checkpoints"
+    echo " no-epoch-checkpoints=False "
 fi
 
 
