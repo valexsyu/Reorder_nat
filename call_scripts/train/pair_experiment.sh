@@ -3417,7 +3417,7 @@ function pair_experiment_wmt14_8_2730_100k_300k_twcc() {
     BATCH_SIZE=65520
     WARMUP_UPDATES=10000
     MAX_UPDATE=300000
-    
+
     cur_last=$(current_last_step $1)
     echo "Currect step: $cur_last ; Now is Step1 "
 
@@ -3505,3 +3505,53 @@ function pair_experiment_wmt14_8_4095_100k_300k_twcc() {
     done                                                                                                                                                
 
 }
+function pair_experiment_wmt14_8_1638_rate_sel_33k_twcc(){
+    relay_step=25000
+    LM_START_STEP=25000
+    MAX_TOKENS=1638
+    GPU_NUM=8
+    BATCH_SIZE=65520
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=33333
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt $relay_step ]; then    
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $1 \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --arch ctcpmlm_rate_selection \
+                                        --task translation_ctcpmlm \
+                                        --criterion nat_ctc_sel_rate_loss \
+                                        --has-eos --max-update $relay_step \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --twcc \
+                                        -g $GPU_NUM --fp16   
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                         
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $experiment \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --arch ctcpmlm_rate_selection \
+                                        --task translation_ctcpmlm \
+                                        --criterion nat_ctc_sel_rate_loss \
+                                        --has-eos --max-update $MAX_UPDATE \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --twcc \
+                                        -g $GPU_NUM --fp16        
+    done                                                                                                                                                 
+
+}
+
