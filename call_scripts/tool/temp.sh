@@ -38,7 +38,7 @@ tmux send-keys "bash call_scripts/tool/watch-test-best5record-twcc.sh \
     -e s-F-3-1-N-UR20M-100k_300k \
     -e s-F-3-1-N-UR30M-100k_300k \
     -e s-F-3-1-N-UR40M-100k_300k \
-    -e r-E-3-1-N-UR40M \
+    -e s-F-3-1-N-UR30M-rate_sel-33k \
     --sleep 120" C-m
 
 tmux select-pane -t 1
@@ -77,8 +77,7 @@ tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
     -e s-F-3-1-N-UR20M-100k_300k \
     -e s-F-3-1-N-UR30M-100k_300k \
     -e s-F-3-1-N-UR40M-100k_300k \
-    -e r-E-3-1-N-UR40M \
-    -e r-E-3-1-N-UR40M \
+    -e s-F-3-1-N-UR30M-rate_sel-33k \
     -e K-2-3-1-N-UR30M-rate_avg-100k \
     -e 2-2-3-1-N-UR30M-rate_avg-100k \
     --sleep 120" C-m

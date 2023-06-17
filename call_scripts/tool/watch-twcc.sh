@@ -23,6 +23,18 @@ do
         -e s-F-3-1-N-UR30M-100k_300k \
         -e s-F-3-1-N-UR40M-100k_300k \
         --sleep 10
+
+    bash call_scripts/tool/watch-test-polling-1_time.sh \
+        --twcc \
+        --arch ctcpmlm_rate_selection \
+        --task translation_ctcpmlm \
+        --criterion nat_ctc_sel_rate_loss \
+        --gpu_id 0 \
+        -b 50 \
+        -e s-F-3-1-N-UR30M-rate_sel-33k \
+        --sleep 10
+
+
 done
 
 # while :
