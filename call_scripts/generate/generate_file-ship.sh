@@ -211,12 +211,12 @@
 
 
 
-# bash call_scripts/generate_nat.sh --data-subset test --ck-types last-best-top-lastk \
-#                         -b 10 \
-#                         --arch ctcpmlm_rate_selection \
-#                         --task translation_ctcpmlm \
-#                         --criterion nat_ctc_avg_rate_loss \
-#                         -e s-F-3-1-N-UR30M-rate_avg-33k
+bash call_scripts/generate_nat.sh --data-subset test --ck-types last-best-top-lastk \
+                        -b 10 \
+                        --arch ctcpmlm_rate_selection \
+                        --task translation_ctcpmlm \
+                        --criterion nat_ctc_avg_rate_loss \
+                        -e m-B-3-1-N-UR30M-rate_avg-33k-w2
 
 
 
@@ -229,13 +229,13 @@
 
 
 # # "2-2-3-1-N-UR30M-rate_avg-33k" "K-2-3-1-N-UR20M-rate_avg-33k"
-experiments=("s-F-3-1-N-UR30M-rate_avg-33k")
+experiments=("m-B-3-1-N-UR30M-rate_avg-33k-w2")
 rate_list=(2.0 3.0 4.0)
 # rate_list=(2.5 3.5)
 for experiment_id in "${experiments[@]}"; do
     CHECKPOINT=checkpoints/$experiment_id
     TOPK=5
-    avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
+    # avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
     for debug_value in "${rate_list[@]}"; do
         echo "=============================================="
         echo "=====  $experiment_id with Rate: $debug  ========="

@@ -380,13 +380,13 @@ conda activate base
 #                         -e s-F-3-1-N-UR30M-rate_avg-33k-50k-NEW
 
 
-# bash call_scripts/generate_nat.sh --data-subset test --ck-types last-best-top-lastk \
-#                         -b 10 \
-#                         --local \
-#                         --arch ctcpmlm_rate_selection \
-#                         --task translation_ctcpmlm \
-#                         --criterion nat_ctc_avg_rate_loss \
-#                         -e s-F-3-1-N-UR30M-rate_avg-33k
+bash call_scripts/generate_nat.sh --data-subset test --ck-types last-best-top-lastk \
+                        -b 10 \
+                        --local \
+                        --arch ctcpmlm_rate_selection \
+                        --task translation_ctcpmlm \
+                        --criterion nat_ctc_avg_rate_loss \
+                        -e m-B-3-1-N-UR30M-rate_avg-33k-w1
 
 
 
@@ -400,9 +400,9 @@ conda activate base
 
 
 # # "2-2-3-1-N-UR30M-rate_avg-33k" "K-2-3-1-N-UR20M-rate_avg-33k"
-experiments=("s-F-3-1-N-UR30M-rate_avg-33k")
-# rate_list=(2.0 3.0 4.0)
-rate_list=(2.5 3.5)
+experiments=("m-B-3-1-N-UR30M-rate_avg-33k-w1")
+rate_list=(2.0 3.0 4.0)
+# rate_list=(2.5 3.5)
 for experiment_id in "${experiments[@]}"; do
     CHECKPOINT=checkpoints/$experiment_id
     TOPK=5
