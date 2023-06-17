@@ -1,8 +1,8 @@
 # source $HOME/.bashrc 
 # conda activate base
 
-CCS_NAME=sf31-nur40m     ##  <-----------------------------------input
-RUN_FILE_NAME=s-F-3-1-N-UR40M-100k-300k-twcc.sh    ##  <--------------------input
+CCS_NAME=sf31-nur30m    ##  <-----------------------------------input
+RUN_FILE_NAME=s-F-3-1-N-UR30M-100k_300k-twcc.sh    ##  <--------------------input
 GPU_NUM=8   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
 APIKEY=03d31964-e6c3-4f3e-a4c2-5d410f7c0433

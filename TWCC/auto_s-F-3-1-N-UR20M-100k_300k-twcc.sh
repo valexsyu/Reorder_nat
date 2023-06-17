@@ -2,7 +2,7 @@
 # conda activate base
 
 CCS_NAME=sf31-nur20m    ##  <-----------------------------------input
-RUN_FILE_NAME=s-F-3-1-N-UR20M-100k-300k-twcc.sh    ##  <--------------------input
+RUN_FILE_NAME=s-F-3-1-N-UR20M-100k_300k-twcc.sh    ##  <--------------------input
 GPU_NUM=8   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
 APIKEY=03d31964-e6c3-4f3e-a4c2-5d410f7c0433
