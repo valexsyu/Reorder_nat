@@ -83,7 +83,7 @@ for i in "${!exp_array[@]}"; do
   ## skip iterations where the generated output exceeds 100,000 tokens 
   ## or when the last generated value remains unchanged
   pervious_value=$(tail -1 $CHECKPOINT/best_top5.test.record | grep -oE "last:[0-9]+" | grep -oE "[0-9]+")
-  if [ -n "$pervious_value" ] && [ "$pervious_value" -ge 100000 ]; then
+  if [ -n "$pervious_value" ] && [ "$pervious_value" -ge 300000 ]; then
       echo "The $CHECKPOINT : Last value is equal to or greater than 100,000"
       score_array+=$(tail -1 $CHECKPOINT/best_top5.test.record) 
       continue
