@@ -386,7 +386,8 @@ bash call_scripts/generate_nat.sh --data-subset test --ck-types last-best-top-la
                         --arch ctcpmlm_rate_selection \
                         --task translation_ctcpmlm \
                         --criterion nat_ctc_avg_rate_loss \
-                        -e m-B-3-1-N-UR30M-rate_avg-33k-w1
+                        -e K-2-3-1-N-UR30M-rate_avg-100k \
+                        -e 2-2-3-1-N-UR30M-rate_avg-100k
 
 
 
@@ -400,7 +401,7 @@ bash call_scripts/generate_nat.sh --data-subset test --ck-types last-best-top-la
 
 
 # # "2-2-3-1-N-UR30M-rate_avg-33k" "K-2-3-1-N-UR20M-rate_avg-33k"
-experiments=("m-B-3-1-N-UR30M-rate_avg-33k-w1")
+experiments=("K-2-3-1-N-UR30M-rate_avg-100k 2-2-3-1-N-UR30M-rate_avg-100k")
 rate_list=(2.0 3.0 4.0)
 # rate_list=(2.5 3.5)
 for experiment_id in "${experiments[@]}"; do
