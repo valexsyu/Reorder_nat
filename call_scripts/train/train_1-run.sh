@@ -1,6 +1,6 @@
 source $HOME/.bashrc 
 conda activate base
-source call_scripts/train/pair_experiment.sh
+
 
 # bash call_scripts/train_nat.sh -e 2-6-1-1-N-UF30T --fp16 --save-interval-updates 70000 --max-tokens 2048 --no-atten-mask
 # bash call_scripts/train_nat.sh -e K-2-1-1-H12-UD25M --fp16 --save-interval-updates 70000 --max-tokens 2048 --no-atten-mask
@@ -829,20 +829,24 @@ source call_scripts/train/pair_experiment.sh
 # experiment=v-I-3-1-N-UR30M-rate_avg-33k
 # pair_experiment_iwslt14_2_1536_rate_avg_33k $experiment
 
-source call_scripts/train/pair_experiment.sh
-experiment=K-2-3-1-N-UR30M-rate_avg-100k
-pair_experiment_iwslt14_2_1536_rate_avg_100k $experiment 
+# source call_scripts/train/pair_experiment.sh
+# experiment=K-2-3-1-N-UR30M-rate_avg-100k
+# pair_experiment_iwslt14_2_1536_rate_avg_100k $experiment 
 
 
 
-source call_scripts/train/pair_experiment.sh
-experiment=2-2-3-1-N-UR40M
-pair_experiment_iwslt14_2_2048_100k $experiment
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-N-UR40M
+# pair_experiment_iwslt14_2_2048_100k $experiment
 
 
 
-experiment=K-2-3-1-N-UR30M
-pair_experiment_iwslt14_2_2048_100k $experiment
+# experiment=K-2-3-1-N-UR30M
+# pair_experiment_iwslt14_2_2048_100k $experiment
 
 experiment=K-2-3-1-N-UR20M
 pair_experiment_iwslt14_2_4096_100k $experiment
+
+source call_scripts/train/pair_experiment.sh
+experiment=2-2-3-1-H12-UR40M
+pair_experiment_iwslt14_1_2048_100k $experiment

@@ -379,35 +379,58 @@ conda activate base
 #                         --local \
 #                         -e s-F-3-1-N-UR30M-rate_avg-33k-50k-NEW
 
-
-bash call_scripts/generate_nat.sh --data-subset test --ck-types last-best-top-lastk \
-                        -b 10 \
-                        --local \
-                        --arch ctcpmlm_rate_selection \
-                        --task translation_ctcpmlm \
-                        --criterion nat_ctc_avg_rate_loss \
-                        -e K-2-3-1-N-UR30M-rate_avg-100k \
-                        -e 2-2-3-1-N-UR30M-rate_avg-100k
-
-
-
-# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+# --ck-types last-best-top-lastk
+# bash call_scripts/generate_nat.sh --data-subset test \
+#                         --ck-types top \
+#                         --skip-load-step-num \
 #                         -b 10 \
 #                         --local \
+#                         --avg-ck-turnoff \
+#                         --arch ctcpmlm_rate_selection \
 #                         --task translation_ctcpmlm \
-#                         --arch nat_pretrained_model \
-#                         --criterion nat_ctc_loss \
-#                         -e v-I-3-1-N-UR30M
+#                         --criterion nat_ctc_avg_rate_loss \
+#                         -e t-G-3-1-N-UR30M-rate_avg-33k \
+#                         -e u-H-3-1-N-UR30M-rate_avg-33k
 
 
-# # "2-2-3-1-N-UR30M-rate_avg-33k" "K-2-3-1-N-UR20M-rate_avg-33k"
-experiments=("K-2-3-1-N-UR30M-rate_avg-100k 2-2-3-1-N-UR30M-rate_avg-100k")
-rate_list=(2.0 3.0 4.0)
-# rate_list=(2.5 3.5)
+
+
+                        # -e r-E-3-1-N-UR30M-rate_avg-33k \
+                        # -e r-E-3-1-N-UR30M-rate_avg-33k_100k \
+                        # -e s-F-3-1-N-UR30M-rate_avg-33k \
+                        # -e s-F-3-1-N-UR30M-rate_avg-33k_100k \
+                        # -e s-F-3-1-N-UR30M-rate_sel-33k
+#                         -e 2-2-3-1-N-UR30M-rate_avg-33k \
+#                         -e 2-2-3-1-N-UR30M-rate_avg-100k \
+#                         -e K-2-3-1-N-UR20M-rate_avg-33k \
+#                         -e K-2-3-1-N-UR30M-rate_avg-100k \
+#                         -e v-I-3-1-N-UR30M-rate_avg-33k
+
+
+                        # -e m-B-3-1-N-UR30M-rate_avg \
+                        # -e m-B-3-1-N-UR30M-rate_avg-33k \
+                        # -e m-B-3-1-N-UR30M-rate_avg-33k_warm33 \
+                        # -e m-B-3-1-N-UR30M-rate_avg-33k-w1 \
+                        # -e m-B-3-1-N-UR30M-rate_avg-33k-w2 \
+                        # -e m-B-3-1-N-UR30M-rate_avg_1 \
+                        # -e m-B-3-1-N-UR30M-rate_avg_1-20k
+
+
+
+
+# # # "2-2-3-1-N-UR30M-rate_avg-33k" "K-2-3-1-N-UR20M-rate_avg-33k"
+# experiments=("m-B-3-1-N-UR30M-rate_avg" "m-B-3-1-N-UR30M-rate_avg-33k" "m-B-3-1-N-UR30M-rate_avg-33k_warm33" "m-B-3-1-N-UR30M-rate_avg-33k-w1" "m-B-3-1-N-UR30M-rate_avg-33k-w2" "m-B-3-1-N-UR30M-rate_avg_1" "m-B-3-1-N-UR30M-rate_avg_1-20k")
+# experiments=("2-2-3-1-N-UR30M-rate_avg-33k" "2-2-3-1-N-UR30M-rate_avg-100k" "K-2-3-1-N-UR20M-rate_avg-33k" "K-2-3-1-N-UR30M-rate_avg-100k" "v-I-3-1-N-UR30M-rate_avg-33k")
+# experiments=("m-B-3-1-N-UR30M-rate_avg_1" "m-B-3-1-N-UR30M-rate_avg_1-20k")
+# experiments=("r-E-3-1-N-UR30M-rate_avg-33k" "r-E-3-1-N-UR30M-rate_avg-33k_100k" "s-F-3-1-N-UR30M-rate_avg-33k" "s-F-3-1-N-UR30M-rate_avg-33k_100k" "s-F-3-1-N-UR30M-rate_sel-33k")
+# experiments=("t-G-3-1-N-UR30M-rate_avg-33k" "u-H-3-1-N-UR30M-rate_avg-33k")
+experiments=("s-F-3-1-N-UR30M-rate_sel-33k")
+# rate_list=(2.0 3.0 4.0)
+rate_list=(2.5 3.5)
 for experiment_id in "${experiments[@]}"; do
     CHECKPOINT=checkpoints/$experiment_id
     TOPK=5
-    avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
+    # avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
     for debug_value in "${rate_list[@]}"; do
         echo "=============================================="
         echo "=====  $experiment_id with Rate: $debug  ========="
@@ -431,4 +454,7 @@ for experiment_id in "${experiments[@]}"; do
         checkpoints/$experiment_id/test/best_top5_${batch_size}_1.bleu/generate-test-$debug_value.txt 
     done  
 done
+
+
+
 

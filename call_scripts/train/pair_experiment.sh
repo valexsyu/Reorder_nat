@@ -3644,3 +3644,33 @@ function pair_experiment_iwslt14_2_4096_100k(){
     done                                                                                                                                                
 
 }
+
+function pair_experiment_iwslt14_1_2048_100k(){
+    relay_step=70000
+    LM_START_STEP=75000
+    MAX_TOKENS=2048
+    GPU_NUM=1
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=100000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                                
+
+}
