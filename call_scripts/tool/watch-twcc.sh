@@ -21,7 +21,7 @@ do
         --gpu_id 0 \
         -e Z-2-3-1-N-UR30M \
         -e Z-2-3-1-N-UR40M \
-        -e 2-2-3-1-H12-UR40M-fixpos \
+        -e 2-2-3-1-H12-UR40T-fixpos \
         --sleep 10
 
     # bash call_scripts/tool/watch-test-polling-1_time.sh \
