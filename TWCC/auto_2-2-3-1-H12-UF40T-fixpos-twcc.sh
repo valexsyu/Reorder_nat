@@ -1,20 +1,24 @@
 # source $HOME/.bashrc 
 # conda activate base
 
-CCS_NAME=2231-huf40t    ##  <-----------------------------------input
+CCS_NAME=ibf-huf40t    ##  <-----------------------------------input
 RUN_FILE_NAME=2-2-3-1-H12-UF40T-fixpos-twcc.sh    ##  <--------------------input
-GPU_NUM=2   ##  <--------------------------------------------------input
+GPU_NUM=8   ##  <--------------------------------------------------input
 GIT_PULL=True ##-------------------------------------------------git
-APIKEY=f05a9739-fd95-4478-b7a5-f42a0d0b8257
-PROJECT_ID=MST111038
+APIKEY=03d31964-e6c3-4f3e-a4c2-5d410f7c0433
+PROJECT_ID=GOV112004
 RUN_FILE_PATH=call_scripts/train
 
-twccli config init -pcode $PROJECT_ID --apikey $APIKEY
+# twccli config init -pcode $PROJECT_ID --apikey $APIKEY
+# twccli config init
+cp /home/valex/.twcc_data/credential_$PROJECT_ID /home/valex/.twcc_data/credential
+twccli config init
 
 twccli mk ccs -n $CCS_NAME -gpu ${GPU_NUM}m -itype Custom\ Image -img pytorch-21.08-py3:CTCPLM1 -wait -json > $RUN_FILE_NAME.ccs_res.log
 twccli ls ccs
 CCS_ID=$(cat $RUN_FILE_NAME.ccs_res.log | jq '.id')
 echo "==============CCS_ID:$CCS_ID========================="
+
 
 # CCS_ID=3152233
 # IP=203.145.216.196

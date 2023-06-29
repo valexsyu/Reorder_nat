@@ -19,7 +19,6 @@ do
         --criterion nat_ctc_loss \
         -b 50 \
         --gpu_id 0 \
-        -e Z-2-3-1-N-UR20M \
         -e Z-2-3-1-N-UR30M \
         -e Z-2-3-1-N-UR40M \
         -e 2-2-3-1-H12-UR40M-fixpos \

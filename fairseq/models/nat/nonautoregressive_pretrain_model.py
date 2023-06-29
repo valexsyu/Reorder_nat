@@ -1101,14 +1101,12 @@ class NATPretrainedModel(BaseFairseqModel):
                 if self.debug :
                     if upsampling_flag : 
                         position_ids = self.calculate_position_ids(torch.cat((bos, src_tokens), dim=1)).repeat_interleave(4)[3:]
-                   
-                try:
+
                     output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
                                 attention_mask=attention_mask,  #encoder_attention_mask=attention_mask,
                                 output_hidden_states=True, return_dict=True,position_ids=position_ids,
                                     inputs_embeds=None)
-                except:
-                    import pdb;pdb.set_trace()
+
 
         
         if self.voc_choosen == 2:
