@@ -170,7 +170,8 @@ class CTCPMLMRateSelection(NATPretrainedModel):
                 )              
         
         return result
-    
+
+
     def forward_inference(self, src_tokens, tgt_tokens,src_lengths, alignments=None, update_num=None, **kwargs):
         
         if self.visualization :
@@ -189,10 +190,10 @@ class CTCPMLMRateSelection(NATPretrainedModel):
                 if _tokens.size(1) > 0 :
                     unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
                     indices -= indices.min(dim=1, keepdims=True)[0]
-                    remove_duplicate_tokens = torch.full_like(_tokens,self.pad)
-                    # remove_duplicate_score = torch.full_like(_scores,self.pad)
-                    # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
+                    remove_duplicate_tokens = torch.full_like(_tokens,self.tgt_pad)
                     remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
+                    remove_duplicate_score = torch.full_like(_scores, 0)
+                    _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
                 else:
                     remove_duplicate_tokens = _tokens      
 
@@ -213,8 +214,28 @@ class CTCPMLMRateSelection(NATPretrainedModel):
                     logits = self.output_projection_layer(output_hidden_states)            
 
                 _scores, _tokens = F.log_softmax(logits, dim=-1).max(-1)  #B x T
+
+                if _tokens.size(1) > 0 :
+                    unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
+                    indices -= indices.min(dim=1, keepdims=True)[0]
+                    remove_duplicate_tokens = torch.full_like(_tokens, self.tgt_pad)
+                    remove_duplicate_score = torch.full_like(_scores, 0)
+                    _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
+                    _tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
                 
-                _sentence_scores = _scores.mean(dim=1)  # B
+                # Calculate the sentence lengths
+
+                #cutoff scores to calculate sentence scores
+                _sentence_scores=[]
+                for i in range(_tokens.size(0)):
+                #     sentence_tokens = _tokens[i]
+                #     # sentence_scores_mask = (sentence_tokens != self.tgt_pad) # & (sentence_tokens != self.tgt_dict.bos_index)
+                #     # _sentence_scores.append(torch.masked_select(_scores[i], sentence_scores_mask).mean())
+                    cutoff = _tokens[i].ne(self.tgt_pad) & _tokens[i].ne(self.blank_idx)
+                    scores_cutoff = _scores[i][cutoff]
+                    _sentence_scores.append(scores_cutoff.mean())
+                _sentence_scores = torch.stack(_sentence_scores)
+
                 if _tokens.size(1) > max_length :
                     max_length = _tokens.size(1)
                 scores += [_scores]  #[[BxT],[BxT],...[BxT]]
@@ -237,24 +258,113 @@ class CTCPMLMRateSelection(NATPretrainedModel):
             _scores = torch.gather(scores, 0, max_idx.unsqueeze(0).unsqueeze(-1).expand(1,B,L)).squeeze(0)     
         
         
-        if _tokens.size(1) > 0 :
-            unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
-            indices -= indices.min(dim=1, keepdims=True)[0]
-            remove_duplicate_tokens = torch.full_like(_tokens,self.pad)
-            # remove_duplicate_score = torch.full_like(_scores,self.pad)
-            # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
-            remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
-        else:
-            remove_duplicate_tokens = _tokens      
+        # if _tokens.size(1) > 0 :
+        #     unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
+        #     indices -= indices.min(dim=1, keepdims=True)[0]
+        #     remove_duplicate_tokens = torch.full_like(_tokens,self.tgt_pad)
+        #     # remove_duplicate_score = torch.full_like(_scores, 0)
+        #     # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
+        #     remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
+        # else:
+        #     remove_duplicate_tokens = _tokens      
 
         return DataOut(
-            output_tokens=remove_duplicate_tokens,
+            output_tokens=_tokens,
             output_scores=_scores,
             attn=None,
             step=0,
             max_step=0,
             history=None,
         )              
+
+
+
+
+    
+    # def forward_inference(self, src_tokens, tgt_tokens,src_lengths, alignments=None, update_num=None, **kwargs):
+        
+    #     if self.visualization :
+    #         self.visualize(src_tokens,tgt_tokens,src_lengths)
+        
+    #     if self.ctc_beam_decoding:
+    #         raise ValueError("delete ctc_beam_decoding function in forward_inference.  \
+    #                         We can add it from nonautoregressive_pretrain_model, but need to modify.")
+    #         print("=============error============")
+    #     else:
+            
+    #         if self.debug :
+    #             upsampling_rate=self.debug_value
+    #             logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, rate=upsampling_rate, **kwargs) 
+    #             _scores, _tokens = F.log_softmax(logits, dim=-1).max(-1)  #B x T
+    #             if _tokens.size(1) > 0 :
+    #                 unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
+    #                 indices -= indices.min(dim=1, keepdims=True)[0]
+    #                 remove_duplicate_tokens = torch.full_like(_tokens,self.tgt_pad)
+    #                 # remove_duplicate_score = torch.full_like(_scores, 0)
+    #                 # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
+    #                 remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
+    #             else:
+    #                 remove_duplicate_tokens = _tokens      
+
+    #             return DataOut(
+    #                 output_tokens=remove_duplicate_tokens,
+    #                 output_scores=_scores,
+    #                 attn=None,
+    #                 step=0,
+    #                 max_step=0,
+    #                 history=None,
+    #             )                
+            
+            
+    #         scores=[] ; tokens=[] ; sentence_scores=[] ; max_length=0
+    #         for upsampling_rate in self.rate_list :
+    #             logits, output_hidden_states, rate, src_upsample_tokens= self.translation(src_tokens, src_lengths, rate=upsampling_rate, **kwargs) 
+    #             if self.voc_choosen == 2:
+    #                 logits = self.output_projection_layer(output_hidden_states)            
+
+    #             _scores, _tokens = F.log_softmax(logits, dim=-1).max(-1)  #B x T
+                
+    #             _sentence_scores = _scores.mean(dim=1)  # B
+    #             if _tokens.size(1) > max_length :
+    #                 max_length = _tokens.size(1)
+    #             scores += [_scores]  #[[BxT],[BxT],...[BxT]]
+    #             tokens += [_tokens]
+    #             sentence_scores +=[_sentence_scores]
+            
+    #         for i in range(len(self.rate_list)):
+    #             tokens[i] = torch.nn.functional.pad(tokens[i], (0, max_length - tokens[i].size(1)),
+    #                                              mode='constant', value=self.tgt_pad)
+    #             scores[i] = torch.nn.functional.pad(scores[i], (0, max_length - scores[i].size(1)), 
+    #                                              mode='constant', value=0)
+                
+    #         if len(tokens) > 0 :
+    #             tokens = torch.stack(tokens)  
+    #             scores = torch.stack(scores) 
+    #             sentence_scores = torch.stack(sentence_scores)                           
+    #         B, L = tokens.size(1),tokens.size(2)
+    #         rate_max_lprob, max_idx = torch.max(sentence_scores, dim = 0)
+    #         _tokens = torch.gather(tokens, 0, max_idx.unsqueeze(0).unsqueeze(-1).expand(1,B,L)).squeeze(0)
+    #         _scores = torch.gather(scores, 0, max_idx.unsqueeze(0).unsqueeze(-1).expand(1,B,L)).squeeze(0)     
+        
+        
+    #     if _tokens.size(1) > 0 :
+    #         unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
+    #         indices -= indices.min(dim=1, keepdims=True)[0]
+    #         remove_duplicate_tokens = torch.full_like(_tokens,self.tgt_pad)
+    #         # remove_duplicate_score = torch.full_like(_scores, 0)
+    #         # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
+    #         remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
+    #     else:
+    #         remove_duplicate_tokens = _tokens      
+
+    #     return DataOut(
+    #         output_tokens=remove_duplicate_tokens,
+    #         output_scores=_scores,
+    #         attn=None,
+    #         step=0,
+    #         max_step=0,
+    #         history=None,
+    #     )              
     
 
 
@@ -386,8 +496,10 @@ class CTCPMLMRatePredictor(CTCPMLMRateSelection):
             #     if _tokens.size(1) > 0 :
             #         unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
             #         indices -= indices.min(dim=1, keepdims=True)[0]
-            #         remove_duplicate_tokens = torch.full_like(_tokens,self.pad)
+            #         remove_duplicate_tokens = torch.full_like(_tokens,self.tgt_pad)
             #         remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
+            #         remove_duplicate_score = torch.full_like(_scores,0)
+            #         _scores  = remove_duplicate_score.scatter_(1, indices, _scores)                    
             #     else:
             #         remove_duplicate_tokens = _tokens      
 
@@ -444,10 +556,10 @@ class CTCPMLMRatePredictor(CTCPMLMRateSelection):
         if _tokens.size(1) > 0 :
             unique_x, indices = torch.unique_consecutive(_tokens, return_inverse=True)
             indices -= indices.min(dim=1, keepdims=True)[0]
-            remove_duplicate_tokens = torch.full_like(_tokens,self.pad)
-            # remove_duplicate_score = torch.full_like(_scores,self.pad)
-            # _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
+            remove_duplicate_tokens = torch.full_like(_tokens,self.tgt_pad)
             remove_duplicate_tokens = remove_duplicate_tokens.scatter_(1, indices, _tokens)
+            remove_duplicate_score = torch.full_like(_scores,0)
+            _scores  = remove_duplicate_score.scatter_(1, indices, _scores)
         else:
             remove_duplicate_tokens = _tokens      
 
