@@ -22,6 +22,7 @@ do
         -e Z-2-3-1-N-UR20M \
         -e Z-2-3-1-N-UR30M \
         -e Z-2-3-1-N-UR40M \
+        -e 2-2-3-1-H12-UR40M-fixpos \
         --sleep 10
 
     # bash call_scripts/tool/watch-test-polling-1_time.sh \

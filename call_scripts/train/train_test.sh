@@ -100,28 +100,28 @@ conda activate base
 
 
 
-# bash call_scripts/train_nat.sh -e 2-2-1-1-H12-UR40M-TTTTTTTTTTTTTTGGGG  \
-#                                 --save-interval-updates 70000 --max-tokens 2048 \
-#                                 --task translation_ctcpmlm \
-#                                 --arch nat_pretrained_model \
-#                                 --criterion nat_ctc_loss \
-#                                 --no-atten-mask \
-#                                 --debug \
-#                                 --hydra \
-#                                 --valid-set
-#                                 # -g 1 --fp16  
-
-
-bash call_scripts/train_nat.sh -e m-B-3-1-N-UR30M-rate_avg_33k_w1_TTTTTT \
+bash call_scripts/train_nat.sh -e 2-2-1-1-H12-UR40M-TTTTTTTTT  \
                                 --save-interval-updates 70000 --max-tokens 2048 \
-                                --arch ctcpmlm_rate_selection \
                                 --task translation_ctcpmlm \
-                                --criterion nat_ctc_avg_rate_loss \
-                                --has-eos --max-update 100000 \
-                                -b 12288 \
-                                --hydra \
-                                --valid-set \
+                                --arch nat_pretrained_model \
+                                --criterion nat_ctc_loss \
+                                --no-atten-mask \
                                 --debug \
-                                --rate-weight-list 2
+                                --hydra \
+                                --valid-set
+                                # -g 1 --fp16  
 
-                                # -g 2 --fp16  
+
+# bash call_scripts/train_nat.sh -e m-B-3-1-N-UR30M-rate_avg_33k_w1_TTTTTT \
+#                                 --save-interval-updates 70000 --max-tokens 2048 \
+#                                 --arch ctcpmlm_rate_selection \
+#                                 --task translation_ctcpmlm \
+#                                 --criterion nat_ctc_avg_rate_loss \
+#                                 --has-eos --max-update 100000 \
+#                                 -b 12288 \
+#                                 --hydra \
+#                                 --valid-set \
+#                                 --debug \
+#                                 --rate-weight-list 2
+
+#                                 # -g 2 --fp16  

@@ -844,9 +844,10 @@ conda activate base
 # experiment=K-2-3-1-N-UR30M
 # pair_experiment_iwslt14_2_2048_100k $experiment
 
-experiment=K-2-3-1-N-UR20M
-pair_experiment_iwslt14_2_4096_100k $experiment
+# experiment=K-2-3-1-N-UR20M
+# pair_experiment_iwslt14_2_4096_100k $experiment
 
 source call_scripts/train/pair_experiment.sh
 experiment=2-2-3-1-H12-UR40M
 pair_experiment_iwslt14_1_2048_100k $experiment
+
