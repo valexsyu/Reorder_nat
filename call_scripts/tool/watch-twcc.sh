@@ -2,15 +2,15 @@
 
 while :
 do
-    bash call_scripts/tool/watch-test-polling-1_time.sh \
-        --twcc \
-        --arch ctcpmlm_rate_selection \
-        --task translation_ctcpmlm \
-        --criterion nat_ctc_avg_rate_loss \
-        --gpu_id 0 \
-        -b 50 \
-        -e Z-2-3-1-N-UR30M-rate_avg-33k \
-        --sleep 10
+    # bash call_scripts/tool/watch-test-polling-1_time.sh \
+    #     --twcc \
+    #     --arch ctcpmlm_rate_selection \
+    #     --task translation_ctcpmlm \
+    #     --criterion nat_ctc_avg_rate_loss \
+    #     --gpu_id 0 \
+    #     -b 50 \
+    #     -e Z-2-3-1-N-UR30M-rate_avg-33k \
+    #     --sleep 10
 
     bash call_scripts/tool/watch-test-polling-1_time.sh \
         --twcc \
@@ -19,9 +19,9 @@ do
         --criterion nat_ctc_loss \
         -b 50 \
         --gpu_id 0 \
-        -e Z-2-3-1-N-UR30M \
         -e Z-2-3-1-N-UR40M \
-        -e 2-2-3-1-H12-UR40T-fixpos \
+        -e 2-2-3-1-H12-UF40T-fixpos \
+        -e 2-2-3-1-H12-UF40T \
         --sleep 10
 
     # bash call_scripts/tool/watch-test-polling-1_time.sh \

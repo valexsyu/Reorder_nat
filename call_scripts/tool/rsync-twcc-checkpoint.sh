@@ -1,3 +1,6 @@
+#!/bin/sh
+# example:
+#   bash call_scripts/tool/rsync-twcc-checkpoint.sh -e Z-2-3-1-N-UR20M
 function default_setting() {
     twcc=False
     sleep_time=2500

@@ -72,10 +72,9 @@ tmux send-keys "bash call_scripts/tool/watch-test-best5record-twcc.sh \
 tmux select-pane -t 1
 tmux send-keys "conda activate reorder_nat" C-m
 tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
-    -e Z-2-3-1-N-UR30M-rate_avg-33k \
-    -e Z-2-3-1-N-UR30M \
     -e Z-2-3-1-N-UR40M \
-    -e 2-2-3-1-H12-UR40M-fixpos \
+    -e 2-2-3-1-H12-UF40M-fixpos \
+    -e 2-2-3-1-H12-UF40M \
     --sleep 120" C-m
 
 # Attach to the tmux session to view the windows
