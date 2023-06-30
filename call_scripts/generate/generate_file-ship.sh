@@ -201,27 +201,28 @@
 
                         # --avg-ck-turnoff \
 
-# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-#                         -b 10 \
-#                         --task translation_ctcpmlm \
-#                         --arch nat_pretrained_model \
-#                         --criterion nat_ctc_loss \
-#                         --avg-ck-turnoff \
-#                         -e m-B-3-1-N-UR30M 
+bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+                        -b 10 \
+                        --task translation_ctcpmlm \
+                        --arch nat_pretrained_model \
+                        --criterion nat_ctc_loss \
+                        --avg-ck-turnoff \
+                        -e 2-2-3-1-H12-UR40M \
+                        -e 2-2-3-1-H12-UR40T
 
 
 
 # bash call_scripts/generate_nat.sh --data-subset test --ck-types last-best-top-lastk \
-batch_size=10
-bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
-                        -b $batch_size \
-                        --arch ctcpmlm_rate_selection \
-                        --task translation_ctcpmlm \
-                        --criterion nat_ctc_avg_rate_loss \
-                        --avg-ck-turnoff \
-                        --skip-load-step-num \
-                        -e m-B-3-1-N-UR30M-rate_avg-33k \
-                        -e s-F-3-1-N-UR30M-rate_avg-33k   
+# batch_size=10
+# bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+#                         -b $batch_size \
+#                         --arch ctcpmlm_rate_selection \
+#                         --task translation_ctcpmlm \
+#                         --criterion nat_ctc_avg_rate_loss \
+#                         --avg-ck-turnoff \
+#                         --skip-load-step-num \
+#                         -e m-B-3-1-N-UR30M-rate_avg-33k \
+#                         -e s-F-3-1-N-UR30M-rate_avg-33k   
 
 
 # bash call_scripts/generate_nat.sh --data-subset test --ck-types last-best-top-lastk \
@@ -269,34 +270,34 @@ bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
 
 
 # # # "2-2-3-1-N-UR30M-rate_avg-33k" "K-2-3-1-N-UR20M-rate_avg-33k" "K-2-3-1-N-UR30M-rate_avg-33k" "K-2-3-1-N-UR30M-rate_avg-100k"
-experiments=("s-F-3-1-N-UR30M-rate_avg-33k" "m-B-3-1-N-UR30M-rate_avg-33k")
-rate_list=(2.0 3.0 4.0)
-# rate_list=(2.5 3.5)
-for experiment_id in "${experiments[@]}"; do
-    CHECKPOINT=checkpoints/$experiment_id
-    TOPK=5
-    # avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
-    for debug_value in "${rate_list[@]}"; do
-        echo "=============================================="
-        echo "=====  $experiment_id with Rate: $debug  ========="
-        echo "=============================================="
-        batch_size=10
-        echo "debug_value = $debug_value"
-        CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --data-subset test \
-                            --ck-types top --avg-speed 1 \
-                                -b $batch_size \
-                                --arch ctcpmlm_rate_selection \
-                                --task translation_ctcpmlm \
-                                --criterion nat_ctc_avg_rate_loss \
-                                --debug \
-                                --skip-load-step-num \
-                                --avg-ck-turnoff \
-                                --debug-value $debug_value \
-                                -e $experiment_id
-        mv checkpoints/$experiment_id/test/best_top5_${batch_size}_1.bleu/generate-test.txt \
-        checkpoints/$experiment_id/test/best_top5_${batch_size}_1.bleu/generate-test-$debug_value.txt 
-    done  
-done
+# experiments=("s-F-3-1-N-UR30M-rate_avg-33k" "m-B-3-1-N-UR30M-rate_avg-33k")
+# rate_list=(2.0 3.0 4.0)
+# # rate_list=(2.5 3.5)
+# for experiment_id in "${experiments[@]}"; do
+#     CHECKPOINT=checkpoints/$experiment_id
+#     TOPK=5
+#     # avg_topk_best_checkpoints $CHECKPOINT $TOPK $CHECKPOINT/checkpoint_best_top$TOPK.pt
+#     for debug_value in "${rate_list[@]}"; do
+#         echo "=============================================="
+#         echo "=====  $experiment_id with Rate: $debug  ========="
+#         echo "=============================================="
+#         batch_size=10
+#         echo "debug_value = $debug_value"
+#         CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --data-subset test \
+#                             --ck-types top --avg-speed 1 \
+#                                 -b $batch_size \
+#                                 --arch ctcpmlm_rate_selection \
+#                                 --task translation_ctcpmlm \
+#                                 --criterion nat_ctc_avg_rate_loss \
+#                                 --debug \
+#                                 --skip-load-step-num \
+#                                 --avg-ck-turnoff \
+#                                 --debug-value $debug_value \
+#                                 -e $experiment_id
+#         mv checkpoints/$experiment_id/test/best_top5_${batch_size}_1.bleu/generate-test.txt \
+#         checkpoints/$experiment_id/test/best_top5_${batch_size}_1.bleu/generate-test-$debug_value.txt 
+#     done  
+# done
 
 
 

@@ -3776,3 +3776,103 @@ function pair_experiment_iwslt14_8_1536_100k_twcc(){
     done                                                                                                                                                 
 
 }
+function pair_experiment_iwslt14_8_1536_50k_twcc(){
+    relay_step=30000
+    LM_START_STEP=30000
+    MAX_TOKENS=1536
+    GPU_NUM=8
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=50000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt $relay_step ]; then    
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $1 \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --task translation_ctcpmlm \
+                                        --arch nat_pretrained_model \
+                                        --criterion nat_ctc_loss \
+                                        --has-eos --max-update $relay_step \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --twcc \
+                                        -g $GPU_NUM --fp16   
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                         
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $experiment \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --task translation_ctcpmlm \
+                                        --arch nat_pretrained_model \
+                                        --criterion nat_ctc_loss \
+                                        --has-eos --max-update $MAX_UPDATE \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --twcc \
+                                        -g $GPU_NUM --fp16        
+    done                                                                                                                                                 
+
+}
+function pair_experiment_iwslt14_8_1536_50k_debug_twcc(){
+    relay_step=30000
+    LM_START_STEP=30000
+    MAX_TOKENS=1536
+    GPU_NUM=8
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=50000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt $relay_step ]; then    
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $1 \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --task translation_ctcpmlm \
+                                        --arch nat_pretrained_model \
+                                        --criterion nat_ctc_loss \
+                                        --has-eos --max-update $relay_step \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --debug \
+                                        --twcc \
+                                        -g $GPU_NUM --fp16   
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                         
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $experiment \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --task translation_ctcpmlm \
+                                        --arch nat_pretrained_model \
+                                        --criterion nat_ctc_loss \
+                                        --has-eos --max-update $MAX_UPDATE \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --debug \
+                                        --twcc \
+                                        -g $GPU_NUM --fp16        
+    done                                                                                                                                                 
+
+}
