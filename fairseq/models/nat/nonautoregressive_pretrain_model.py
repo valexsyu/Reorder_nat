@@ -1102,7 +1102,7 @@ class NATPretrainedModel(BaseFairseqModel):
                     if upsampling_flag : 
                         position_ids = self.calculate_position_ids(torch.cat((bos, src_tokens), dim=1)).repeat_interleave(4)[3:]
 
-                    output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
+                output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
                                 attention_mask=attention_mask,  #encoder_attention_mask=attention_mask,
                                 output_hidden_states=True, return_dict=True,position_ids=position_ids,
                                     inputs_embeds=None)
