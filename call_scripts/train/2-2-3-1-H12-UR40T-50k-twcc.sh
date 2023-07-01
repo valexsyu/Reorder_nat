@@ -2,7 +2,7 @@
 # source $HOME/.bashrc 
 # conda activate base
 source call_scripts/train/pair_experiment.sh
-experiment=2-2-3-1-H12-UR40M-50k-1
+experiment=2-2-3-1-H12-UR40T-50k
 
 pair_experiment_iwslt14_8_1536_50k_twcc $experiment       
 
