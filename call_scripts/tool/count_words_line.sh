@@ -1,7 +1,7 @@
 # DATA_ROOT=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_token_distill_wmt14_de_en_52k
-DATA_ROOT=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/iwslt14_de_en_bibertDist_mbert_pruned26458
+DATA_ROOT=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/wmt14_clean_de_en_6kval_bibert
 LANGS=("de" "en")
-DATA_TYPES=("test")
+DATA_TYPES=("test" "valid" "train")
 RESULT_ROOT=$DATA_ROOT/num_words_each_line/
 mkdir $RESULT_ROOT
 for type in "${DATA_TYPES[@]}" ; do
@@ -21,4 +21,4 @@ for type in "${DATA_TYPES[@]}" ; do
          FNR>=1 { printf "%d %d\n", out[FNR], NF }' $DATA1 $DATA2 > $RESULT_PATH
 done
 
-# python call_scripts/count_word_line.py --data-dir $RESULT_ROOT
+python call_scripts/tool/count_word_line.py --data-dir $RESULT_ROOT

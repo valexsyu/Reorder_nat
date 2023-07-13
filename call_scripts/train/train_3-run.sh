@@ -754,3 +754,9 @@ source call_scripts/train/pair_experiment.sh
 
 
 
+
+
+source call_scripts/train/pair_experiment.sh
+experiment=2-2-3-1-H12-UF40T-50k-fixpos-5
+pair_experiment_iwslt14_3_2048_50k_debug $experiment 
+

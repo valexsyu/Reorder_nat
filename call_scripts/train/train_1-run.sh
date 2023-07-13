@@ -847,7 +847,70 @@ conda activate base
 # experiment=K-2-3-1-N-UR20M
 # pair_experiment_iwslt14_2_4096_100k $experiment
 
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-H12-UR40M
+# pair_experiment_iwslt14_1_2048_100k $experiment
+
+
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-H12-UR40M-50k-2
+# pair_experiment_iwslt14_4_1536_50k $experiment  
+
+
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-H12-UR40M-100k
+# pair_experiment_iwslt14_4_1536_100k $experiment  
+
+# experiment=2-2-3-1-H12-UR40T-100k
+# source call_scripts/train/pair_experiment.sh
+# pair_experiment_iwslt14_4_1536_100k $experiment  
+
+# experiment_1=2-2-3-1-N-UR40M-50k-1
+# source call_scripts/train/pair_experiment.sh
+# pair_experiment_iwslt14_3_2048_50k $experiment_1
+
+
+
+
+# experiment_1=2-2-3-1-N-UR40M-50k-1
+# source call_scripts/train/pair_experiment.sh
+# pair_experiment_iwslt14_3_2048_50k $experiment_1
+
+
+# experiment_1=m-B-3-1-N-UR30M-9
+# source call_scripts/train/pair_experiment.sh
+# pair_experiment_iwslt14_3_2048_100k $experiment_1
+
+
+
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-H12-UR40M-100k-retokenize
+# pair_experiment_iwslt14_2_2048_100k $experiment 
+
+
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-H12-UR40M-50k-5
+# pair_experiment_iwslt14_2_2048_50k $experiment 
+
+
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-H12-UF40M-50k-5
+# pair_experiment_iwslt14_3_2048_50k $experiment 
+
+
+
 source call_scripts/train/pair_experiment.sh
-experiment=2-2-3-1-H12-UR40M
-pair_experiment_iwslt14_1_2048_100k $experiment
+experiment=J-6-4-1-N-UR40T-50k-5
+experiment_1=J-6-4-1-H12-UR40T-50k-5
+pair_experiment_iwslt14_3_2048_50k $experiment $experiment1
+
+experiment=J-6-4-1-N-UR40M-50k-5
+experiment_1=J-6-4-1-H12-UR40M-50k-5
+pair_experiment_iwslt14_3_2048_50k $experiment $experiment_1
+
+
+experiment=I-6-3-1-N-UF30T-50k-5
+pair_experiment_iwslt14_3_2048_50k $experiment 
+experiment=K-6-3-1-N-UF30T-50k-5
+pair_experiment_iwslt14_3_2048_50k $experiment 
 

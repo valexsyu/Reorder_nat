@@ -210,12 +210,39 @@
 #                         --debug \
 #                         -e 2-2-3-1-H12-UF40T-50k-fixpos
 
-bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+bash call_scripts/generate_nat.sh --data-subset test-valid --ck-types top \
                         -b 10 \
                         --task translation_ctcpmlm \
                         --arch nat_pretrained_model \
                         --criterion nat_ctc_loss \
-                        -e 2-2-3-1-H12-UR40M-50k
+                        --avg-ck-turnoff \
+                        --skip-load-step-num \
+                        -e z-2-3-1-H12-UF40T-50k-fixpos-5 \
+                        -e z-2-4-1-H12-UF40T-50k-fixpos-5 \
+                        -e z-2-3-1-H12-UF40T-50k-5 \
+                        -e z-2-3-1-H12-UF40M-50k-5 \
+                        -e z-2-3-1-H12-UR40T-50k-5 \
+                        -e z-2-3-1-H12-UR40M-50k-5
+
+
+                        #ablation study
+                        # -e J-6-3-1-N-UR40T \
+                        # -e J-6-3-1-N-UR40M \
+                        # -e 2-6-3-1-N-UR40T \
+                        # -e 2-6-3-1-N-UR40M \
+                        # -e J-2-3-1-N-UR40T \
+                        # -e J-2-3-1-N-UR40M \
+                        # -e 2-2-3-1-N-UR40T \
+                        # -e 2-2-3-1-N-UR40M \
+                        # -e 2-6-3-1-H12-UR40T \
+                        # -e 2-6-3-1-H12-UR40M \
+                        # -e J-6-3-1-H12-UR40T \
+                        # -e J-6-3-1-H12-UR40M \
+                        # -e 2-2-3-1-H12-UR40T \
+                        # -e 2-2-3-1-H12-UR40M \
+                        # -e J-2-3-1-H12-UR40T \
+                        # -e J-2-3-1-H12-UR40M 
+
 
 
 # bash call_scripts/generate_nat.sh --data-subset test --ck-types last-best-top-lastk \

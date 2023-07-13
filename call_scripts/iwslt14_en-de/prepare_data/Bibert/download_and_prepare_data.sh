@@ -53,12 +53,12 @@ conda activate bibert
 # cp $TOKEN_PATH/src_vocab.txt $TOKEN_PATH/tgt_vocab.txt
 
 
-#===================Use the Pruned model 2023/06/27 Bibert with the Bibert distilled dataset Note: use the corrected test dataset =================
-DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_detoken_distill_iwslt14_en_de
-TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/iwslt14_en_de_bibertDist_bibert
-PRUN_MODEL_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/iwslt14_en_de_bibertDist_bibert/src_vocab.txt
-MODEL_NAME=jhu-clsp/bibert-ende
-mkdir $TOKEN_PATH
+# #===================Use the Pruned model 2023/06/27 Bibert with the Bibert distilled dataset Note: use the corrected test dataset =================
+# DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/Bibert_detoken_distill_iwslt14_en_de
+# TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/iwslt14_en_de_bibertDist_bibert
+# PRUN_MODEL_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/iwslt14_en_de_bibertDist_bibert/src_vocab.txt
+# MODEL_NAME=jhu-clsp/bibert-ende
+# mkdir $TOKEN_PATH
 
 # for prefix in "valid" "test" "train" ;
 # do
@@ -68,7 +68,29 @@ mkdir $TOKEN_PATH
 #         python transform_tokenize.py --input $DISTALL_DATA_PATH/${prefix}.${lang} --output $TOKEN_PATH/${prefix}.${lang} --pretrained_model $PRUN_MODEL_PATH
 #     done
 # done
-for prefix in "test";
+
+
+# # cp $PRUN_MODEL_PATH/vocab.txt $TOKEN_PATH/tgt_vocab.txt
+# # cp $PRUN_MODEL_PATH/vocab.txt $TOKEN_PATH/src_vocab.txt
+
+# source $HOME/.bashrc 
+# conda activate bibert
+
+# TEXT=$TOKEN_PATH
+
+# fairseq-preprocess --source-lang en --target-lang de  --trainpref $TEXT/train --validpref $TEXT/valid \
+# --testpref $TEXT/test --destdir ${TEXT}/de-en-databin --srcdict $TEXT/src_vocab.txt \
+# --tgtdict $TEXT/tgt_vocab.txt --vocab_file $TEXT/src_vocab.txt --workers 25 --align-suffix align \
+
+
+#===================Use the Pruned model 2023/07/12 Bibert token without KD  Note: use the corrected test dataset =================
+DISTALL_DATA_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/iwslt14_de_en_detoken
+TOKEN_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/iwslt14_en_de_bibert
+PRUN_MODEL_PATH=/home/valexsyu/Doc/NMT/Reorder_nat/data/nat_position_reorder/awesome/iwslt14_en_de_bibert/src_vocab.txt
+MODEL_NAME=jhu-clsp/bibert-ende
+mkdir $TOKEN_PATH
+
+for prefix in "valid" "test" "train" ;
 do
     for lang in "en" "de" ;
     do

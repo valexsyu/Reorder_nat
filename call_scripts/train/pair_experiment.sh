@@ -846,6 +846,322 @@ function pair_experiment_iwslt14_2_3072_50k(){
     done                                                                                                                                                
 
 }
+
+function pair_experiment_iwslt14_2_2048_100k(){
+    relay_step=70000
+    LM_START_STEP=75000
+    MAX_TOKENS=2048
+    GPU_NUM=2
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=100000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                                
+
+}
+
+
+function pair_experiment_iwslt14_1_4096_100k(){
+    relay_step=70000
+    LM_START_STEP=75000
+    MAX_TOKENS=4096
+    GPU_NUM=1
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=100000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                                
+
+}
+function pair_experiment_iwslt14_2_4096_100k(){
+    relay_step=70000
+    LM_START_STEP=75000
+    MAX_TOKENS=4096
+    GPU_NUM=2
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=100000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                                
+
+}
+
+function pair_experiment_iwslt14_1_2048_100k(){
+    relay_step=70000
+    LM_START_STEP=75000
+    MAX_TOKENS=2048
+    GPU_NUM=1
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=100000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                                
+
+}
+function pair_experiment_iwslt14_3_2048_50k(){
+    relay_step=30000
+    LM_START_STEP=30000
+    MAX_TOKENS=2048
+    GPU_NUM=3
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=50000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                            
+
+}
+function pair_experiment_iwslt14_4_1536_50k(){
+    relay_step=30000
+    LM_START_STEP=30000
+    MAX_TOKENS=1536
+    GPU_NUM=4
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=50000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                            
+
+}
+function pair_experiment_iwslt14_4_1536_100k(){
+    relay_step=70000
+    LM_START_STEP=75000
+    MAX_TOKENS=1536
+    GPU_NUM=4
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=100000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done
+}
+function pair_experiment_iwslt14_2_3072_100k(){
+    relay_step=70000
+    LM_START_STEP=75000
+    MAX_TOKENS=3072
+    GPU_NUM=2
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=100000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                                
+
+}
+function pair_experiment_iwslt14_3_2048_100k(){
+    relay_step=70000
+    LM_START_STEP=75000
+    MAX_TOKENS=2048
+    GPU_NUM=3
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=100000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt "$relay_step" ]; then   
+        ctcpmlm $1 $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                        
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        ctcpmlm $experiment $relay_step $MAX_TOKENS \
+                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
+    done                                                                                                                                                
+
+}
+function pair_experiment_iwslt14_3_2048_50k_debug(){
+    relay_step=30000
+    LM_START_STEP=30000
+    MAX_TOKENS=2048
+    GPU_NUM=3
+    BATCH_SIZE=12288
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=50000
+
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step1 "
+    
+    if [ "$cur_last" -lt $relay_step ]; then    
+        bash call_scripts/train_nat.sh -e $1 \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --task translation_ctcpmlm \
+                                        --arch nat_pretrained_model \
+                                        --criterion nat_ctc_loss \
+                                        --has-eos --max-update $relay_step \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --debug \
+                                        -g $GPU_NUM --fp16   
+    else
+        echo "$1 last step is ge $relay_step"
+    fi                                         
+    cur_last=$(current_last_step $1)
+    echo "Currect step: $cur_last ; Now is Step2 "
+    record_top5 $cur_last $relay_step $1 $2 $3 $4
+
+    
+    for experiment in $1 $2 $3 $4; do
+        bash call_scripts/train_nat.sh -e $experiment \
+                                        --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                        --lm-start-step $LM_START_STEP \
+                                        --task translation_ctcpmlm \
+                                        --arch nat_pretrained_model \
+                                        --criterion nat_ctc_loss \
+                                        --has-eos --max-update $MAX_UPDATE \
+                                        --warmup-updates $WARMUP_UPDATES \
+                                        -b $BATCH_SIZE \
+                                        --hydra \
+                                        --debug \
+                                        -g $GPU_NUM --fp16        
+    done                                                                                                                                                 
+
+}
+
+
+
 #==================wmt14de-en=====================
 function pair_experiment_wmt14_2_2048_100k() { 
     relay_step=70000
@@ -3145,35 +3461,6 @@ function pair_experiment_wmt14_8_1638_rate_avg_33k_warmup3k_twcc(){
 
 }
 
-function pair_experiment_iwslt14_2_3072_100k(){
-    relay_step=70000
-    LM_START_STEP=75000
-    MAX_TOKENS=3072
-    GPU_NUM=2
-    BATCH_SIZE=12288
-    WARMUP_UPDATES=10000
-    MAX_UPDATE=100000
-
-    cur_last=$(current_last_step $1)
-    echo "Currect step: $cur_last ; Now is Step1 "
-    
-    if [ "$cur_last" -lt "$relay_step" ]; then   
-        ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
-    else
-        echo "$1 last step is ge $relay_step"
-    fi                                        
-    cur_last=$(current_last_step $1)
-    echo "Currect step: $cur_last ; Now is Step2 "
-    record_top5 $cur_last $relay_step $1 $2 $3 $4
-
-    
-    for experiment in $1 $2 $3 $4; do
-        ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
-    done                                                                                                                                                
-
-}
 
 function pair_experiment_wmt14_8_1638_rate_avg_33k_50k_twcc(){
     relay_step=25000
@@ -3554,125 +3841,6 @@ function pair_experiment_wmt14_8_1638_rate_sel_33k_twcc(){
 
 }
 
-function pair_experiment_iwslt14_2_2048_100k(){
-    relay_step=70000
-    LM_START_STEP=75000
-    MAX_TOKENS=2048
-    GPU_NUM=2
-    BATCH_SIZE=12288
-    WARMUP_UPDATES=10000
-    MAX_UPDATE=100000
-
-    cur_last=$(current_last_step $1)
-    echo "Currect step: $cur_last ; Now is Step1 "
-    
-    if [ "$cur_last" -lt "$relay_step" ]; then   
-        ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
-    else
-        echo "$1 last step is ge $relay_step"
-    fi                                        
-    cur_last=$(current_last_step $1)
-    echo "Currect step: $cur_last ; Now is Step2 "
-    record_top5 $cur_last $relay_step $1 $2 $3 $4
-
-    
-    for experiment in $1 $2 $3 $4; do
-        ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
-    done                                                                                                                                                
-
-}
-
-
-function pair_experiment_iwslt14_1_4096_100k(){
-    relay_step=70000
-    LM_START_STEP=75000
-    MAX_TOKENS=4096
-    GPU_NUM=1
-    BATCH_SIZE=12288
-    WARMUP_UPDATES=10000
-    MAX_UPDATE=100000
-
-    cur_last=$(current_last_step $1)
-    echo "Currect step: $cur_last ; Now is Step1 "
-    
-    if [ "$cur_last" -lt "$relay_step" ]; then   
-        ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
-    else
-        echo "$1 last step is ge $relay_step"
-    fi                                        
-    cur_last=$(current_last_step $1)
-    echo "Currect step: $cur_last ; Now is Step2 "
-    record_top5 $cur_last $relay_step $1 $2 $3 $4
-
-    
-    for experiment in $1 $2 $3 $4; do
-        ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
-    done                                                                                                                                                
-
-}
-function pair_experiment_iwslt14_2_4096_100k(){
-    relay_step=70000
-    LM_START_STEP=75000
-    MAX_TOKENS=4096
-    GPU_NUM=2
-    BATCH_SIZE=12288
-    WARMUP_UPDATES=10000
-    MAX_UPDATE=100000
-
-    cur_last=$(current_last_step $1)
-    echo "Currect step: $cur_last ; Now is Step1 "
-    
-    if [ "$cur_last" -lt "$relay_step" ]; then   
-        ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
-    else
-        echo "$1 last step is ge $relay_step"
-    fi                                        
-    cur_last=$(current_last_step $1)
-    echo "Currect step: $cur_last ; Now is Step2 "
-    record_top5 $cur_last $relay_step $1 $2 $3 $4
-
-    
-    for experiment in $1 $2 $3 $4; do
-        ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
-    done                                                                                                                                                
-
-}
-
-function pair_experiment_iwslt14_1_2048_100k(){
-    relay_step=70000
-    LM_START_STEP=75000
-    MAX_TOKENS=2048
-    GPU_NUM=1
-    BATCH_SIZE=12288
-    WARMUP_UPDATES=10000
-    MAX_UPDATE=100000
-
-    cur_last=$(current_last_step $1)
-    echo "Currect step: $cur_last ; Now is Step1 "
-    
-    if [ "$cur_last" -lt "$relay_step" ]; then   
-        ctcpmlm $1 $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM $relay_step $BATCH_SIZE
-    else
-        echo "$1 last step is ge $relay_step"
-    fi                                        
-    cur_last=$(current_last_step $1)
-    echo "Currect step: $cur_last ; Now is Step2 "
-    record_top5 $cur_last $relay_step $1 $2 $3 $4
-
-    
-    for experiment in $1 $2 $3 $4; do
-        ctcpmlm $experiment $relay_step $MAX_TOKENS \
-                $LM_START_STEP $WARMUP_UPDATES $GPU_NUM  $MAX_UPDATE $BATCH_SIZE
-    done                                                                                                                                                
-
-}
 
 
 function pair_experiment_iwslt14_8_1536_100k_debug_twcc(){

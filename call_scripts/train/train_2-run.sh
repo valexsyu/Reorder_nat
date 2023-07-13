@@ -507,17 +507,62 @@ source call_scripts/train/pair_experiment.sh
 # pair_experiment_iwslt14_2_3072_100k $experiment
 
 
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-N-UR30M-rate_avg-100k
+# pair_experiment_iwslt14_2_1536_rate_avg_100k $experiment 
+
+
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-N-UR30M
+# pair_experiment_iwslt14_2_3072_100k $experiment
+
+
+# experiment=K-2-3-1-N-UR40M
+# pair_experiment_iwslt14_2_2048_100k $experiment
+# source call_scripts/train/pair_experiment.sh
+
+
+# source call_scripts/train/pair_experiment.sh
+# experiment=m-B-3-1-N-UR30M-rate_avg-33k-9
+# pair_experiment_iwslt14_2_1536_rate_avg_33k $experiment
+
+
+
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-H12-UR40M-100k-wg_test
+# pair_experiment_iwslt14_4_1536_100k $experiment 
+
+# source call_scripts/train/pair_experiment.sh
+# experiment=2-2-3-1-H12-UR40T-50k-5
+# pair_experiment_iwslt14_3_2048_50k $experiment 
+
+# experiment=2-6-4-1-N-UR40T-50k-5
+# pair_experiment_iwslt14_3_2048_50k $experiment 
+
+# experiment=2-6-4-1-N-UR40M-50k-5
+# pair_experiment_iwslt14_3_2048_50k $experiment 
+
+
+# experiment=2-2-4-1-H12-UF40T-50k-fixpos-5
+# pair_experiment_iwslt14_3_2048_50k_debug $experiment 
+
 source call_scripts/train/pair_experiment.sh
-experiment=2-2-3-1-N-UR30M-rate_avg-100k
-pair_experiment_iwslt14_2_1536_rate_avg_100k $experiment 
+experiment=2-6-4-1-H12-UR40T-50k-5
+pair_experiment_iwslt14_3_2048_50k $experiment 
+
+experiment=2-6-4-1-H12-UR40M-50k-5
+pair_experiment_iwslt14_3_2048_50k $experiment 
 
 
-source call_scripts/train/pair_experiment.sh
-experiment=2-2-3-1-N-UR30M
-pair_experiment_iwslt14_2_3072_100k $experiment
+experiment=J-6-4-1-N-UF30T-50k-5
+pair_experiment_iwslt14_3_2048_50k $experiment 
+experiment=2-6-4-1-N-UF30T-50k-5
+pair_experiment_iwslt14_3_2048_50k $experiment 
 
 
-experiment=K-2-3-1-N-UR40M
-pair_experiment_iwslt14_2_2048_100k $experiment
-source call_scripts/train/pair_experiment.sh
+
+
+
+
+
 

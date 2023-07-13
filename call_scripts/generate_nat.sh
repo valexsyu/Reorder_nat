@@ -177,7 +177,11 @@ function get_dataset() {
         dataset="wmt16_en_ro_BlDist_cased_mbert_pruned29287"  
     elif [ "$i" = "v" ]
     then
-        dataset="iwslt14_de_en_BlDist_mbert_Bl_pruned25958"                                                                                      
+        dataset="iwslt14_de_en_BlDist_mbert_Bl_pruned25958"   
+    elif [ "$i" = "z" ]
+    then
+        dataset="iwslt14_de_en_bibertDist_bibert_addlongsent"
+        # dataset="iwslt14_de_en_bibertDist_bibert_removelongsent"   
     else        
         echo "error dataset id "
         exit 1
