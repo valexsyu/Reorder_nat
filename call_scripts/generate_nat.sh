@@ -180,8 +180,10 @@ function get_dataset() {
         dataset="iwslt14_de_en_BlDist_mbert_Bl_pruned25958"   
     elif [ "$i" = "z" ]
     then
-        dataset="iwslt14_de_en_bibertDist_bibert_addlongsent"
+        # dataset="iwslt14_de_en_bibertDist_bibert_addlongsent"
         # dataset="iwslt14_de_en_bibertDist_bibert_removelongsent"   
+        # dataset="wmt14_clean_de_en_6kval_bibertDist_bibert"
+        dataset="iwslt14_de_en_bibertDist_bibert"
     else        
         echo "error dataset id "
         exit 1

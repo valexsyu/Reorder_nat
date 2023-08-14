@@ -447,22 +447,12 @@ conda activate base
 
 
 
-CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
+CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --data-subset train --ck-types top \
                         -b 10 \
                         --arch ctcpmlm_rate_selection \
                         --task transaltion_ctcpmlm_rate \
                         --criterion nat_ctc_pred_rate_loss \
                         --local \
+                        --skip-load-step-num \
                         --avg-ck-turnoff \
-                        -e 2-2-3-1-N-UR40M \
-                        -e 2-2-3-1-H11-UR40M \
-                        -e 2-2-3-1-H10-UR40M \
-                        -e 2-2-3-1-H9-UR40M \
-                        -e 2-2-3-1-H8-UR40M \
-                        -e 2-2-3-1-H7-UR40M \
-                        -e 2-2-3-1-H6-UR40M \
-                        -e 2-2-3-1-H5-UR40M \
-                        -e 2-2-3-1-H4-UR40M \
-                        -e 2-2-3-1-H3-UR40M \
-                        -e 2-2-3-1-H2-UR40M \
-                        -e 2-2-3-1-H1-UR40M
+                        -e 2-2-3-1-H12-UR40M-50k-5

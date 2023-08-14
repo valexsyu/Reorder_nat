@@ -560,6 +560,9 @@ experiment=2-6-4-1-N-UF30T-50k-5
 pair_experiment_iwslt14_3_2048_50k $experiment 
 
 
+experiment=2-2-3-3-N-UF40M-50k-5
+experiment_1=2-2-3-3-H12-UF40M-50k-5
+pair_experiment_iwslt14_3_2048_50k $experiment $experiment_1
 
 
 

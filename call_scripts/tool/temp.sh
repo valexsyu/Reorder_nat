@@ -48,14 +48,15 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
     --criterion nat_ctc_loss \
     -b 10 \
     --gpu_id 0 \
-    -e 2-6-4-1-H12-UR40T-50k-5 \
-    -e 2-6-4-1-H12-UR40M-50k-5 \
     -e J-6-4-1-H12-UR40T-50k-5 \
-    -e J-6-4-1-H12-UR40M-50k-5 \
     -e J-6-4-1-N-UF30T-50k-5 \
     -e 2-6-4-1-N-UF30T-50k-5 \
     -e I-6-3-1-N-UF30T-50k-5 \
-    -e 2-6-4-1-N-UF30T-50k-5 \
+    -e K-6-3-1-N-UF30T-50k-5 \
+    -e 2-2-3-3-N-UR40M-50k-5 \
+    -e 2-2-3-3-H12-UR40M-50k-5 \
+    -e 2-2-3-3-N-UF40M-50k-5 \
+    -e 2-2-3-3-H12-UF40M-50k-5 \
     --sleep 120" C-m
 
 # # Select the second window and execute the second script
@@ -75,14 +76,15 @@ tmux send-keys "bash call_scripts/tool/watch-test-polling.sh \
 tmux select-pane -t 1
 tmux send-keys "conda activate reorder_nat" C-m
 tmux send-keys "bash call_scripts/tool/look_exist_best_5.sh \
-    -e 2-6-4-1-H12-UR40T-50k-5 \
-    -e 2-6-4-1-H12-UR40M-50k-5 \
     -e J-6-4-1-H12-UR40T-50k-5 \
-    -e J-6-4-1-H12-UR40M-50k-5 \
     -e J-6-4-1-N-UF30T-50k-5 \
     -e 2-6-4-1-N-UF30T-50k-5 \
     -e I-6-3-1-N-UF30T-50k-5 \
-    -e 2-6-4-1-N-UF30T-50k-5 \
+    -e K-6-3-1-N-UF30T-50k-5 \
+    -e 2-2-3-3-N-UR40M-50k-5 \
+    -e 2-2-3-3-H12-UR40M-50k-5 \
+    -e 2-2-3-3-N-UF40M-50k-5 \
+    -e 2-2-3-3-H12-UF40M-50k-5 \
     --sleep 120" C-m
 
 # Attach to the tmux session to view the windows
