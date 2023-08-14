@@ -37,7 +37,7 @@ import random
 from scipy.optimize import linear_sum_assignment as lsa
 from fairseq.utils import new_arange
 
-# from ctcdecode import CTCBeamDecoder
+from ctcdecode import CTCBeamDecoder
 # from sklearn.manifold import TSNE
 # from sklearn.decomposition import PCA
 # import matplotlib.pyplot as plt   
@@ -929,7 +929,6 @@ class NATPretrainedModel(BaseFairseqModel):
             e = torch.cumsum(l, 1)
             c = e - l / 2
             t = e[:, -1].ceil().long()
-            # pdb.set_trace()
 
             # t = new_arange(t, t.max())[None, :].expand(l.size(0), -1)  # B x L2
             t = new_arange(t, new_length)[None, :].expand(l.size(0), -1)  # B x L2
@@ -937,12 +936,14 @@ class NATPretrainedModel(BaseFairseqModel):
             t_mask = t >= e[:, -1:]   # target padding mask
             
             if insertion_position == 'uniform':            
-                w = -(t[:, None, :] - c[:, :, None]) ** 2 / 0.3
+                # w = -(t[:, None, :] - c[:, :, None]) ** 2 / 0.3
+                w = -torch.abs(t[:, None, :] - c[:, :, None])
 
                 w = w.float()
                 w = w.masked_fill(mask.unsqueeze(-1), -10000.0)
                 w = w.masked_fill(t_mask.unsqueeze(1), -10000.0)
-                t_w = F.softmax(w, dim=1)   # B x L x L2
+                # t_w = F.softmax(w, dim=-1)   # B x L x L2
+                t_w = w   # B x L x L2
 
                 new_location = t_w.argmax(-1)
                 
@@ -1098,9 +1099,10 @@ class NATPretrainedModel(BaseFairseqModel):
                                     output_hidden_states=True, return_dict=True,position_ids=position_ids,
                                         inputs_embeds=None)                 
             else:
-                if self.debug :
-                    if upsampling_flag : 
-                        position_ids = self.calculate_position_ids(torch.cat((bos, src_tokens), dim=1)).repeat_interleave(4)[3:]
+                # ## to simulate the position emb is duplicate
+                # if self.debug : 
+                #     if upsampling_flag : 
+                #         position_ids = self.calculate_position_ids(torch.cat((bos, src_tokens), dim=1)).repeat_interleave(4)[3:]
 
                 output_translator = self.translator.forward(input_ids = src_tokens_upsample, 
                                 attention_mask=attention_mask,  #encoder_attention_mask=attention_mask,
