@@ -447,13 +447,15 @@ conda activate base
 
 
 # --avg-ck-turnoff \
-                        # --skip-load-step-num \
 
 CUDA_VISIBLE_DEVICES=0 bash call_scripts/generate_nat.sh --data-subset test --ck-types top \
                         -b 10 \
-                        --arch ctcpmlm_rate_selection \
-                        --task transaltion_ctcpmlm_rate \
-                        --criterion nat_ctc_pred_rate_loss \
+                        --task translation_ctcpmlm \
+                        --arch nat_pretrained_model \
+                        --criterion nat_ctc_loss \
                         --local \
                         --avg-ck-turnoff \
-                        -e s-F-3-1-N-UR30M-100k_300k
+                        --skip-load-step-num \
+                        -e s-F-3-1-N-UR20M-100k_300k \
+                        -e s-F-3-1-N-UR30M-100k_300k \
+                        -e s-F-3-1-N-UR40M-100k_300k
