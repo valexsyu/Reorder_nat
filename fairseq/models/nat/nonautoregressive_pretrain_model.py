@@ -930,20 +930,20 @@ class NATPretrainedModel(BaseFairseqModel):
             c = e - l / 2
             t = e[:, -1].ceil().long()
 
-            t = new_arange(t, t.max())[None, :].expand(l.size(0), -1)  # B x L2
-            # t = new_arange(t, new_length)[None, :].expand(l.size(0), -1)  # B x L2
+            # t = new_arange(t, t.max())[None, :].expand(l.size(0), -1)  # B x L2
+            t = new_arange(t, new_length)[None, :].expand(l.size(0), -1)  # B x L2
 
             t_mask = t >= e[:, -1:]   # target padding mask
             
             if insertion_position == 'uniform':            
-                w = -(t[:, None, :] - c[:, :, None]) ** 2 / 0.3
-                # w = -torch.abs(t[:, None, :] - c[:, :, None])
+                # w = -(t[:, None, :] - c[:, :, None]) ** 2 / 0.3
+                w = -torch.abs(t[:, None, :] - c[:, :, None])
 
                 w = w.float()
                 w = w.masked_fill(mask.unsqueeze(-1), -10000.0)
                 w = w.masked_fill(t_mask.unsqueeze(1), -10000.0)
-                t_w = F.softmax(w, dim=-1)   # B x L x L2
-                # t_w = w   # B x L x L2
+                # t_w = F.softmax(w, dim=-1)   # B x L x L2
+                t_w = w   # B x L x L2
 
                 new_location = t_w.argmax(-1)
                 
