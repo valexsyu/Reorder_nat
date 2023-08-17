@@ -4046,14 +4046,14 @@ function pair_experiment_iwslt14_8_1536_50k_debug_twcc(){
 }
 
 
-function pair_experiment_wmt14_8_4095_100k_QK50k_twcc() { 
+function pair_experiment_wmt14_8_4096_QK50k_twcc() { 
     relay_step=10000
-    LM_START_STEP=22500
-    MAX_TOKENS=4095
+    LM_START_STEP=50000
+    MAX_TOKENS=4096
     GPU_NUM=8
-    BATCH_SIZE=65520
+    BATCH_SIZE=65536
     WARMUP_UPDATES=10000
-    MAX_UPDATE=150000
+    MAX_UPDATE=50000
 
 
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $1 \

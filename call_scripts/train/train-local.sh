@@ -106,14 +106,16 @@
 #                                 --local 
 #                                 # -g 2 --fp16  
 
-CUDA_VISIBLE_DEVICES=1 bash call_scripts/train_nat.sh -e s-F-3-1-N-UR20M-rate_avg_30M-33k_100k-QK50k-TTTTTTT \
-                                --save-interval-updates 70000 --max-tokens 1024 \
+                                # --reset-optimizer \
+
+
+CUDA_VISIBLE_DEVICES=1 bash call_scripts/train_nat.sh -e s-F-3-1-N-UR20M-rate_avg_30M-33k_100k-QK50k-TTTT \
+                                --save-interval-updates 70000 --max-tokens 1638 \
                                 --arch ctcpmlm_low_rate_finetune \
                                 --task translation_ctcpmlm \
                                 --criterion nat_ctc_loss \
                                 --has-eos --max-update 120000 \
                                 --dryrun \
-                                --reset-optimizer \
                                 --hydra \
                                 --local \
                                 -g 1 --fp16
