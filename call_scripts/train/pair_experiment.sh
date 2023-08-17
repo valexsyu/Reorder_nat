@@ -4067,6 +4067,7 @@ function pair_experiment_wmt14_8_4095_100k_QK50k_twcc() {
                                     -b $BATCH_SIZE \
                                     --hydra \
                                     --twcc \
+                                    --reset-optimizer \
                                     -g $GPU_NUM --fp16        
                                                                                                                                        
 
