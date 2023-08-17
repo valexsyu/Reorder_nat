@@ -4044,3 +4044,30 @@ function pair_experiment_iwslt14_8_1536_50k_debug_twcc(){
     done                                                                                                                                                 
 
 }
+
+
+function pair_experiment_wmt14_8_4095_100k_QK50k_twcc() { 
+    relay_step=10000
+    LM_START_STEP=22500
+    MAX_TOKENS=4095
+    GPU_NUM=8
+    BATCH_SIZE=65520
+    WARMUP_UPDATES=10000
+    MAX_UPDATE=150000
+
+
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash call_scripts/train_nat.sh -e $1 \
+                                    --save-interval-updates $relay_step --max-tokens $MAX_TOKENS \
+                                    --lm-start-step $LM_START_STEP \
+                                    --arch ctcpmlm_low_rate_finetune \
+                                    --task translation_ctcpmlm \
+                                    --criterion nat_ctc_loss \
+                                    --has-eos --max-update $MAX_UPDATE \
+                                    --warmup-updates $WARMUP_UPDATES \
+                                    -b $BATCH_SIZE \
+                                    --hydra \
+                                    --twcc \
+                                    -g $GPU_NUM --fp16        
+                                                                                                                                       
+
+}

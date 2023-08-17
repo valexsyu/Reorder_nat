@@ -47,6 +47,11 @@ def parser_function():
     parser.add_argument('-o', '--save-dir', help='save the yaml', default=None, type=str)
     parser.add_argument('-e', '--experiment', help='experiment id', default=None, type=str)
     parser.add_argument('--save-interval-updates', help='save-interval-updates', default=None, type=int)
+    parser.add_argument('--reset-optimizer', help='reset-optimizer', action='store_true')
+    parser.add_argument('--reset-dataloader', help='reset-dataloader', action='store_true')
+    
+    
+    
     
     #common
     parser.add_argument('--wandb-entity', help='no reocde in wandb', default=None, type=str)
@@ -206,6 +211,9 @@ def main():
     key1='checkpoint'
     set_config(config, key1 ,'reset_meters', args.reset_meters)
     set_config(config, key1 ,'no_epoch_checkpoints', args.no_epoch_checkpoints)
+    set_config(config, key1 ,'reset_optimizer', args.reset_optimizer)  
+    set_config(config, key1 ,'reset_dataloader', args.reset_dataloader)  
+    
     
     
     

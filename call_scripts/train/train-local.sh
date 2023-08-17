@@ -95,14 +95,25 @@
 
 
 
-CUDA_VISIBLE_DEVICES=1 bash call_scripts/train_nat.sh -e t-G-3-1-N-UR20M-rate_TTTTTTTTTTTTTTTTTTT \
+# CUDA_VISIBLE_DEVICES=1 bash call_scripts/train_nat.sh -e t-G-3-1-N-UR20M-rate_TTTTTTTTTTTTTTTTTTT \
+#                                 --save-interval-updates 70000 --max-tokens 1024 \
+#                                 --arch nat_pretrained_model \
+#                                 --task translation_ctcpmlm \
+#                                 --criterion nat_ctc_loss \
+#                                 --has-eos --max-update 100000 \
+#                                 -b 65536 \
+#                                 --hydra \
+#                                 --local 
+#                                 # -g 2 --fp16  
+
+CUDA_VISIBLE_DEVICES=1 bash call_scripts/train_nat.sh -e s-F-3-1-N-UR20M-rate_avg_30M-33k_100k-QK50k-TTTTTTT \
                                 --save-interval-updates 70000 --max-tokens 1024 \
-                                --arch nat_pretrained_model \
+                                --arch ctcpmlm_low_rate_finetune \
                                 --task translation_ctcpmlm \
                                 --criterion nat_ctc_loss \
-                                --has-eos --max-update 100000 \
-                                -b 65536 \
+                                --has-eos --max-update 120000 \
+                                --dryrun \
+                                --reset-optimizer \
                                 --hydra \
-                                --local 
-                                # -g 2 --fp16  
-
+                                --local \
+                                -g 1 --fp16

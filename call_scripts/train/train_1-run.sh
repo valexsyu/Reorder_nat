@@ -899,25 +899,26 @@ conda activate base
 
 
 
-source call_scripts/train/pair_experiment.sh
-experiment=J-6-4-1-N-UR40T-50k-5
-experiment_1=J-6-4-1-H12-UR40T-50k-5
-pair_experiment_iwslt14_3_2048_50k $experiment $experiment1
+# source call_scripts/train/pair_experiment.sh
+# experiment=J-6-4-1-N-UR40T-50k-5
+# experiment_1=J-6-4-1-H12-UR40T-50k-5
+# pair_experiment_iwslt14_3_2048_50k $experiment $experiment1
 
-experiment=J-6-4-1-N-UR40M-50k-5
-experiment_1=J-6-4-1-H12-UR40M-50k-5
-pair_experiment_iwslt14_3_2048_50k $experiment $experiment_1
-
-
-experiment=I-6-3-1-N-UF30T-50k-5
-pair_experiment_iwslt14_3_2048_50k $experiment 
-experiment=K-6-3-1-N-UF30T-50k-5
-pair_experiment_iwslt14_3_2048_50k $experiment 
+# experiment=J-6-4-1-N-UR40M-50k-5
+# experiment_1=J-6-4-1-H12-UR40M-50k-5
+# pair_experiment_iwslt14_3_2048_50k $experiment $experiment_1
 
 
-experiment=2-2-3-3-N-UR40M-50k-5
-experiment_1=2-2-3-3-H12-UR40M-50k-5
-pair_experiment_iwslt14_3_2048_50k $experiment $experiment_1
+# experiment=I-6-3-1-N-UF30T-50k-5
+# pair_experiment_iwslt14_3_2048_50k $experiment 
+# experiment=K-6-3-1-N-UF30T-50k-5
+# pair_experiment_iwslt14_3_2048_50k $experiment 
+
+
+# experiment=2-2-3-3-N-UR40M-50k-5
+# experiment_1=2-2-3-3-H12-UR40M-50k-5
+# pair_experiment_iwslt14_3_2048_50k $experiment $experiment_1
+
 
 
 
