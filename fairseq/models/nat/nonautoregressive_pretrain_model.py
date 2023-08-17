@@ -198,7 +198,7 @@ class NATPretrainedModel(BaseFairseqModel):
         elif args.voc_choosen == 5:
             self.uniform_position_ids = True
             self.target_random_mask = True
-            self.random_mask_rate = 0.15                          
+            self.random_mask_rate = 0.15                                                         
         else:
             import pdb;pdb.set_trace()
             print("Error voc_choosen id")
@@ -930,20 +930,20 @@ class NATPretrainedModel(BaseFairseqModel):
             c = e - l / 2
             t = e[:, -1].ceil().long()
 
-            # t = new_arange(t, t.max())[None, :].expand(l.size(0), -1)  # B x L2
-            t = new_arange(t, new_length)[None, :].expand(l.size(0), -1)  # B x L2
+            t = new_arange(t, t.max())[None, :].expand(l.size(0), -1)  # B x L2
+            # t = new_arange(t, new_length)[None, :].expand(l.size(0), -1)  # B x L2
 
             t_mask = t >= e[:, -1:]   # target padding mask
             
             if insertion_position == 'uniform':            
-                # w = -(t[:, None, :] - c[:, :, None]) ** 2 / 0.3
-                w = -torch.abs(t[:, None, :] - c[:, :, None])
+                w = -(t[:, None, :] - c[:, :, None]) ** 2 / 0.3
+                # w = -torch.abs(t[:, None, :] - c[:, :, None])
 
                 w = w.float()
                 w = w.masked_fill(mask.unsqueeze(-1), -10000.0)
                 w = w.masked_fill(t_mask.unsqueeze(1), -10000.0)
-                # t_w = F.softmax(w, dim=-1)   # B x L x L2
-                t_w = w   # B x L x L2
+                t_w = F.softmax(w, dim=-1)   # B x L x L2
+                # t_w = w   # B x L x L2
 
                 new_location = t_w.argmax(-1)
                 
@@ -963,8 +963,10 @@ class NATPretrainedModel(BaseFairseqModel):
 
                 if insert_mask:
                     t_x[torch.where(t_x == pad)] = self.mask
-                    
+                
+                
                 t_x = t_x.masked_fill(t_mask, pad)
+
                 return t_x, t_mask, w, t_w, new_t_w, new_location                
             
             elif insertion_position == 'left':
@@ -1108,7 +1110,6 @@ class NATPretrainedModel(BaseFairseqModel):
                                 attention_mask=attention_mask,  #encoder_attention_mask=attention_mask,
                                 output_hidden_states=True, return_dict=True,position_ids=position_ids,
                                     inputs_embeds=None)
-
 
         
         if self.voc_choosen == 2:

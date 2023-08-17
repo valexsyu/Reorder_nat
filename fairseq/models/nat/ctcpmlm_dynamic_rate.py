@@ -580,3 +580,76 @@ def ctcpmlm_rate_predictor(args):
     args.rate_predictor_classnum = safe_getattr(args, "rate_predictor_classnum", 3)
     
     base_architecture(args)           
+    
+    
+
+
+@register_model("ctcpmlm_low_rate_finetune") 
+class CTCPMLMRateSelection(NATPretrainedModel):
+    def __init__(self, args, translator, src_dict, tgt_dict):
+        super().__init__(args, translator, src_dict, tgt_dict)
+        
+        for name, param in self.translator.named_parameters():
+            if "query" not in name and "key" not in name:
+                param.requires_grad = False  
+                
+
+
+        # Check if query and key layers are not frozen
+        query_key_not_frozen = any(
+            param.requires_grad
+            for layer in self.translator.bert.encoder.layer
+            for name, param in layer.attention.named_parameters()
+            if "query" in name or "key" in name
+        )
+
+        print("Are query and key layers not frozen?", query_key_not_frozen)
+                        
+        
+    # def forward(
+    #     self, src_tokens, src_lengths, tgt_tokens, alignments, update_num,
+    #     pretrained_lm=None, lm_loss_layer=-1, upsampling_rate=2.0, **kwargs
+    # ):  
+    #     print("======debug======")
+        
+    #     # Check if query and key layers are not frozen
+    #     query_key_not_frozen = any(
+    #         param.requires_grad
+    #         for layer in self.translator.bert.encoder.layer
+    #         for name, param in layer.attention.named_parameters()
+    #         if "query" in name or "key" in name
+    #     )
+
+    #     print("Are query and key layers not frozen?", query_key_not_frozen)
+
+
+
+    #     # Check if all parameters except query and key layers are frozen
+    #     only_query_key_not_frozen = all(
+    #         ((("query" in name or "key" in name) and param.requires_grad) or
+    #         (("query" not in name and "key" not in name) and not param.requires_grad))
+    #         for name, param in self.translator.named_parameters()
+    #     )   
+
+
+    #     print("Are all parameters except query and key layers frozen?", only_query_key_not_frozen)
+        
+    #     frozen_params = [name for name, param in  self.translator.named_parameters() if not param.requires_grad]
+
+    #     print("Frozen parameter names:", frozen_params)        
+    #     import pdb;pdb.set_trace()
+
+
+        
+    #     return super().forward( 
+    #     self, src_tokens, src_lengths, tgt_tokens, alignments, update_num,
+    #     pretrained_lm=None, lm_loss_layer=-1, upsampling_rate=2.0, **kwargs
+    #     )
+                   
+    
+@register_model_architecture(
+    "ctcpmlm_low_rate_finetune", "ctcpmlm_low_rate_finetune"
+)   
+def ctcpmlm_low_rate_finetune(args):
+    base_architecture(args)          
+    
